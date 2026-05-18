@@ -5,148 +5,226 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Galli, Santin — f(x) XR</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@700;800&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
 
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       body, html {
         width: 100%; height: 100%;
         overflow: hidden;
-        background: #050a18;
-        color: #d6eeff;
-        font-family: 'IBM Plex Mono', monospace;
+        background: #04080f;
+        color: #c8dff8;
+        font-family: 'JetBrains Mono', monospace;
       }
 
-      /* ─── PANEL ───────────────────────────────────────── */
+      /* ══════════════════════════════════════════
+         PANEL
+      ══════════════════════════════════════════ */
       #panel {
         position: absolute;
-        left: 1rem; top: 1rem;
-        width: 320px;
+        left: 1.1rem; top: 1.1rem;
+        width: 300px;
         z-index: 10;
-        background: rgba(3, 9, 22, 0.86);
-        border: 1px solid rgba(90, 228, 255, 0.14);
-        border-radius: 14px;
-        padding: 1rem 1.1rem 1.1rem;
-        backdrop-filter: blur(20px) saturate(1.5);
+        border-radius: 16px;
+        overflow: hidden;
+        /* layered border trick */
+        background:
+          linear-gradient(135deg, rgba(40,120,220,0.08) 0%, rgba(10,30,70,0.0) 60%),
+          rgba(5, 11, 26, 0.9);
+        border: 1px solid rgba(80, 180, 255, 0.18);
+        backdrop-filter: blur(24px) saturate(1.6);
         box-shadow:
-          0 0 0 1px rgba(90,228,255,0.04) inset,
-          0 4px 32px rgba(0,0,0,0.6),
-          0 0 48px rgba(90,228,255,0.05);
+          0 0 0 1px rgba(120,210,255,0.06) inset,
+          0 8px 40px rgba(0,0,0,0.7),
+          0 0 60px rgba(60,160,255,0.06);
       }
 
-      /* header */
-      .ph {
-        display: flex; align-items: baseline; gap: 0.45rem;
-        padding-bottom: 0.7rem;
-        border-bottom: 1px solid rgba(90,228,255,0.1);
-        margin-bottom: 0.85rem;
+      /* top accent bar */
+      #panel::before {
+        content: '';
+        display: block;
+        height: 2px;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          #3af 18%,
+          #7af 40%,
+          #f6a 65%,
+          #fd6 85%,
+          transparent 100%);
+        opacity: 0.7;
       }
+
+      .panel-inner { padding: 0.9rem 1rem 1rem; }
+
+      /* ── header ── */
+      .ph {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 0.8rem;
+      }
+      .ph-left { display: flex; flex-direction: column; gap: 0.05rem; }
       .ph-title {
-        font-family: 'Syne', sans-serif;
-        font-weight: 800; font-size: 0.95rem;
-        color: #5ae4ff; letter-spacing: 0.02em;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700; font-size: 0.88rem;
+        color: #7dd6ff; letter-spacing: 0.03em;
+        text-transform: uppercase;
       }
       .ph-sub {
-        font-size: 0.68rem;
-        color: rgba(214,238,255,0.4);
+        font-size: 0.62rem;
+        color: rgba(140,190,240,0.45);
+        letter-spacing: 0.06em;
+      }
+      /* live indicator */
+      .live-dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #3f6;
+        box-shadow: 0 0 6px #3f6;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.5; transform: scale(0.75); }
       }
 
-      /* f(x) row */
+      /* ── section label ── */
+      .sec-label {
+        font-size: 0.58rem; letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(100,160,220,0.45);
+        margin-bottom: 0.42rem;
+        margin-top: 0.72rem;
+      }
+
+      /* ── f(x) input ── */
       .fx-row {
-        display: flex; align-items: center; gap: 0.4rem;
-        margin-bottom: 0.35rem;
+        display: flex; align-items: center; gap: 0.38rem;
       }
       .fx-lbl {
-        font-family: 'Syne', sans-serif;
-        font-weight: 700; font-size: 0.82rem;
-        color: #ffd95a; white-space: nowrap; flex-shrink: 0;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700; font-size: 0.78rem;
+        color: #fad85a; flex-shrink: 0;
+        letter-spacing: 0.01em;
       }
       #fxInput {
         flex: 1; min-width: 0;
-        background: rgba(90,228,255,0.06);
-        border: 1px solid rgba(90,228,255,0.2);
-        border-radius: 7px;
-        padding: 0.35rem 0.6rem;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.82rem;
-        color: #d6eeff; outline: none;
-        transition: border-color .2s, box-shadow .2s;
+        background: rgba(50,120,220,0.08);
+        border: 1px solid rgba(80,160,255,0.22);
+        border-radius: 8px;
+        padding: 0.32rem 0.55rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        color: #e8f4ff; outline: none;
+        transition: border-color .18s, box-shadow .18s;
+        caret-color: #7dd6ff;
       }
       #fxInput:focus {
-        border-color: #5ae4ff;
-        box-shadow: 0 0 0 3px rgba(90,228,255,0.1);
+        border-color: rgba(100,200,255,0.5);
+        box-shadow: 0 0 0 3px rgba(80,180,255,0.1);
       }
       #applyBtn {
         flex-shrink: 0;
-        background: #5ae4ff; color: #02060f;
-        border: none; border-radius: 7px;
-        padding: 0.35rem 0.65rem;
-        font-family: 'Syne', sans-serif;
-        font-weight: 800; font-size: 0.72rem;
-        cursor: pointer; letter-spacing: 0.05em;
-        transition: opacity .15s, transform .1s;
+        background: linear-gradient(135deg, #3af 0%, #29e 100%);
+        color: #02060f;
+        border: none; border-radius: 8px;
+        padding: 0.32rem 0.6rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700; font-size: 0.68rem;
+        cursor: pointer; letter-spacing: 0.06em;
+        text-transform: uppercase;
+        transition: opacity .15s, transform .1s, box-shadow .15s;
+        box-shadow: 0 2px 10px rgba(60,170,255,0.3);
       }
-      #applyBtn:hover { opacity: 0.82; }
-      #applyBtn:active { transform: scale(0.95); }
+      #applyBtn:hover { opacity: 0.88; box-shadow: 0 2px 14px rgba(60,170,255,0.5); }
+      #applyBtn:active { transform: scale(0.94); }
 
       #fxError {
-        font-size: 0.7rem; color: #ff6b9d;
-        height: 0.9rem; margin-bottom: 0.5rem;
-        padding-left: 0.2rem;
+        font-size: 0.66rem; color: #ff7aac;
+        min-height: 0.85rem; margin-top: 0.28rem;
+        padding-left: 0.1rem;
       }
 
-      /* divider */
-      .div { height: 1px; background: rgba(90,228,255,0.09); margin: 0.7rem 0; }
-
-      /* slider rows */
+      /* ── sliders ── */
       .sr {
         display: grid;
-        grid-template-columns: 28px 1fr 52px;
-        gap: 0.45rem; align-items: center;
-        margin-bottom: 0.55rem;
+        grid-template-columns: 22px 1fr 46px;
+        gap: 0.4rem; align-items: center;
+        margin-bottom: 0.48rem;
       }
-      .sr:last-child { margin-bottom: 0; }
+      .sr:last-of-type { margin-bottom: 0; }
+
       .sn {
-        font-family: 'Syne', sans-serif;
-        font-weight: 800; font-size: 0.82rem;
-        text-align: center; line-height: 1;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700; font-size: 0.76rem;
+        text-align: center;
       }
-      .sn.a { color: #5ae4ff; }
-      .sn.b { color: #ff6b9d; }
-      .sn.x { color: #ffd95a; }
+      .sn.a  { color: #5ae4ff; text-shadow: 0 0 8px rgba(90,228,255,0.6); }
+      .sn.b  { color: #ff7aac; text-shadow: 0 0 8px rgba(255,122,172,0.6); }
+      .sn.xo { color: #fad85a; text-shadow: 0 0 8px rgba(250,216,90,0.6); }
+
       .sv {
-        font-size: 0.75rem; text-align: right;
-        color: rgba(214,238,255,0.5);
+        font-size: 0.7rem; text-align: right;
+        color: rgba(180,220,255,0.5);
         font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
       }
 
-      /* range shared */
       input[type='range'] {
         -webkit-appearance: none; appearance: none;
-        width: 100%; height: 4px; border-radius: 2px;
-        background: #0d2340; outline: none; cursor: pointer;
+        width: 100%; height: 3px; border-radius: 2px;
+        background: rgba(30,70,140,0.6);
+        outline: none; cursor: pointer;
       }
 
-      /* A – cyan */
-      #aSlider::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:#5ae4ff; box-shadow:0 0 8px rgba(90,228,255,0.6); }
-      #aSlider::-moz-range-thumb     { width:15px; height:15px; border-radius:50%; background:#5ae4ff; border:none; box-shadow:0 0 8px rgba(90,228,255,0.6); }
+      #aSlider { background: linear-gradient(90deg, rgba(90,228,255,0.35) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
+      #bSlider { background: linear-gradient(90deg, rgba(255,122,172,0.35) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
+      #xSlider { background: linear-gradient(90deg, rgba(250,216,90,0.35) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
 
-      /* B – pink */
-      #bSlider::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:#ff6b9d; box-shadow:0 0 8px rgba(255,107,157,0.6); }
-      #bSlider::-moz-range-thumb     { width:15px; height:15px; border-radius:50%; background:#ff6b9d; border:none; box-shadow:0 0 8px rgba(255,107,157,0.6); }
+      #aSlider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#5ae4ff; box-shadow:0 0 6px rgba(90,228,255,0.7), 0 0 14px rgba(90,228,255,0.3); }
+      #aSlider::-moz-range-thumb     { width:13px; height:13px; border-radius:50%; background:#5ae4ff; border:none; box-shadow:0 0 6px rgba(90,228,255,0.7); }
 
-      /* X – yellow */
-      #xSlider::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:#ffd95a; box-shadow:0 0 8px rgba(255,217,90,0.6); }
-      #xSlider::-moz-range-thumb     { width:15px; height:15px; border-radius:50%; background:#ffd95a; border:none; box-shadow:0 0 8px rgba(255,217,90,0.6); }
+      #bSlider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#ff7aac; box-shadow:0 0 6px rgba(255,122,172,0.7), 0 0 14px rgba(255,122,172,0.3); }
+      #bSlider::-moz-range-thumb     { width:13px; height:13px; border-radius:50%; background:#ff7aac; border:none; box-shadow:0 0 6px rgba(255,122,172,0.7); }
 
-      /* hint */
+      #xSlider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#fad85a; box-shadow:0 0 6px rgba(250,216,90,0.7), 0 0 14px rgba(250,216,90,0.3); }
+      #xSlider::-moz-range-thumb     { width:13px; height:13px; border-radius:50%; background:#fad85a; border:none; box-shadow:0 0 6px rgba(250,216,90,0.7); }
+
+      /* ── divider ── */
+      .div {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(80,160,255,0.15), transparent);
+        margin: 0.65rem 0;
+      }
+
+      /* ── hint ── */
       .hint {
-        font-size: 0.68rem;
-        color: rgba(214,238,255,0.35);
-        line-height: 1.6;
+        font-size: 0.62rem;
+        color: rgba(140,180,230,0.32);
+        line-height: 1.65;
         margin-top: 0.6rem;
       }
-      .hint b { color: rgba(90,228,255,0.7); font-weight: 400; }
+      .hint b { color: rgba(120,210,255,0.55); font-weight: 500; }
+
+      /* ── examples ── */
+      .examples {
+        display: flex; flex-wrap: wrap; gap: 0.28rem;
+        margin-top: 0.5rem;
+      }
+      .ex-chip {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        padding: 0.18rem 0.45rem;
+        background: rgba(50,120,220,0.1);
+        border: 1px solid rgba(80,160,255,0.16);
+        border-radius: 4px;
+        color: rgba(160,210,255,0.55);
+        cursor: pointer;
+        transition: background .15s, color .15s, border-color .15s;
+        user-select: none;
+      }
+      .ex-chip:hover {
+        background: rgba(60,140,255,0.18);
+        color: #9dd4ff;
+        border-color: rgba(100,180,255,0.3);
+      }
 
       canvas { display: block; }
     </style>
@@ -154,40 +232,64 @@
   <body>
 
     <div id="panel">
-      <div class="ph">
-        <span class="ph-title">f(x) Explorer XR</span>
-        <span class="ph-sub">Galli, Santin</span>
-      </div>
+      <div class="panel-inner">
 
-      <div class="fx-row">
-        <span class="fx-lbl">f(x) =</span>
-        <input id="fxInput" type="text" value="2*x - 1/x" spellcheck="false" autocomplete="off" />
-        <button id="applyBtn">PLOT</button>
-      </div>
-      <div id="fxError"></div>
+        <div class="ph">
+          <div class="ph-left">
+            <span class="ph-title">f(x) Explorer XR</span>
+            <span class="ph-sub">Galli &amp; Santin</span>
+          </div>
+          <div class="live-dot" title="live update"></div>
+        </div>
 
-      <div class="sr">
-        <span class="sn a">A</span>
-        <input type="range" id="aSlider" min="-10" max="10" step="0.1" value="1" />
-        <span class="sv" id="aValue">1.0</span>
-      </div>
-      <div class="sr">
-        <span class="sn b">B</span>
-        <input type="range" id="bSlider" min="-10" max="10" step="0.1" value="1" />
-        <span class="sv" id="bValue">1.0</span>
-      </div>
+        <!-- f(x) formula -->
+        <div class="sec-label">Formula</div>
+        <div class="fx-row">
+          <span class="fx-lbl">f(x)=</span>
+          <input id="fxInput" type="text" value="2*x - 1/x" spellcheck="false" autocomplete="off" />
+          <button id="applyBtn">PLOT</button>
+        </div>
+        <div id="fxError"></div>
 
-      <div class="div"></div>
+        <!-- examples -->
+        <div class="examples">
+          <span class="ex-chip" data-fx="A*sin(B*x)">A·sin(B·x)</span>
+          <span class="ex-chip" data-fx="A*x^2 + B">A·x²+B</span>
+          <span class="ex-chip" data-fx="sin(A*x)/x">sin(A·x)/x</span>
+          <span class="ex-chip" data-fx="A*cos(x) + B*sin(2*x)">cos+sin</span>
+          <span class="ex-chip" data-fx="2*x - 1/x">2x−1/x</span>
+        </div>
 
-      <div class="sr">
-        <span class="sn x">x&#8596;</span>
-        <input type="range" id="xSlider" min="-31.4" max="31.4" step="0.1" value="0" />
-        <span class="sv" id="xValue">0.0</span>
-      </div>
+        <div class="div"></div>
 
-      <div class="hint">
-        Usa <b>A</b> e <b>B</b> nella formula &mdash; es. <b>A*sin(B*x)</b><br>
-        VR: trigger &rarr; ruota/trasla &nbsp;&middot;&nbsp; slider 3D &rarr; x offset
+        <!-- A, B sliders -->
+        <div class="sec-label">Parametri dinamici</div>
+        <div class="sr">
+          <span class="sn a">A</span>
+          <input type="range" id="aSlider" min="-10" max="10" step="0.1" value="1" />
+          <span class="sv" id="aValue">1.0</span>
+        </div>
+        <div class="sr">
+          <span class="sn b">B</span>
+          <input type="range" id="bSlider" min="-10" max="10" step="0.1" value="1" />
+          <span class="sv" id="bValue">1.0</span>
+        </div>
+
+        <div class="div"></div>
+
+        <!-- X offset -->
+        <div class="sec-label">Offset x</div>
+        <div class="sr">
+          <span class="sn xo">x</span>
+          <input type="range" id="xSlider" min="-31.4" max="31.4" step="0.1" value="0" />
+          <span class="sv" id="xValue">0.0</span>
+        </div>
+
+        <div class="hint">
+          <b>A</b> e <b>B</b> sono parametri live nella formula.<br>
+          VR: trigger → ruota/trasla · slider 3D → offset x
+        </div>
+
       </div>
     </div>
 
@@ -195,7 +297,7 @@
       import * as THREE from './vendor/three/build/three.module.js';
       import { VRButton } from './vendor/three/examples/jsm/webxr/VRButton.js';
 
-      /* ── renderer ── */
+      /* ══ RENDERER ══════════════════════════════════════════ */
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -204,53 +306,55 @@
       document.body.appendChild(renderer.domElement);
       document.body.appendChild(VRButton.createButton(renderer));
 
-      /* ── scene ── */
+      /* ══ SCENE ═════════════════════════════════════════════ */
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x050a18);
+      scene.background = new THREE.Color(0x04080f);
 
       const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
       camera.position.set(0, 1.8, 4);
 
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x202035, 0.9));
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      scene.add(new THREE.HemisphereLight(0xaaccff, 0x101828, 0.85));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
       dirLight.position.set(5, 7, 5);
       scene.add(dirLight);
 
-      /* ── floor / grid ── */
+      /* ── floor ── */
       const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(10, 10),
-        new THREE.MeshStandardMaterial({ color: 0x081025, roughness: 0.95, metalness: 0.05 })
+        new THREE.MeshStandardMaterial({ color: 0x060e1e, roughness: 0.97, metalness: 0.0 })
       );
       floor.rotation.x = -Math.PI / 2;
-      floor.position.y = 0;
       scene.add(floor);
 
-      const grid = new THREE.GridHelper(8, 16, 0x204b8a, 0x10203a);
+      /* ── subtle grid ── */
+      const grid = new THREE.GridHelper(8, 20, 0x162a50, 0x0c1a34);
       grid.position.y = 0.001;
       scene.add(grid);
 
-      /* ── axes group ── */
-      const axesGroup = new THREE.Group();
-      axesGroup.position.set(0, 1.25, -0.5);
-      scene.add(axesGroup);
-
-      /* ── state ── */
+      /* ══ STATE ═════════════════════════════════════════════ */
       let fxCurve = null;
       let xOffset = 0;
       let paramA  = 1;
       let paramB  = 1;
       let fxExpr  = '2*x - 1/x';
 
-      createAxes();
-      fxCurve = createFxCurve(xOffset);
+      /* ══ AXES GROUP (smaller — scale 0.7) ════════════════ */
+      const axesGroup = new THREE.Group();
+      axesGroup.position.set(0, 1.2, -0.4);
+      axesGroup.scale.setScalar(0.7);   /* ← overall size reduction */
+      scene.add(axesGroup);
 
+      createAxes();
+      fxCurve = createFxCurve();
+
+      /* ══ VR SLIDER ══════════════════════════════════════════ */
       const sliderGroup = createVRSlider();
       scene.add(sliderGroup);
 
+      /* ══ CONTROLLERS (original logic) ══════════════════════ */
       const controllers = [createController(0), createController(1)];
       controllers.forEach(c => scene.add(c));
 
-      /* ── controller state (original) ── */
       const raycaster           = new THREE.Raycaster();
       const tempMatrix          = new THREE.Matrix4();
       let   selectedController  = null;
@@ -262,7 +366,7 @@
       let   sliderStartX        = 0;
       let   sliderStartOffset   = 0;
 
-      /* ── DOM refs ── */
+      /* ══ DOM EVENTS ════════════════════════════════════════ */
       const xSlider = document.getElementById('xSlider');
       const xValue  = document.getElementById('xValue');
       const aSlider = document.getElementById('aSlider');
@@ -270,9 +374,17 @@
       const bSlider = document.getElementById('bSlider');
       const bValue  = document.getElementById('bValue');
 
+      function syncSliderBg(el) {
+        const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+        const pct = ((val - min) / (max - min) * 100).toFixed(1) + '%';
+        el.style.setProperty('--pct', pct);
+      }
+      [aSlider, bSlider, xSlider].forEach(s => syncSliderBg(s));
+
       xSlider.addEventListener('input', e => {
         xOffset = parseFloat(e.target.value);
         xValue.textContent = xOffset.toFixed(1);
+        syncSliderBg(e.target);
         updateFxCurve();
         updateSliderThumb();
       });
@@ -280,25 +392,35 @@
       aSlider.addEventListener('input', e => {
         paramA = parseFloat(e.target.value);
         aValue.textContent = paramA.toFixed(1);
+        syncSliderBg(e.target);
         updateFxCurve();
       });
 
       bSlider.addEventListener('input', e => {
         paramB = parseFloat(e.target.value);
         bValue.textContent = paramB.toFixed(1);
+        syncSliderBg(e.target);
         updateFxCurve();
       });
 
       document.getElementById('applyBtn').addEventListener('click', applyFx);
       document.getElementById('fxInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFx(); });
 
+      /* example chips */
+      document.querySelectorAll('.ex-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.getElementById('fxInput').value = chip.dataset.fx;
+          applyFx();
+        });
+      });
+
       window.addEventListener('resize', onWindowResize);
       renderer.setAnimationLoop(render);
 
-      /* ── f(x) compile ── */
+      /* ══ f(x) COMPILE ══════════════════════════════════════ */
       function buildEval(expr) {
         const e = expr
-          .replace(/\^/g, '**')
+          .replace(/\^/g,      '**')
           .replace(/\bsin\b/g,  'Math.sin')
           .replace(/\bcos\b/g,  'Math.cos')
           .replace(/\btan\b/g,  'Math.tan')
@@ -314,154 +436,182 @@
 
       function applyFx() {
         const raw = document.getElementById('fxInput').value.trim();
-        const err = document.getElementById('fxError');
+        const errEl = document.getElementById('fxError');
         if (!raw) return;
         try {
-          buildEval(raw)(0, 1, 1);
-          err.textContent = '';
+          buildEval(raw)(1, paramA, paramB); /* test call */
+          errEl.textContent = '';
           fxExpr = raw;
           updateFxCurve();
         } catch (_) {
-          err.textContent = '\u26a0 espressione non valida';
+          errEl.textContent = '\u26a0 espressione non valida';
         }
       }
 
-      /* ── curve helpers ── */
+      /* ══ CURVE ══════════════════════════════════════════════ */
       function updateFxCurve() {
-        if (fxCurve) axesGroup.remove(fxCurve);
-        fxCurve = createFxCurve(xOffset);
+        if (fxCurve) { axesGroup.remove(fxCurve); fxCurve = null; }
+        fxCurve = createFxCurve();
       }
 
       function updateSliderThumb() {
         const thumb = sliderGroup.getObjectByName('sliderThumb');
         if (!thumb) return;
-        const normalizedValue = (xOffset - (-31.4)) / (62.8);
-        thumb.position.x = -3.14 + normalizedValue * 6.28;
+        const norm = (xOffset - (-31.4)) / 62.8;
+        thumb.position.x = -3.14 + norm * 6.28;
       }
 
-      /* ── VR slider (original) ── */
+      function createFxCurve() {
+        let fn;
+        try { fn = buildEval(fxExpr); } catch (_) { return null; }
+
+        const points   = [];
+        const segments = [];          /* break curve at discontinuities */
+        let   seg      = [];
+
+        const start = -Math.PI * 4;
+        const end   =  Math.PI * 4;
+        const step  = 0.05;
+        const SCALE_X = 0.3;
+        const SCALE_Y = 0.55;
+        const CLAMP   = 5.0;          /* world-units, after scaling */
+
+        for (let t = start; t <= end + step * 0.5; t += step) {
+          const x = t + xOffset;
+          let y;
+          try {
+            y = fn(x, paramA, paramB);
+          } catch (_) { y = NaN; }
+
+          if (!isFinite(y) || Math.abs(y * SCALE_Y) > CLAMP) {
+            if (seg.length > 1) segments.push(seg);
+            seg = [];
+          } else {
+            seg.push(new THREE.Vector3(x * SCALE_X, y * SCALE_Y, 0));
+          }
+        }
+        if (seg.length > 1) segments.push(seg);
+
+        /* each continuous segment = one Line */
+        const group = new THREE.Group();
+        const mat   = new THREE.LineBasicMaterial({ color: 0xffdd55, linewidth: 2 });
+        segments.forEach(pts => {
+          const geo   = new THREE.BufferGeometry().setFromPoints(pts);
+          group.add(new THREE.Line(geo, mat));
+        });
+        group.position.y = 0.01;
+        axesGroup.add(group);
+        return group;
+      }
+
+      /* ══ AXES ═══════════════════════════════════════════════ */
+      function createAxes() {
+        const length    = 3.0;
+        const thickness = 0.025;
+
+        /* axis materials – coloured per axis */
+        const mX = new THREE.MeshStandardMaterial({ color: 0x5ae4ff, roughness:0.3, metalness:0.3, emissive:0x1a5070, emissiveIntensity:0.4 });
+        const mY = new THREE.MeshStandardMaterial({ color: 0x7affa0, roughness:0.3, metalness:0.3, emissive:0x105030, emissiveIntensity:0.4 });
+        const mZ = new THREE.MeshStandardMaterial({ color: 0xff7aac, roughness:0.3, metalness:0.3, emissive:0x501030, emissiveIntensity:0.4 });
+
+        /* cylinders */
+        const xCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mX);
+        xCyl.rotation.z = -Math.PI / 2; xCyl.position.x = length / 2;
+        axesGroup.add(xCyl);
+
+        const yCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mY);
+        yCyl.position.y = length / 2;
+        axesGroup.add(yCyl);
+
+        const zCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mZ);
+        zCyl.rotation.x = Math.PI / 2; zCyl.position.z = length / 2;
+        axesGroup.add(zCyl);
+
+        /* cones */
+        const cone = new THREE.ConeGeometry(0.07, 0.22, 16);
+        const xArr = new THREE.Mesh(cone, mX); xArr.rotation.z = -Math.PI/2; xArr.position.set(length, 0, 0);
+        const yArr = new THREE.Mesh(cone, mY); yArr.position.set(0, length, 0);
+        const zArr = new THREE.Mesh(cone, mZ); zArr.rotation.x =  Math.PI/2; zArr.position.set(0, 0, length);
+        axesGroup.add(xArr, yArr, zArr);
+
+        /* tick marks on X axis */
+        for (let i = -4; i <= 4; i++) {
+          if (i === 0) continue;
+          const tick = new THREE.Mesh(
+            new THREE.BoxGeometry(0.015, 0.1, 0.015),
+            new THREE.MeshStandardMaterial({ color: 0x3a7088, roughness: 0.6 })
+          );
+          tick.position.set(i * 0.3 * 3.14 / 4, 0, 0); /* map ticks to π fractions */
+          axesGroup.add(tick);
+        }
+
+        /* labels */
+        axesGroup.add(createLabel('X', length + 0.2,  0,           0,          '#7ae4ff'));
+        axesGroup.add(createLabel('Y', 0,             length + 0.2, 0,          '#7affaa'));
+        axesGroup.add(createLabel('Z', 0,             0,            length+0.2, '#ff9abc'));
+      }
+
+      function createLabel(text, x, y, z, color) {
+        const cv  = document.createElement('canvas');
+        cv.width  = 128; cv.height = 64;
+        const ctx = cv.getContext('2d');
+        ctx.clearRect(0, 0, 128, 64);
+        ctx.font = 'bold 48px system-ui';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = color || '#c8f4ff';
+        ctx.fillText(text, 64, 34);
+        const tex = new THREE.CanvasTexture(cv);
+        tex.encoding = THREE.sRGBEncoding;
+        const mesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.28, 0.14),
+          new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+        );
+        mesh.position.set(x, y, z);
+        mesh.lookAt(camera.position);
+        return mesh;
+      }
+
+      /* ══ VR SLIDER (original logic intact) ════════════════ */
       function createVRSlider() {
         const group = new THREE.Group();
         group.position.set(0, 0.5, 0.2);
 
-        const trackGeometry = new THREE.BoxGeometry(6.28, 0.06, 0.06);
-        const trackMaterial = new THREE.MeshStandardMaterial({ color: 0x1a3a5c, roughness: 0.8, metalness: 0.2 });
-        const track = new THREE.Mesh(trackGeometry, trackMaterial);
+        const track = new THREE.Mesh(
+          new THREE.BoxGeometry(6.28, 0.06, 0.06),
+          new THREE.MeshStandardMaterial({ color: 0x163050, roughness: 0.8, metalness: 0.2 })
+        );
         track.name = 'sliderTrack';
         group.add(track);
 
-        const thumbGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.15);
-        const thumbMaterial = new THREE.MeshStandardMaterial({
-          color: 0xffd95a, roughness: 0.3, metalness: 0.6,
-          emissive: 0xffd95a, emissiveIntensity: 0.3
-        });
-        const thumb = new THREE.Mesh(thumbGeometry, thumbMaterial);
+        const thumb = new THREE.Mesh(
+          new THREE.BoxGeometry(0.2, 0.15, 0.15),
+          new THREE.MeshStandardMaterial({
+            color: 0xfad85a, roughness: 0.3, metalness: 0.6,
+            emissive: 0xfad85a, emissiveIntensity: 0.35
+          })
+        );
         thumb.name = 'sliderThumb';
-        thumb.position.x = 0;
         group.add(thumb);
 
         return group;
       }
 
-      /* ── axes (original logic) ── */
-      function createAxes() {
-        const material = new THREE.MeshStandardMaterial({ color: 0x88c8ff, roughness: 0.3, metalness: 0.2 });
-        const length = 2.5;
-        const thickness = 0.022;
-
-        const xAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material);
-        xAxis.rotation.z = -Math.PI / 2; xAxis.position.x = length / 2;
-        axesGroup.add(xAxis);
-
-        const yAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material);
-        yAxis.position.y = length / 2;
-        axesGroup.add(yAxis);
-
-        const zAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material);
-        zAxis.rotation.x = Math.PI / 2; zAxis.position.z = length / 2;
-        axesGroup.add(zAxis);
-
-        const arrow = new THREE.ConeGeometry(0.065, 0.2, 16);
-
-        const xArrow = new THREE.Mesh(arrow, material);
-        xArrow.rotation.z = -Math.PI / 2; xArrow.position.set(length, 0, 0);
-        axesGroup.add(xArrow);
-
-        const yArrow = new THREE.Mesh(arrow, material);
-        yArrow.position.set(0, length, 0);
-        axesGroup.add(yArrow);
-
-        const zArrow = new THREE.Mesh(arrow, material);
-        zArrow.rotation.x = Math.PI / 2; zArrow.position.set(0, 0, length);
-        axesGroup.add(zArrow);
-
-        axesGroup.add(createLabel('X', length + 0.18, 0, 0));
-        axesGroup.add(createLabel('Y', 0, length + 0.18, 0));
-        axesGroup.add(createLabel('Z', 0, 0, length + 0.18));
-      }
-
-      function createLabel(text, x, y, z) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 256; canvas.height = 128;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(5,9,24,0.0)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = 'bold 70px system-ui, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ccf6ff';
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
-        const label = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.32, 0.16),
-          new THREE.MeshBasicMaterial({ map: texture, transparent: true })
-        );
-        label.position.set(x, y, z);
-        label.lookAt(camera.position);
-        return label;
-      }
-
-      /* ── curve generation ── */
-      function createFxCurve(xOff) {
-        let fn;
-        try { fn = buildEval(fxExpr); } catch (_) { return null; }
-
-        const points = [];
-        const start = -Math.PI * 4, end = Math.PI * 4, step = 0.08;
-        for (let x = start; x <= end; x += step) {
-          const adjustedX = x + xOff;
-          let y = 0;
-          try {
-            y = fn(adjustedX, paramA, paramB);
-            if (!isFinite(y) || Math.abs(y) > 500) y = 0;
-          } catch (_) { y = 0; }
-          points.push(new THREE.Vector3(adjustedX * 0.28, y * 0.7, 0));
-        }
-
-        const curveGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        const curveMaterial = new THREE.LineBasicMaterial({ color: 0xffd568, linewidth: 2 });
-        const curve = new THREE.Line(curveGeometry, curveMaterial);
-        curve.position.y = 0.02;
-        axesGroup.add(curve);
-        return curve;
-      }
-
-      /* ── controllers (original) ── */
+      /* ══ CONTROLLERS (original) ════════════════════════════ */
       function createController(index) {
         const controller = renderer.xr.getController(index);
         controller.addEventListener('selectstart', onSelectStart);
-        controller.addEventListener('selectend', onSelectEnd);
+        controller.addEventListener('selectend',   onSelectEnd);
 
         const ray = new THREE.Line(
           new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
-          new THREE.LineBasicMaterial({ color: 0x88c8ff })
+          new THREE.LineBasicMaterial({ color: 0x5ae4ff })
         );
         ray.name = 'ray'; ray.scale.z = 6;
         controller.add(ray);
 
         const pointer = new THREE.Mesh(
           new THREE.SphereGeometry(0.015, 16, 12),
-          new THREE.MeshBasicMaterial({ color: 0x88c8ff, opacity: 0.9, transparent: true })
+          new THREE.MeshBasicMaterial({ color: 0x5ae4ff, opacity: 0.9, transparent: true })
         );
         pointer.position.set(0, 0, -1);
         controller.add(pointer);
@@ -470,37 +620,33 @@
       }
 
       function onSelectStart(event) {
-        const controller = event.target;
+        const controller   = event.target;
         const intersections = getControllerIntersections(controller);
-        if (intersections.length) {
-          const hitObject = intersections[0].object;
-          if (hitObject.name === 'sliderThumb' || hitObject.name === 'sliderTrack') {
-            selectedMode = 'slider';
-            selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartOffset = xOffset;
-          } else {
-            selectedMode = 'transform';
-            selectedController = controller;
-            controllerStartQuat.copy(controller.quaternion);
-            axesStartQuat.copy(axesGroup.quaternion);
-            controllerStartPos.setFromMatrixPosition(controller.matrixWorld);
-            axesStartPos.copy(axesGroup.position);
-          }
+        if (!intersections.length) return;
+        const hit = intersections[0].object;
+        if (hit.name === 'sliderThumb' || hit.name === 'sliderTrack') {
+          selectedMode       = 'slider';
+          selectedController = controller;
+          sliderStartX       = intersections[0].point.x;
+          sliderStartOffset  = xOffset;
+        } else {
+          selectedMode       = 'transform';
+          selectedController = controller;
+          controllerStartQuat.copy(controller.quaternion);
+          axesStartQuat.copy(axesGroup.quaternion);
+          controllerStartPos.setFromMatrixPosition(controller.matrixWorld);
+          axesStartPos.copy(axesGroup.position);
         }
       }
 
-      function onSelectEnd() {
-        selectedController = null;
-        selectedMode = null;
-      }
+      function onSelectEnd() { selectedController = null; selectedMode = null; }
 
       function getControllerIntersections(controller) {
         tempMatrix.identity().extractRotation(controller.matrixWorld);
         raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
         raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
         return raycaster.intersectObjects(sliderGroup.children, true)
-          .concat(raycaster.intersectObjects(axesGroup.children, true));
+                        .concat(raycaster.intersectObjects(axesGroup.children, true));
       }
 
       function onWindowResize() {
@@ -509,35 +655,34 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
       }
 
-      /* ── render loop (original) ── */
+      /* ══ RENDER LOOP (original) ════════════════════════════ */
       function render() {
         if (selectedController && selectedMode === 'transform') {
           const currentQuat = selectedController.quaternion.clone();
-          const deltaQuat = currentQuat.multiply(controllerStartQuat.clone().invert());
+          const deltaQuat   = currentQuat.multiply(controllerStartQuat.clone().invert());
           axesGroup.quaternion.copy(axesStartQuat).premultiply(deltaQuat);
-          const currentPos = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld);
-          const deltaPos = currentPos.clone().sub(controllerStartPos);
+          const currentPos  = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld);
+          const deltaPos    = currentPos.clone().sub(controllerStartPos);
           axesGroup.position.copy(axesStartPos).add(deltaPos);
+
         } else if (selectedController && selectedMode === 'slider') {
           tempMatrix.identity().extractRotation(selectedController.matrixWorld);
           raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
           raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-          const sliderIntersections = raycaster.intersectObjects(sliderGroup.children, true);
-          if (sliderIntersections.length) {
-            const currentX = sliderIntersections[0].point.x;
-            const deltaX = currentX - sliderStartX;
-            const minX = -3.14, maxX = 3.14;
-            const trackLength = maxX - minX;
-            const normalizedDelta = deltaX / trackLength;
-            const offsetRange = 31.4 - (-31.4);
-            xOffset = sliderStartOffset + normalizedDelta * offsetRange;
+          const hits = raycaster.intersectObjects(sliderGroup.children, true);
+          if (hits.length) {
+            const deltaX         = hits[0].point.x - sliderStartX;
+            const normalizedDelta = deltaX / 6.28;           /* track length */
+            xOffset = sliderStartOffset + normalizedDelta * 62.8;
             xOffset = Math.max(-31.4, Math.min(31.4, xOffset));
-            xSlider.value = xOffset;
-            xValue.textContent = xOffset.toFixed(1);
+            xSlider.value         = xOffset;
+            xValue.textContent    = xOffset.toFixed(1);
+            syncSliderBg(xSlider);
             updateFxCurve();
             updateSliderThumb();
           }
         }
+
         renderer.render(scene, camera);
       }
     </script>
