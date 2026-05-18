@@ -238,8 +238,14 @@
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x04080f);
 
+      // CREAZIONE CAMERA RIG (Necessario per muovere la telecamera in WebXR)
+      const cameraRig = new THREE.Group();
+      cameraRig.position.set(0, 0, 0);
+      scene.add(cameraRig);
+
       const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
       camera.position.set(0, 1.8, 4);
+      cameraRig.add(camera); // La camera viene inserita nel rig
 
       scene.add(new THREE.HemisphereLight(0xaaccff, 0x101828, 0.85));
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
@@ -397,12 +403,12 @@
       aSlider.addEventListener('input', e => { paramA = parseFloat(e.target.value); updateAllViews(); });
       bSlider.addEventListener('input', e => { paramB = parseFloat(e.target.value); updateAllViews(); });
 
-      /* Movimenti camera da schermo desktop/mobile */
-      const CAM_SPEED = 0.1;
-      document.getElementById('camUp').addEventListener('click', () => { camera.position.y += CAM_SPEED; });
-      document.getElementById('camDown').addEventListener('click', () => { camera.position.y -= CAM_SPEED; });
-      document.getElementById('camLeft').addEventListener('click', () => { camera.position.x -= CAM_SPEED; });
-      document.getElementById('camRight').addEventListener('click', () => { camera.position.x += CAM_SPEED; });
+      /* Movimenti camera applicati al Rig (Funzionano sia in 2D che in VR) */
+      const CAM_SPEED = 0.15;
+      document.getElementById('camUp').addEventListener('click', () => { cameraRig.position.y += CAM_SPEED; });
+      document.getElementById('camDown').addEventListener('click', () => { cameraRig.position.y -= CAM_SPEED; });
+      document.getElementById('camLeft').addEventListener('click', () => { cameraRig.position.x -= CAM_SPEED; });
+      document.getElementById('camRight').addEventListener('click', () => { cameraRig.position.x += CAM_SPEED; });
 
       document.getElementById('applyBtn').addEventListener('click', applyFx);
       document.getElementById('fxInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFx(); });
@@ -547,7 +553,7 @@
 
       /* ══ VR CONTROLLERS INTERACTION LOGIC ══════════════════ */
       const controllers = [createController(0), createController(1)];
-      controllers.forEach(c => scene.add(c));
+      controllers.forEach(c => cameraRig.add(c)); // I controller seguono il cameraRig
 
       const raycaster  = new THREE.Raycaster();
       const tempMatrix = new THREE.Matrix4();
@@ -577,7 +583,6 @@
         const intersects = raycaster.intersectObject(vrUiMesh);
         if (intersects.length > 0) {
           const uv = intersects[0].uv;
-          // Calcola la posizione esatta in pixel sul canvas VR (512x512)
           const cx = uv.x * 512;
           const cy = (1 - uv.y) * 512;
 
@@ -607,11 +612,11 @@
           updateAllViews();
         } 
         else if (activeBox.type === 'btn') {
-          // Spostamento effettivo della camera nello spazio virtuale
-          if (activeBox.dir === 'up') camera.position.y += CAM_SPEED;
-          if (activeBox.dir === 'down') camera.position.y -= CAM_SPEED;
-          if (activeBox.dir === 'left') camera.position.x -= CAM_SPEED;
-          if (activeBox.dir === 'right') camera.position.x += CAM_SPEED;
+          // Adesso muoviamo cameraRig invece della sola camera. Funziona perfettamente in VR!
+          if (activeBox.dir === 'up') cameraRig.position.y += CAM_SPEED;
+          if (activeBox.dir === 'down') cameraRig.position.y -= CAM_SPEED;
+          if (activeBox.dir === 'left') cameraRig.position.x -= CAM_SPEED;
+          if (activeBox.dir === 'right') cameraRig.position.x += CAM_SPEED;
           drawVrUi();
         }
       }
@@ -624,7 +629,6 @@
 
       /* ══ MAIN LOOP ═════════════════════════════════════════ */
       function render() {
-        // Gestione del trascinamento continuo degli slider dentro l'ambiente VR
         if (selectedController && activeBox && activeBox.type === 'slider') {
           tempMatrix.identity().extractRotation(selectedController.matrixWorld);
           raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
