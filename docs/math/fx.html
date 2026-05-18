@@ -1,690 +1,933 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Galli, Santin — f(x) XR</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galli, Santin — f(x) XR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #d6eaff;
+      --ink-dim:   rgba(160,200,255,0.38);
+      --ink-mute:  rgba(120,170,230,0.22);
+      --surface:   rgba(6, 13, 30, 0.92);
+      --border:    rgba(60, 140, 240, 0.18);
+      --accent-a:  #4fc3f7;
+      --accent-b:  #f472b6;
+      --accent-c:  #fbbf24;
+      --accent-ok: #34d399;
+      --r:         12px;
+    }
 
-      body, html {
-        width: 100%; height: 100%;
-        overflow: hidden;
-        background: #04080f;
-        color: #c8dff8;
-        font-family: 'JetBrains Mono', monospace;
-      }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #03060e;
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+    }
 
-      /* ══════════════════════════════════════════
-         PANEL
-      ══════════════════════════════════════════ */
-      #panel {
-        position: absolute;
-        left: 1.1rem; top: 1.1rem;
-        width: 300px;
-        z-index: 10;
-        border-radius: 16px;
-        overflow: hidden;
-        /* layered border trick */
-        background:
-          linear-gradient(135deg, rgba(40,120,220,0.08) 0%, rgba(10,30,70,0.0) 60%),
-          rgba(5, 11, 26, 0.9);
-        border: 1px solid rgba(80, 180, 255, 0.18);
-        backdrop-filter: blur(24px) saturate(1.6);
-        box-shadow:
-          0 0 0 1px rgba(120,210,255,0.06) inset,
-          0 8px 40px rgba(0,0,0,0.7),
-          0 0 60px rgba(60,160,255,0.06);
-      }
+    /* ── PANEL SHELL ─────────────────────────────── */
+    #panel {
+      position: absolute;
+      left: 1.25rem; top: 1.25rem;
+      width: 290px;
+      z-index: 10;
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(28px) saturate(1.5);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.65), 0 0 0 1px rgba(80,180,255,0.05) inset;
+    }
 
-      /* top accent bar */
-      #panel::before {
-        content: '';
-        display: block;
-        height: 2px;
-        background: linear-gradient(90deg,
-          transparent 0%,
-          #3af 18%,
-          #7af 40%,
-          #f6a 65%,
-          #fd6 85%,
-          transparent 100%);
-        opacity: 0.7;
-      }
+    /* spectrum top bar */
+    .panel-bar {
+      height: 3px;
+      background: linear-gradient(90deg,
+        transparent 0%, #4fc3f7 15%, #818cf8 38%, #f472b6 62%, #fbbf24 82%, transparent 100%);
+    }
 
-      .panel-inner { padding: 0.9rem 1rem 1rem; }
+    .panel-inner { padding: 1rem; }
 
-      /* ── header ── */
-      .ph {
-        display: flex; align-items: center; justify-content: space-between;
-        margin-bottom: 0.8rem;
-      }
-      .ph-left { display: flex; flex-direction: column; gap: 0.05rem; }
-      .ph-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700; font-size: 0.88rem;
-        color: #7dd6ff; letter-spacing: 0.03em;
-        text-transform: uppercase;
-      }
-      .ph-sub {
-        font-size: 0.62rem;
-        color: rgba(140,190,240,0.45);
-        letter-spacing: 0.06em;
-      }
-      /* live indicator */
-      .live-dot {
-        width: 7px; height: 7px; border-radius: 50%;
-        background: #3f6;
-        box-shadow: 0 0 6px #3f6;
-        animation: pulse 2s ease-in-out infinite;
-      }
-      @keyframes pulse {
-        0%,100% { opacity: 1; transform: scale(1); }
-        50%      { opacity: 0.5; transform: scale(0.75); }
-      }
+    /* ── HEADER ───────────────────────────────────── */
+    .ph {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .ph-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 0.82rem;
+      color: var(--accent-a);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      line-height: 1;
+    }
+    .ph-sub {
+      font-size: 0.6rem; color: var(--ink-dim);
+      letter-spacing: 0.1em; margin-top: 0.2rem;
+      text-transform: uppercase;
+    }
+    .live-pip {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent-ok);
+      box-shadow: 0 0 0 3px rgba(52,211,153,0.18);
+      margin-top: 3px; flex-shrink: 0;
+      animation: pip 2.4s ease-in-out infinite;
+    }
+    @keyframes pip {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
 
-      /* ── section label ── */
-      .sec-label {
-        font-size: 0.58rem; letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: rgba(100,160,220,0.45);
-        margin-bottom: 0.42rem;
-        margin-top: 0.72rem;
-      }
+    /* ── SECTION LABEL ────────────────────────────── */
+    .lbl {
+      font-size: 0.55rem; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--ink-dim);
+      margin-bottom: 0.45rem; margin-top: 0.8rem;
+      padding-left: 2px;
+    }
+    .lbl:first-of-type { margin-top: 0; }
 
-      /* ── f(x) input ── */
-      .fx-row {
-        display: flex; align-items: center; gap: 0.38rem;
-      }
-      .fx-lbl {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700; font-size: 0.78rem;
-        color: #fad85a; flex-shrink: 0;
-        letter-spacing: 0.01em;
-      }
-      #fxInput {
-        flex: 1; min-width: 0;
-        background: rgba(50,120,220,0.08);
-        border: 1px solid rgba(80,160,255,0.22);
-        border-radius: 8px;
-        padding: 0.32rem 0.55rem;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.78rem;
-        color: #e8f4ff; outline: none;
-        transition: border-color .18s, box-shadow .18s;
-        caret-color: #7dd6ff;
-      }
-      #fxInput:focus {
-        border-color: rgba(100,200,255,0.5);
-        box-shadow: 0 0 0 3px rgba(80,180,255,0.1);
-      }
-      #applyBtn {
-        flex-shrink: 0;
-        background: linear-gradient(135deg, #3af 0%, #29e 100%);
-        color: #02060f;
-        border: none; border-radius: 8px;
-        padding: 0.32rem 0.6rem;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700; font-size: 0.68rem;
-        cursor: pointer; letter-spacing: 0.06em;
-        text-transform: uppercase;
-        transition: opacity .15s, transform .1s, box-shadow .15s;
-        box-shadow: 0 2px 10px rgba(60,170,255,0.3);
-      }
-      #applyBtn:hover { opacity: 0.88; box-shadow: 0 2px 14px rgba(60,170,255,0.5); }
-      #applyBtn:active { transform: scale(0.94); }
+    /* ── FORMULA ROW ──────────────────────────────── */
+    .fx-wrap {
+      background: rgba(20,50,110,0.25);
+      border: 1px solid rgba(60,140,255,0.18);
+      border-radius: 8px;
+      padding: 0.55rem 0.7rem;
+    }
+    .fx-top {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem;
+    }
+    .fx-lbl {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 0.82rem; color: var(--accent-c); flex-shrink: 0;
+    }
+    #fxInput {
+      flex: 1; min-width: 0;
+      background: transparent;
+      border: none; border-bottom: 1px solid rgba(80,160,255,0.25);
+      border-radius: 0;
+      padding: 0.1rem 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem; color: var(--ink);
+      outline: none; caret-color: var(--accent-a);
+      transition: border-color .18s;
+    }
+    #fxInput:focus { border-bottom-color: var(--accent-a); }
 
-      #fxError {
-        font-size: 0.66rem; color: #ff7aac;
-        min-height: 0.85rem; margin-top: 0.28rem;
-        padding-left: 0.1rem;
-      }
+    #applyBtn {
+      width: 100%;
+      background: linear-gradient(90deg, rgba(79,195,247,0.15), rgba(129,140,248,0.12));
+      border: 1px solid rgba(79,195,247,0.3);
+      border-radius: 6px;
+      padding: 0.32rem 0;
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 0.62rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent-a);
+      cursor: pointer;
+      transition: background .18s, border-color .18s, transform .1s;
+    }
+    #applyBtn:hover {
+      background: linear-gradient(90deg, rgba(79,195,247,0.25), rgba(129,140,248,0.2));
+      border-color: rgba(79,195,247,0.55);
+    }
+    #applyBtn:active { transform: scale(0.97); }
 
-      /* ── sliders ── */
-      .sr {
-        display: grid;
-        grid-template-columns: 22px 1fr 46px;
-        gap: 0.4rem; align-items: center;
-        margin-bottom: 0.48rem;
-      }
-      .sr:last-of-type { margin-bottom: 0; }
+    #fxError {
+      font-size: 0.62rem; color: var(--accent-b);
+      min-height: 0.85rem; margin-top: 0.3rem; padding-left: 2px;
+    }
 
-      .sn {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700; font-size: 0.76rem;
-        text-align: center;
-      }
-      .sn.a  { color: #5ae4ff; text-shadow: 0 0 8px rgba(90,228,255,0.6); }
-      .sn.b  { color: #ff7aac; text-shadow: 0 0 8px rgba(255,122,172,0.6); }
-      .sn.xo { color: #fad85a; text-shadow: 0 0 8px rgba(250,216,90,0.6); }
+    /* ── CHIPS ────────────────────────────────────── */
+    .chips {
+      display: flex; flex-wrap: wrap; gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+    .chip {
+      font-size: 0.59rem;
+      padding: 0.16rem 0.42rem;
+      background: rgba(40,100,200,0.1);
+      border: 1px solid rgba(60,130,220,0.18);
+      border-radius: 4px;
+      color: var(--ink-dim);
+      cursor: pointer;
+      transition: background .14s, color .14s, border-color .14s;
+      user-select: none;
+    }
+    .chip:hover {
+      background: rgba(79,195,247,0.14);
+      color: var(--accent-a);
+      border-color: rgba(79,195,247,0.3);
+    }
 
-      .sv {
-        font-size: 0.7rem; text-align: right;
-        color: rgba(180,220,255,0.5);
-        font-variant-numeric: tabular-nums;
-        letter-spacing: -0.02em;
-      }
+    /* ── DIVIDER ──────────────────────────────────── */
+    .div {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(60,140,255,0.14), transparent);
+      margin: 0.8rem 0;
+    }
 
-      input[type='range'] {
-        -webkit-appearance: none; appearance: none;
-        width: 100%; height: 3px; border-radius: 2px;
-        background: rgba(30,70,140,0.6);
-        outline: none; cursor: pointer;
-      }
+    /* ── SLIDER ROWS ──────────────────────────────── */
+    .sr {
+      display: grid;
+      grid-template-columns: 18px 1fr 42px;
+      gap: 0.5rem; align-items: center;
+      margin-bottom: 0.52rem;
+    }
+    .sn {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 0.74rem; text-align: center;
+    }
+    .sn.a  { color: var(--accent-a); }
+    .sn.b  { color: var(--accent-b); }
+    .sn.xo { color: var(--accent-c); }
+    .sv {
+      font-size: 0.67rem; text-align: right;
+      color: var(--ink-dim);
+      font-variant-numeric: tabular-nums;
+    }
 
-      #aSlider { background: linear-gradient(90deg, rgba(90,228,255,0.35) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
-      #bSlider { background: linear-gradient(90deg, rgba(255,122,172,0.35) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
-      #xSlider { background: linear-gradient(90deg, rgba(250,216,90,0.35) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
+    input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 2px;
+      background: rgba(30,70,140,0.5);
+      border-radius: 2px; outline: none; cursor: pointer;
+    }
+    #aSlider { accent-color: var(--accent-a); }
+    #bSlider { accent-color: var(--accent-b); }
+    #xSlider { accent-color: var(--accent-c); }
 
-      #aSlider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#5ae4ff; box-shadow:0 0 6px rgba(90,228,255,0.7), 0 0 14px rgba(90,228,255,0.3); }
-      #aSlider::-moz-range-thumb     { width:13px; height:13px; border-radius:50%; background:#5ae4ff; border:none; box-shadow:0 0 6px rgba(90,228,255,0.7); }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    #aSlider::-webkit-slider-thumb { background: var(--accent-a); box-shadow: 0 0 6px rgba(79,195,247,0.6); }
+    #bSlider::-webkit-slider-thumb { background: var(--accent-b); box-shadow: 0 0 6px rgba(244,114,182,0.6); }
+    #xSlider::-webkit-slider-thumb { background: var(--accent-c); box-shadow: 0 0 6px rgba(251,191,36,0.6); }
 
-      #bSlider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#ff7aac; box-shadow:0 0 6px rgba(255,122,172,0.7), 0 0 14px rgba(255,122,172,0.3); }
-      #bSlider::-moz-range-thumb     { width:13px; height:13px; border-radius:50%; background:#ff7aac; border:none; box-shadow:0 0 6px rgba(255,122,172,0.7); }
+    /* ── HINT ─────────────────────────────────────── */
+    .hint {
+      font-size: 0.59rem; color: var(--ink-mute);
+      line-height: 1.7; margin-top: 0.6rem;
+    }
+    .hint strong { color: rgba(120,200,255,0.5); font-weight: 600; }
 
-      #xSlider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#fad85a; box-shadow:0 0 6px rgba(250,216,90,0.7), 0 0 14px rgba(250,216,90,0.3); }
-      #xSlider::-moz-range-thumb     { width:13px; height:13px; border-radius:50%; background:#fad85a; border:none; box-shadow:0 0 6px rgba(250,216,90,0.7); }
+    /* canvas */
+    canvas { display: block; }
+  </style>
+</head>
+<body>
 
-      /* ── divider ── */
-      .div {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(80,160,255,0.15), transparent);
-        margin: 0.65rem 0;
-      }
+  <div id="panel">
+    <div class="panel-bar"></div>
+    <div class="panel-inner">
 
-      /* ── hint ── */
-      .hint {
-        font-size: 0.62rem;
-        color: rgba(140,180,230,0.32);
-        line-height: 1.65;
-        margin-top: 0.6rem;
-      }
-      .hint b { color: rgba(120,210,255,0.55); font-weight: 500; }
-
-      /* ── examples ── */
-      .examples {
-        display: flex; flex-wrap: wrap; gap: 0.28rem;
-        margin-top: 0.5rem;
-      }
-      .ex-chip {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        padding: 0.18rem 0.45rem;
-        background: rgba(50,120,220,0.1);
-        border: 1px solid rgba(80,160,255,0.16);
-        border-radius: 4px;
-        color: rgba(160,210,255,0.55);
-        cursor: pointer;
-        transition: background .15s, color .15s, border-color .15s;
-        user-select: none;
-      }
-      .ex-chip:hover {
-        background: rgba(60,140,255,0.18);
-        color: #9dd4ff;
-        border-color: rgba(100,180,255,0.3);
-      }
-
-      canvas { display: block; }
-    </style>
-  </head>
-  <body>
-
-    <div id="panel">
-      <div class="panel-inner">
-
-        <div class="ph">
-          <div class="ph-left">
-            <span class="ph-title">f(x) Explorer XR</span>
-            <span class="ph-sub">Galli &amp; Santin</span>
-          </div>
-          <div class="live-dot" title="live update"></div>
+      <div class="ph">
+        <div>
+          <div class="ph-title">f(x) Explorer XR</div>
+          <div class="ph-sub">Galli &amp; Santin</div>
         </div>
-
-        <!-- f(x) formula -->
-        <div class="sec-label">Formula</div>
-        <div class="fx-row">
-          <span class="fx-lbl">f(x)=</span>
-          <input id="fxInput" type="text" value="2*x - 1/x" spellcheck="false" autocomplete="off" />
-          <button id="applyBtn">PLOT</button>
-        </div>
-        <div id="fxError"></div>
-
-        <!-- examples -->
-        <div class="examples">
-          <span class="ex-chip" data-fx="A*sin(B*x)">A·sin(B·x)</span>
-          <span class="ex-chip" data-fx="A*x^2 + B">A·x²+B</span>
-          <span class="ex-chip" data-fx="sin(A*x)/x">sin(A·x)/x</span>
-          <span class="ex-chip" data-fx="A*cos(x) + B*sin(2*x)">cos+sin</span>
-          <span class="ex-chip" data-fx="2*x - 1/x">2x−1/x</span>
-        </div>
-
-        <div class="div"></div>
-
-        <!-- A, B sliders -->
-        <div class="sec-label">Parametri dinamici</div>
-        <div class="sr">
-          <span class="sn a">A</span>
-          <input type="range" id="aSlider" min="-10" max="10" step="0.1" value="1" />
-          <span class="sv" id="aValue">1.0</span>
-        </div>
-        <div class="sr">
-          <span class="sn b">B</span>
-          <input type="range" id="bSlider" min="-10" max="10" step="0.1" value="1" />
-          <span class="sv" id="bValue">1.0</span>
-        </div>
-
-        <div class="div"></div>
-
-        <!-- X offset -->
-        <div class="sec-label">Offset x</div>
-        <div class="sr">
-          <span class="sn xo">x</span>
-          <input type="range" id="xSlider" min="-31.4" max="31.4" step="0.1" value="0" />
-          <span class="sv" id="xValue">0.0</span>
-        </div>
-
-        <div class="hint">
-          <b>A</b> e <b>B</b> sono parametri live nella formula.<br>
-          VR: trigger → ruota/trasla · slider 3D → offset x
-        </div>
-
+        <div class="live-pip" title="live update"></div>
       </div>
+
+      <div class="lbl">Formula</div>
+      <div class="fx-wrap">
+        <div class="fx-top">
+          <span class="fx-lbl">f(x) =</span>
+          <input id="fxInput" type="text" value="2*x - 1/x" spellcheck="false" autocomplete="off" />
+        </div>
+        <button id="applyBtn">Traccia grafico</button>
+      </div>
+      <div id="fxError"></div>
+
+      <div class="chips">
+        <span class="chip" data-fx="A*sin(B*x)">A sin(Bx)</span>
+        <span class="chip" data-fx="A*x^2 + B">Ax² + B</span>
+        <span class="chip" data-fx="sin(A*x)/x">sin(Ax)/x</span>
+        <span class="chip" data-fx="A*cos(x) + B*sin(2*x)">cos + sin</span>
+        <span class="chip" data-fx="2*x - 1/x">2x − 1/x</span>
+        <span class="chip" data-fx="A*exp(-x^2/B)">gaussiana</span>
+      </div>
+
+      <div class="div"></div>
+
+      <div class="lbl">Parametri dinamici</div>
+      <div class="sr">
+        <span class="sn a">A</span>
+        <input type="range" id="aSlider" min="-10" max="10" step="0.1" value="1" />
+        <span class="sv" id="aValue">1.0</span>
+      </div>
+      <div class="sr">
+        <span class="sn b">B</span>
+        <input type="range" id="bSlider" min="-10" max="10" step="0.1" value="1" />
+        <span class="sv" id="bValue">1.0</span>
+      </div>
+
+      <div class="div"></div>
+
+      <div class="lbl">Offset asse X</div>
+      <div class="sr">
+        <span class="sn xo">X</span>
+        <input type="range" id="xSlider" min="-31.4" max="31.4" step="0.1" value="0" />
+        <span class="sv" id="xValue">0.0</span>
+      </div>
+
+      <div class="hint">
+        <strong>A</strong> e <strong>B</strong> sono parametri live nella formula.<br>
+        In VR: pannello flottante con slider, frecce di navigazione e snapshot.
+      </div>
+
     </div>
+  </div>
 
-    <script type="module">
-      import * as THREE from './vendor/three/build/three.module.js';
-      import { VRButton } from './vendor/three/examples/jsm/webxr/VRButton.js';
+  <script type="module">
+    import * as THREE from './vendor/three/build/three.module.js';
+    import { VRButton } from './vendor/three/examples/jsm/webxr/VRButton.js';
 
-      /* ══ RENDERER ══════════════════════════════════════════ */
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.xr.enabled = true;
-      renderer.xr.setReferenceSpaceType('local');
-      document.body.appendChild(renderer.domElement);
-      document.body.appendChild(VRButton.createButton(renderer));
+    /* ══ RENDERER ══════════════════════════════════════════ */
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
+    renderer.xr.setReferenceSpaceType('local');
+    document.body.appendChild(renderer.domElement);
+    document.body.appendChild(VRButton.createButton(renderer));
 
-      /* ══ SCENE ═════════════════════════════════════════════ */
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x04080f);
+    /* ══ SCENE ═════════════════════════════════════════════ */
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x03060e);
 
-      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
-      camera.position.set(0, 1.8, 4);
+    const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
+    camera.position.set(0, 1.8, 4);
 
-      scene.add(new THREE.HemisphereLight(0xaaccff, 0x101828, 0.85));
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
-      dirLight.position.set(5, 7, 5);
-      scene.add(dirLight);
+    scene.add(new THREE.HemisphereLight(0xaaccff, 0x0a1020, 0.9));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    dirLight.position.set(5, 7, 5);
+    scene.add(dirLight);
 
-      /* ── floor ── */
-      const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, 10),
-        new THREE.MeshStandardMaterial({ color: 0x060e1e, roughness: 0.97, metalness: 0.0 })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      scene.add(floor);
+    /* ── floor ── */
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(14, 14),
+      new THREE.MeshStandardMaterial({ color: 0x050b1a, roughness: 0.97, metalness: 0.0 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
 
-      /* ── subtle grid ── */
-      const grid = new THREE.GridHelper(8, 20, 0x162a50, 0x0c1a34);
-      grid.position.y = 0.001;
-      scene.add(grid);
+    const grid = new THREE.GridHelper(10, 24, 0x0f2040, 0x08152e);
+    grid.position.y = 0.001;
+    scene.add(grid);
 
-      /* ══ STATE ═════════════════════════════════════════════ */
-      let fxCurve = null;
-      let xOffset = 0;
-      let paramA  = 1;
-      let paramB  = 1;
-      let fxExpr  = '2*x - 1/x';
+    /* ══ STATE ═════════════════════════════════════════════ */
+    let fxCurve = null;
+    let xOffset = 0;
+    let paramA  = 1;
+    let paramB  = 1;
+    let fxExpr  = '2*x - 1/x';
+    let cameraOffsetX = 0;
+    let cameraOffsetY = 0;
 
-      /* ══ AXES GROUP (smaller — scale 0.7) ════════════════ */
-      const axesGroup = new THREE.Group();
-      axesGroup.position.set(0, 1.2, -0.4);
-      axesGroup.scale.setScalar(0.7);   /* ← overall size reduction */
-      scene.add(axesGroup);
+    /* ══ AXES GROUP ════════════════════════════════════════ */
+    const axesGroup = new THREE.Group();
+    axesGroup.position.set(0, 1.2, -0.4);
+    axesGroup.scale.setScalar(0.7);
+    scene.add(axesGroup);
 
-      createAxes();
+    createAxes();
+    fxCurve = createFxCurve();
+
+    /* ══ VR PANEL ══════════════════════════════════════════ */
+    const vrPanel = createVRPanel();
+    scene.add(vrPanel);
+
+    /* ══ CONTROLLERS ═══════════════════════════════════════ */
+    const controllers = [createController(0), createController(1)];
+    controllers.forEach(c => scene.add(c));
+
+    const raycaster           = new THREE.Raycaster();
+    const tempMatrix          = new THREE.Matrix4();
+    let   selectedController  = null;
+    let   selectedMode        = null;
+    const controllerStartQuat = new THREE.Quaternion();
+    const axesStartQuat       = new THREE.Quaternion();
+    const controllerStartPos  = new THREE.Vector3();
+    const axesStartPos        = new THREE.Vector3();
+    let   sliderStartX        = 0;
+    let   sliderStartOffset   = 0;
+    let   interactTimer       = null;
+
+    /* ══ DOM EVENTS ════════════════════════════════════════ */
+    const xSlider = document.getElementById('xSlider');
+    const xValue  = document.getElementById('xValue');
+    const aSlider = document.getElementById('aSlider');
+    const aValue  = document.getElementById('aValue');
+    const bSlider = document.getElementById('bSlider');
+    const bValue  = document.getElementById('bValue');
+
+    xSlider.addEventListener('input', e => {
+      xOffset = parseFloat(e.target.value);
+      xValue.textContent = xOffset.toFixed(1);
+      updateFxCurve();
+      syncVRSlider('xo', xOffset, -31.4, 31.4);
+    });
+    aSlider.addEventListener('input', e => {
+      paramA = parseFloat(e.target.value);
+      aValue.textContent = paramA.toFixed(1);
+      updateFxCurve();
+      syncVRSlider('a', paramA, -10, 10);
+    });
+    bSlider.addEventListener('input', e => {
+      paramB = parseFloat(e.target.value);
+      bValue.textContent = paramB.toFixed(1);
+      updateFxCurve();
+      syncVRSlider('b', paramB, -10, 10);
+    });
+
+    document.getElementById('applyBtn').addEventListener('click', applyFx);
+    document.getElementById('fxInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFx(); });
+    document.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => {
+        document.getElementById('fxInput').value = c.dataset.fx;
+        applyFx();
+      });
+    });
+
+    window.addEventListener('resize', onWindowResize);
+    renderer.setAnimationLoop(render);
+
+    /* ══ f(x) COMPILE ══════════════════════════════════════ */
+    function buildEval(expr) {
+      const e = expr
+        .replace(/\^/g,      '**')
+        .replace(/\bsin\b/g,  'Math.sin')
+        .replace(/\bcos\b/g,  'Math.cos')
+        .replace(/\btan\b/g,  'Math.tan')
+        .replace(/\bsqrt\b/g, 'Math.sqrt')
+        .replace(/\babs\b/g,  'Math.abs')
+        .replace(/\bexp\b/g,  'Math.exp')
+        .replace(/\blog\b/g,  'Math.log')
+        .replace(/\bpi\b/gi,  'Math.PI')
+        .replace(/\be\b/g,    'Math.E');
+      return new Function('x', 'A', 'B', `"use strict"; return (${e});`);
+    }
+
+    function applyFx() {
+      const raw = document.getElementById('fxInput').value.trim();
+      const errEl = document.getElementById('fxError');
+      if (!raw) return;
+      try {
+        buildEval(raw)(1, paramA, paramB);
+        errEl.textContent = '';
+        fxExpr = raw;
+        updateFxCurve();
+        updateVRFormulaLabel();
+      } catch (_) {
+        errEl.textContent = 'espressione non valida';
+      }
+    }
+
+    /* ══ CURVE ══════════════════════════════════════════════ */
+    function updateFxCurve() {
+      if (fxCurve) { axesGroup.remove(fxCurve); fxCurve = null; }
       fxCurve = createFxCurve();
+    }
 
-      /* ══ VR SLIDER ══════════════════════════════════════════ */
-      const sliderGroup = createVRSlider();
-      scene.add(sliderGroup);
+    function createFxCurve() {
+      let fn;
+      try { fn = buildEval(fxExpr); } catch (_) { return null; }
 
-      /* ══ CONTROLLERS (original logic) ══════════════════════ */
-      const controllers = [createController(0), createController(1)];
-      controllers.forEach(c => scene.add(c));
+      const segments = [];
+      let seg = [];
+      const start  = -Math.PI * 4;
+      const end    =  Math.PI * 4;
+      const step   = 0.05;
+      const SCALE_X = 0.3;
+      const SCALE_Y = 0.55;
+      const CLAMP   = 5.0;
 
-      const raycaster           = new THREE.Raycaster();
-      const tempMatrix          = new THREE.Matrix4();
-      let   selectedController  = null;
-      let   selectedMode        = null;
-      const controllerStartQuat = new THREE.Quaternion();
-      const axesStartQuat       = new THREE.Quaternion();
-      const controllerStartPos  = new THREE.Vector3();
-      const axesStartPos        = new THREE.Vector3();
-      let   sliderStartX        = 0;
-      let   sliderStartOffset   = 0;
-
-      /* ══ DOM EVENTS ════════════════════════════════════════ */
-      const xSlider = document.getElementById('xSlider');
-      const xValue  = document.getElementById('xValue');
-      const aSlider = document.getElementById('aSlider');
-      const aValue  = document.getElementById('aValue');
-      const bSlider = document.getElementById('bSlider');
-      const bValue  = document.getElementById('bValue');
-
-      function syncSliderBg(el) {
-        const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
-        const pct = ((val - min) / (max - min) * 100).toFixed(1) + '%';
-        el.style.setProperty('--pct', pct);
-      }
-      [aSlider, bSlider, xSlider].forEach(s => syncSliderBg(s));
-
-      xSlider.addEventListener('input', e => {
-        xOffset = parseFloat(e.target.value);
-        xValue.textContent = xOffset.toFixed(1);
-        syncSliderBg(e.target);
-        updateFxCurve();
-        updateSliderThumb();
-      });
-
-      aSlider.addEventListener('input', e => {
-        paramA = parseFloat(e.target.value);
-        aValue.textContent = paramA.toFixed(1);
-        syncSliderBg(e.target);
-        updateFxCurve();
-      });
-
-      bSlider.addEventListener('input', e => {
-        paramB = parseFloat(e.target.value);
-        bValue.textContent = paramB.toFixed(1);
-        syncSliderBg(e.target);
-        updateFxCurve();
-      });
-
-      document.getElementById('applyBtn').addEventListener('click', applyFx);
-      document.getElementById('fxInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFx(); });
-
-      /* example chips */
-      document.querySelectorAll('.ex-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-          document.getElementById('fxInput').value = chip.dataset.fx;
-          applyFx();
-        });
-      });
-
-      window.addEventListener('resize', onWindowResize);
-      renderer.setAnimationLoop(render);
-
-      /* ══ f(x) COMPILE ══════════════════════════════════════ */
-      function buildEval(expr) {
-        const e = expr
-          .replace(/\^/g,      '**')
-          .replace(/\bsin\b/g,  'Math.sin')
-          .replace(/\bcos\b/g,  'Math.cos')
-          .replace(/\btan\b/g,  'Math.tan')
-          .replace(/\bsqrt\b/g, 'Math.sqrt')
-          .replace(/\babs\b/g,  'Math.abs')
-          .replace(/\bexp\b/g,  'Math.exp')
-          .replace(/\blog\b/g,  'Math.log')
-          .replace(/\bpi\b/gi,  'Math.PI')
-          .replace(/\be\b/g,    'Math.E');
-        // eslint-disable-next-line no-new-func
-        return new Function('x', 'A', 'B', `"use strict"; return (${e});`);
-      }
-
-      function applyFx() {
-        const raw = document.getElementById('fxInput').value.trim();
-        const errEl = document.getElementById('fxError');
-        if (!raw) return;
-        try {
-          buildEval(raw)(1, paramA, paramB); /* test call */
-          errEl.textContent = '';
-          fxExpr = raw;
-          updateFxCurve();
-        } catch (_) {
-          errEl.textContent = '\u26a0 espressione non valida';
-        }
-      }
-
-      /* ══ CURVE ══════════════════════════════════════════════ */
-      function updateFxCurve() {
-        if (fxCurve) { axesGroup.remove(fxCurve); fxCurve = null; }
-        fxCurve = createFxCurve();
-      }
-
-      function updateSliderThumb() {
-        const thumb = sliderGroup.getObjectByName('sliderThumb');
-        if (!thumb) return;
-        const norm = (xOffset - (-31.4)) / 62.8;
-        thumb.position.x = -3.14 + norm * 6.28;
-      }
-
-      function createFxCurve() {
-        let fn;
-        try { fn = buildEval(fxExpr); } catch (_) { return null; }
-
-        const points   = [];
-        const segments = [];          /* break curve at discontinuities */
-        let   seg      = [];
-
-        const start = -Math.PI * 4;
-        const end   =  Math.PI * 4;
-        const step  = 0.05;
-        const SCALE_X = 0.3;
-        const SCALE_Y = 0.55;
-        const CLAMP   = 5.0;          /* world-units, after scaling */
-
-        for (let t = start; t <= end + step * 0.5; t += step) {
-          const x = t + xOffset;
-          let y;
-          try {
-            y = fn(x, paramA, paramB);
-          } catch (_) { y = NaN; }
-
-          if (!isFinite(y) || Math.abs(y * SCALE_Y) > CLAMP) {
-            if (seg.length > 1) segments.push(seg);
-            seg = [];
-          } else {
-            seg.push(new THREE.Vector3(x * SCALE_X, y * SCALE_Y, 0));
-          }
-        }
-        if (seg.length > 1) segments.push(seg);
-
-        /* each continuous segment = one Line */
-        const group = new THREE.Group();
-        const mat   = new THREE.LineBasicMaterial({ color: 0xffdd55, linewidth: 2 });
-        segments.forEach(pts => {
-          const geo   = new THREE.BufferGeometry().setFromPoints(pts);
-          group.add(new THREE.Line(geo, mat));
-        });
-        group.position.y = 0.01;
-        axesGroup.add(group);
-        return group;
-      }
-
-      /* ══ AXES ═══════════════════════════════════════════════ */
-      function createAxes() {
-        const length    = 3.0;
-        const thickness = 0.025;
-
-        /* axis materials – coloured per axis */
-        const mX = new THREE.MeshStandardMaterial({ color: 0x5ae4ff, roughness:0.3, metalness:0.3, emissive:0x1a5070, emissiveIntensity:0.4 });
-        const mY = new THREE.MeshStandardMaterial({ color: 0x7affa0, roughness:0.3, metalness:0.3, emissive:0x105030, emissiveIntensity:0.4 });
-        const mZ = new THREE.MeshStandardMaterial({ color: 0xff7aac, roughness:0.3, metalness:0.3, emissive:0x501030, emissiveIntensity:0.4 });
-
-        /* cylinders */
-        const xCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mX);
-        xCyl.rotation.z = -Math.PI / 2; xCyl.position.x = length / 2;
-        axesGroup.add(xCyl);
-
-        const yCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mY);
-        yCyl.position.y = length / 2;
-        axesGroup.add(yCyl);
-
-        const zCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mZ);
-        zCyl.rotation.x = Math.PI / 2; zCyl.position.z = length / 2;
-        axesGroup.add(zCyl);
-
-        /* cones */
-        const cone = new THREE.ConeGeometry(0.07, 0.22, 16);
-        const xArr = new THREE.Mesh(cone, mX); xArr.rotation.z = -Math.PI/2; xArr.position.set(length, 0, 0);
-        const yArr = new THREE.Mesh(cone, mY); yArr.position.set(0, length, 0);
-        const zArr = new THREE.Mesh(cone, mZ); zArr.rotation.x =  Math.PI/2; zArr.position.set(0, 0, length);
-        axesGroup.add(xArr, yArr, zArr);
-
-        /* tick marks on X axis */
-        for (let i = -4; i <= 4; i++) {
-          if (i === 0) continue;
-          const tick = new THREE.Mesh(
-            new THREE.BoxGeometry(0.015, 0.1, 0.015),
-            new THREE.MeshStandardMaterial({ color: 0x3a7088, roughness: 0.6 })
-          );
-          tick.position.set(i * 0.3 * 3.14 / 4, 0, 0); /* map ticks to π fractions */
-          axesGroup.add(tick);
-        }
-
-        /* labels */
-        axesGroup.add(createLabel('X', length + 0.2,  0,           0,          '#7ae4ff'));
-        axesGroup.add(createLabel('Y', 0,             length + 0.2, 0,          '#7affaa'));
-        axesGroup.add(createLabel('Z', 0,             0,            length+0.2, '#ff9abc'));
-      }
-
-      function createLabel(text, x, y, z, color) {
-        const cv  = document.createElement('canvas');
-        cv.width  = 128; cv.height = 64;
-        const ctx = cv.getContext('2d');
-        ctx.clearRect(0, 0, 128, 64);
-        ctx.font = 'bold 48px system-ui';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = color || '#c8f4ff';
-        ctx.fillText(text, 64, 34);
-        const tex = new THREE.CanvasTexture(cv);
-        tex.encoding = THREE.sRGBEncoding;
-        const mesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.28, 0.14),
-          new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
-        );
-        mesh.position.set(x, y, z);
-        mesh.lookAt(camera.position);
-        return mesh;
-      }
-
-      /* ══ VR SLIDER (original logic intact) ════════════════ */
-      function createVRSlider() {
-        const group = new THREE.Group();
-        group.position.set(0, 0.5, 0.2);
-
-        const track = new THREE.Mesh(
-          new THREE.BoxGeometry(6.28, 0.06, 0.06),
-          new THREE.MeshStandardMaterial({ color: 0x163050, roughness: 0.8, metalness: 0.2 })
-        );
-        track.name = 'sliderTrack';
-        group.add(track);
-
-        const thumb = new THREE.Mesh(
-          new THREE.BoxGeometry(0.2, 0.15, 0.15),
-          new THREE.MeshStandardMaterial({
-            color: 0xfad85a, roughness: 0.3, metalness: 0.6,
-            emissive: 0xfad85a, emissiveIntensity: 0.35
-          })
-        );
-        thumb.name = 'sliderThumb';
-        group.add(thumb);
-
-        return group;
-      }
-
-      /* ══ CONTROLLERS (original) ════════════════════════════ */
-      function createController(index) {
-        const controller = renderer.xr.getController(index);
-        controller.addEventListener('selectstart', onSelectStart);
-        controller.addEventListener('selectend',   onSelectEnd);
-
-        const ray = new THREE.Line(
-          new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
-          new THREE.LineBasicMaterial({ color: 0x5ae4ff })
-        );
-        ray.name = 'ray'; ray.scale.z = 6;
-        controller.add(ray);
-
-        const pointer = new THREE.Mesh(
-          new THREE.SphereGeometry(0.015, 16, 12),
-          new THREE.MeshBasicMaterial({ color: 0x5ae4ff, opacity: 0.9, transparent: true })
-        );
-        pointer.position.set(0, 0, -1);
-        controller.add(pointer);
-
-        return controller;
-      }
-
-      function onSelectStart(event) {
-        const controller   = event.target;
-        const intersections = getControllerIntersections(controller);
-        if (!intersections.length) return;
-        const hit = intersections[0].object;
-        if (hit.name === 'sliderThumb' || hit.name === 'sliderTrack') {
-          selectedMode       = 'slider';
-          selectedController = controller;
-          sliderStartX       = intersections[0].point.x;
-          sliderStartOffset  = xOffset;
+      for (let t = start; t <= end + step * 0.5; t += step) {
+        const x = t + xOffset;
+        let y;
+        try { y = fn(x, paramA, paramB); } catch (_) { y = NaN; }
+        if (!isFinite(y) || Math.abs(y * SCALE_Y) > CLAMP) {
+          if (seg.length > 1) segments.push(seg);
+          seg = [];
         } else {
-          selectedMode       = 'transform';
-          selectedController = controller;
-          controllerStartQuat.copy(controller.quaternion);
-          axesStartQuat.copy(axesGroup.quaternion);
-          controllerStartPos.setFromMatrixPosition(controller.matrixWorld);
-          axesStartPos.copy(axesGroup.position);
+          seg.push(new THREE.Vector3(x * SCALE_X, y * SCALE_Y, 0));
         }
       }
+      if (seg.length > 1) segments.push(seg);
 
-      function onSelectEnd() { selectedController = null; selectedMode = null; }
+      const group = new THREE.Group();
+      const mat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 2 });
+      segments.forEach(pts => {
+        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        group.add(new THREE.Line(geo, mat));
+      });
+      group.position.y = 0.01;
+      axesGroup.add(group);
+      return group;
+    }
 
-      function getControllerIntersections(controller) {
-        tempMatrix.identity().extractRotation(controller.matrixWorld);
-        raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    /* ══ AXES ═══════════════════════════════════════════════ */
+    function createAxes() {
+      const length    = 3.0;
+      const thickness = 0.022;
+      const mX = new THREE.MeshStandardMaterial({ color: 0x4fc3f7, roughness: 0.3, metalness: 0.3, emissive: 0x154060, emissiveIntensity: 0.35 });
+      const mY = new THREE.MeshStandardMaterial({ color: 0x6ee7b7, roughness: 0.3, metalness: 0.3, emissive: 0x0d3d28, emissiveIntensity: 0.35 });
+      const mZ = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.3, metalness: 0.3, emissive: 0x4a1030, emissiveIntensity: 0.35 });
+
+      const xCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mX);
+      xCyl.rotation.z = -Math.PI / 2; xCyl.position.x = length / 2;
+      axesGroup.add(xCyl);
+      const yCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mY);
+      yCyl.position.y = length / 2;
+      axesGroup.add(yCyl);
+      const zCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mZ);
+      zCyl.rotation.x = Math.PI / 2; zCyl.position.z = length / 2;
+      axesGroup.add(zCyl);
+
+      const cone = new THREE.ConeGeometry(0.065, 0.2, 16);
+      const xArr = new THREE.Mesh(cone, mX); xArr.rotation.z = -Math.PI/2; xArr.position.set(length, 0, 0);
+      const yArr = new THREE.Mesh(cone, mY); yArr.position.set(0, length, 0);
+      const zArr = new THREE.Mesh(cone, mZ); zArr.rotation.x = Math.PI/2; zArr.position.set(0, 0, length);
+      axesGroup.add(xArr, yArr, zArr);
+
+      for (let i = -4; i <= 4; i++) {
+        if (i === 0) continue;
+        const tick = new THREE.Mesh(
+          new THREE.BoxGeometry(0.012, 0.09, 0.012),
+          new THREE.MeshStandardMaterial({ color: 0x2a6080, roughness: 0.6 })
+        );
+        tick.position.set(i * 0.3 * 3.14 / 4, 0, 0);
+        axesGroup.add(tick);
+      }
+
+      axesGroup.add(createLabel('X', length + 0.22, 0, 0, '#7ae4ff'));
+      axesGroup.add(createLabel('Y', 0, length + 0.22, 0, '#6ee7b7'));
+      axesGroup.add(createLabel('Z', 0, 0, length + 0.22, '#f9a8d4'));
+    }
+
+    function createLabel(text, x, y, z, color) {
+      const cv = document.createElement('canvas');
+      cv.width = 128; cv.height = 64;
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, 128, 64);
+      ctx.font = 'bold 48px system-ui';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = color || '#c8f4ff';
+      ctx.fillText(text, 64, 34);
+      const tex = new THREE.CanvasTexture(cv);
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.28, 0.14),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+      );
+      mesh.position.set(x, y, z);
+      mesh.lookAt(camera.position);
+      return mesh;
+    }
+
+    /* ══ VR PANEL (pannello 3D completo) ══════════════════ */
+    function createVRPanel() {
+      const group = new THREE.Group();
+      group.name = 'vrPanel';
+      group.position.set(0.9, 1.2, -0.6);
+      group.rotation.y = -0.35;
+
+      /* sfondo panel */
+      const bgMat = new THREE.MeshStandardMaterial({
+        color: 0x050e22,
+        roughness: 0.8, metalness: 0.1,
+        transparent: true, opacity: 0.88
+      });
+      const bg = new THREE.Mesh(new THREE.RoundedBoxGeometry(1.0, 0.92, 0.015, 4, 0.02), bgMat);
+      group.add(bg);
+
+      /* bordo luminoso */
+      const brdMat = new THREE.MeshBasicMaterial({ color: 0x1a3a6a, transparent: true, opacity: 0.7 });
+      const brd = new THREE.Mesh(new THREE.RoundedBoxGeometry(1.02, 0.935, 0.012, 4, 0.022), brdMat);
+      brd.position.z = -0.002;
+      group.add(brd);
+
+      /* etichetta titolo */
+      group.add(makeTextMesh('f(x) CONTROLLI VR', 0, 0.38, 0.012, '#4fc3f7', 0.04, 600));
+
+      /* ── slider A ─────────────────────────────────────── */
+      const sliderA = buildVRSlider('a', paramA, -10, 10, '#4fc3f7');
+      sliderA.position.set(0, 0.22, 0.012);
+      sliderA.name = 'sliderGroupA';
+      group.add(sliderA);
+
+      /* ── slider B ─────────────────────────────────────── */
+      const sliderB = buildVRSlider('b', paramB, -10, 10, '#f472b6');
+      sliderB.position.set(0, 0.06, 0.012);
+      sliderB.name = 'sliderGroupB';
+      group.add(sliderB);
+
+      /* ── slider X offset ─────────────────────────────── */
+      const sliderX = buildVRSlider('xo', xOffset, -31.4, 31.4, '#fbbf24');
+      sliderX.position.set(0, -0.10, 0.012);
+      sliderX.name = 'sliderGroupXO';
+      group.add(sliderX);
+
+      /* ── separatore ──────────────────────────────────── */
+      const sepGeo = new THREE.PlaneGeometry(0.88, 0.003);
+      const sepMat = new THREE.MeshBasicMaterial({ color: 0x1e3a60, transparent: true, opacity: 0.6 });
+      const sep = new THREE.Mesh(sepGeo, sepMat);
+      sep.position.set(0, -0.225, 0.012);
+      group.add(sep);
+
+      /* ── frecce navigazione (X e Y) ────────────────── */
+      group.add(makeTextMesh('NAVIGA', -0.22, -0.275, 0.012, '#8bb8d0', 0.028, 400));
+
+      const arrows = [
+        { name: 'arrowLeft',  label: '<', dx: -0.18, dy: -0.33, ax: -1, ay: 0 },
+        { name: 'arrowRight', label: '>', dx:  0.18, dy: -0.33, ax:  1, ay: 0 },
+        { name: 'arrowUp',    label: '^', dx:  0.0,  dy: -0.285,ax:  0, ay: 1 },
+        { name: 'arrowDown',  label: 'v', dx:  0.0,  dy: -0.375,ax:  0, ay:-1 },
+      ];
+      arrows.forEach(({ name, label, dx, dy, ax, ay }) => {
+        const btn = buildArrowBtn(label, ax, ay);
+        btn.position.set(dx, dy, 0.012);
+        btn.name = name;
+        group.add(btn);
+      });
+
+      /* ── pulsante telecamera (snapshot) ───────────────── */
+      const camBtn = buildCameraBtn();
+      camBtn.position.set(0.35, -0.33, 0.012);
+      camBtn.name = 'btnCamera';
+      group.add(camBtn);
+
+      return group;
+    }
+
+    /* ── costruisce uno slider VR ─────────────────────────── */
+    function buildVRSlider(id, initVal, min, max, color) {
+      const g = new THREE.Group();
+      g.userData = { id, min, max, val: initVal };
+
+      /* etichetta */
+      const labelChar = id === 'xo' ? 'X' : id.toUpperCase();
+      g.add(makeTextMesh(labelChar, -0.42, 0, 0.001, color, 0.042, 700));
+
+      /* track */
+      const trackMat = new THREE.MeshStandardMaterial({ color: 0x0e1e3e, roughness: 0.7 });
+      const track = new THREE.Mesh(new THREE.RoundedBoxGeometry(0.7, 0.018, 0.01, 4, 0.005), trackMat);
+      track.name = 'track_' + id;
+      g.add(track);
+
+      /* fill bar */
+      const fillMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color), transparent: true, opacity: 0.35 });
+      const fill = new THREE.Mesh(new THREE.PlaneGeometry(0.001, 0.014), fillMat);
+      fill.name = 'fill_' + id;
+      g.add(fill);
+
+      /* thumb */
+      const thumbCol = new THREE.Color(color);
+      const thumbMat = new THREE.MeshStandardMaterial({ color: thumbCol, roughness: 0.2, metalness: 0.6, emissive: thumbCol, emissiveIntensity: 0.3 });
+      const thumb = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.025, 16), thumbMat);
+      thumb.rotation.x = Math.PI / 2;
+      thumb.name = 'thumb_' + id;
+      g.add(thumb);
+
+      /* valore testuale */
+      const valMesh = makeTextMesh(initVal.toFixed(1), 0.4, 0, 0.001, '#d0e8ff', 0.032, 400);
+      valMesh.name = 'val_' + id;
+      g.add(valMesh);
+
+      /* posiziona thumb/fill in base al valore iniziale */
+      setSliderThumbPos(g, initVal);
+
+      return g;
+    }
+
+    function setSliderThumbPos(sliderGroup, val) {
+      const { min, max } = sliderGroup.userData;
+      const norm  = (val - min) / (max - min);
+      const TRACK = 0.7;
+      const LEFT  = -TRACK / 2;
+      const thumbX = LEFT + norm * TRACK;
+
+      const thumb = sliderGroup.getObjectByName('thumb_' + sliderGroup.userData.id);
+      if (thumb) thumb.position.x = thumbX;
+
+      const fill = sliderGroup.getObjectByName('fill_' + sliderGroup.userData.id);
+      if (fill) {
+        fill.scale.x = Math.max(0.001, norm * TRACK * 1000 + 1);
+        fill.position.x = LEFT + (norm * TRACK) / 2;
+      }
+    }
+
+    function syncVRSlider(id, val, min, max) {
+      const groupMap = { a: 'sliderGroupA', b: 'sliderGroupB', xo: 'sliderGroupXO' };
+      const sg = vrPanel.getObjectByName(groupMap[id]);
+      if (!sg) return;
+      sg.userData.val = val;
+      setSliderThumbPos(sg, val);
+      const valMesh = sg.getObjectByName('val_' + id);
+      if (valMesh) updateTextMesh(valMesh, val.toFixed(1), '#d0e8ff', 0.032, 400);
+    }
+
+    /* ── freccia di navigazione ──────────────────────────── */
+    function buildArrowBtn(symbol, ax, ay) {
+      const g = new THREE.Group();
+      g.userData = { ax, ay };
+
+      const mat = new THREE.MeshStandardMaterial({ color: 0x0f2244, roughness: 0.5, metalness: 0.3 });
+      const btn = new THREE.Mesh(new THREE.RoundedBoxGeometry(0.075, 0.075, 0.014, 4, 0.01), mat);
+      btn.name = 'btnFace';
+      g.add(btn);
+
+      /* indicatore direzionale via prisma */
+      const arrMat = new THREE.MeshStandardMaterial({ color: 0x7dd3fc, roughness: 0.2, emissive: 0x1a4060, emissiveIntensity: 0.5 });
+      const arrowMesh = new THREE.Mesh(new THREE.ConeGeometry(0.016, 0.028, 3), arrMat);
+      /* ruota in base alla direzione */
+      if (ax === 1)  arrowMesh.rotation.z = -Math.PI / 2;
+      if (ax === -1) arrowMesh.rotation.z =  Math.PI / 2;
+      if (ay === 1)  arrowMesh.rotation.z =  0;
+      if (ay === -1) arrowMesh.rotation.z =  Math.PI;
+      arrowMesh.position.z = 0.01;
+      g.add(arrowMesh);
+
+      return g;
+    }
+
+    /* ── pulsante telecamera ─────────────────────────────── */
+    function buildCameraBtn() {
+      const g = new THREE.Group();
+
+      const mat = new THREE.MeshStandardMaterial({ color: 0x1a3a1a, roughness: 0.5, metalness: 0.2 });
+      const btn = new THREE.Mesh(new THREE.RoundedBoxGeometry(0.115, 0.075, 0.014, 4, 0.01), mat);
+      g.add(btn);
+
+      /* corpo telecamera */
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x34d399, roughness: 0.2, metalness: 0.5, emissive: 0x0d3d28, emissiveIntensity: 0.4 });
+
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.046, 0.028, 0.008), bodyMat);
+      body.position.z = 0.008;
+      g.add(body);
+
+      const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.012, 12), bodyMat);
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(0, 0, 0.015);
+      g.add(lens);
+
+      const top = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.01, 0.007), bodyMat);
+      top.position.set(-0.014, 0.019, 0.008);
+      g.add(top);
+
+      return g;
+    }
+
+    /* ── helper testo ─────────────────────────────────────── */
+    function makeTextMesh(text, x, y, z, color, size, weight) {
+      const cv = document.createElement('canvas');
+      cv.width = 512; cv.height = 128;
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, 512, 128);
+      ctx.font = `${weight || 400} ${Math.round(size * 2000)}px IBM Plex Mono, monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = color || '#d0e8ff';
+      ctx.fillText(text, 256, 68);
+      const tex = new THREE.CanvasTexture(cv);
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(size * 6, size * 1.5),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+      );
+      mesh.position.set(x, y, z);
+      return mesh;
+    }
+
+    function updateTextMesh(mesh, text, color, size, weight) {
+      const cv = document.createElement('canvas');
+      cv.width = 512; cv.height = 128;
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, 512, 128);
+      ctx.font = `${weight || 400} ${Math.round(size * 2000)}px IBM Plex Mono, monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = color || '#d0e8ff';
+      ctx.fillText(text, 256, 68);
+      mesh.material.map.image = cv;
+      mesh.material.map.needsUpdate = true;
+    }
+
+    function updateVRFormulaLabel() { /* no-op, potrebbe mostrare la formula nel panel VR */ }
+
+    /* ══ CONTROLLERS ═══════════════════════════════════════ */
+    function createController(index) {
+      const controller = renderer.xr.getController(index);
+      controller.addEventListener('selectstart', onSelectStart);
+      controller.addEventListener('selectend', onSelectEnd);
+
+      const ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.6 })
+      );
+      ray.name = 'ray'; ray.scale.z = 5;
+      controller.add(ray);
+
+      const pointer = new THREE.Mesh(
+        new THREE.SphereGeometry(0.012, 12, 8),
+        new THREE.MeshBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.8 })
+      );
+      pointer.position.set(0, 0, -1);
+      controller.add(pointer);
+
+      return controller;
+    }
+
+    function onSelectStart(event) {
+      const controller = event.target;
+      const intersections = getControllerIntersections(controller);
+      if (!intersections.length) return;
+      const hit = intersections[0].object;
+      const hitParent = hit.parent;
+
+      /* slider A */
+      if (hitParent && hitParent.name === 'sliderGroupA') {
+        selectedMode = 'sliderA'; selectedController = controller;
+        sliderStartX = intersections[0].point.x;
+        sliderStartOffset = paramA;
+        return;
+      }
+      /* slider B */
+      if (hitParent && hitParent.name === 'sliderGroupB') {
+        selectedMode = 'sliderB'; selectedController = controller;
+        sliderStartX = intersections[0].point.x;
+        sliderStartOffset = paramB;
+        return;
+      }
+      /* slider XO */
+      if (hitParent && hitParent.name === 'sliderGroupXO') {
+        selectedMode = 'sliderXO'; selectedController = controller;
+        sliderStartX = intersections[0].point.x;
+        sliderStartOffset = xOffset;
+        return;
+      }
+
+      /* frecce */
+      const btnGroup = findNamedAncestor(hit, ['arrowLeft','arrowRight','arrowUp','arrowDown']);
+      if (btnGroup) {
+        const { ax, ay } = btnGroup.userData;
+        cameraOffsetX += ax * 0.5;
+        cameraOffsetY += ay * 0.3;
+        startArrowRepeat(ax, ay);
+        selectedMode = 'arrow'; selectedController = controller;
+        return;
+      }
+
+      /* telecamera */
+      if (findNamedAncestor(hit, ['btnCamera'])) {
+        captureSnapshot();
+        return;
+      }
+
+      /* trasformazione asse */
+      selectedMode = 'transform'; selectedController = controller;
+      controllerStartQuat.copy(controller.quaternion);
+      axesStartQuat.copy(axesGroup.quaternion);
+      controllerStartPos.setFromMatrixPosition(controller.matrixWorld);
+      axesStartPos.copy(axesGroup.position);
+    }
+
+    function onSelectEnd() {
+      if (interactTimer) { clearInterval(interactTimer); interactTimer = null; }
+      selectedController = null; selectedMode = null;
+    }
+
+    function startArrowRepeat(ax, ay) {
+      interactTimer = setInterval(() => {
+        cameraOffsetX += ax * 0.15;
+        cameraOffsetY += ay * 0.1;
+      }, 80);
+    }
+
+    function findNamedAncestor(obj, names) {
+      let cur = obj;
+      while (cur) {
+        if (names.includes(cur.name)) return cur;
+        cur = cur.parent;
+      }
+      return null;
+    }
+
+    function captureSnapshot() {
+      renderer.render(scene, camera);
+      const dataURL = renderer.domElement.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataURL; a.download = 'fx_xr_snapshot.png'; a.click();
+    }
+
+    function getControllerIntersections(controller) {
+      tempMatrix.identity().extractRotation(controller.matrixWorld);
+      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+      return raycaster.intersectObjects(vrPanel.children.flatMap(c => [c, ...c.children]), true)
+                      .concat(raycaster.intersectObjects(axesGroup.children, true));
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    /* ══ RENDER LOOP ═══════════════════════════════════════ */
+    function render() {
+      /* navigazione con le frecce */
+      if (cameraOffsetX !== 0 || cameraOffsetY !== 0) {
+        camera.position.x += (cameraOffsetX * 0.02 - camera.position.x) * 0.12;
+        camera.position.y += (1.8 + cameraOffsetY * 0.3 - camera.position.y) * 0.12;
+      }
+
+      if (selectedController && selectedMode === 'transform') {
+        const currentQuat = selectedController.quaternion.clone();
+        const deltaQuat   = currentQuat.multiply(controllerStartQuat.clone().invert());
+        axesGroup.quaternion.copy(axesStartQuat).premultiply(deltaQuat);
+        const currentPos  = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld);
+        const deltaPos    = currentPos.clone().sub(controllerStartPos);
+        axesGroup.position.copy(axesStartPos).add(deltaPos);
+
+      } else if (selectedController && ['sliderA','sliderB','sliderXO'].includes(selectedMode)) {
+        tempMatrix.identity().extractRotation(selectedController.matrixWorld);
+        raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
         raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-        return raycaster.intersectObjects(sliderGroup.children, true)
-                        .concat(raycaster.intersectObjects(axesGroup.children, true));
-      }
 
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
+        const groupName = { sliderA:'sliderGroupA', sliderB:'sliderGroupB', sliderXO:'sliderGroupXO' }[selectedMode];
+        const sg = vrPanel.getObjectByName(groupName);
+        if (!sg) return;
+        const hits = raycaster.intersectObjects(sg.children, true);
+        if (hits.length) {
+          const localPoint = sg.worldToLocal(hits[0].point.clone());
+          const norm = Math.max(0, Math.min(1, (localPoint.x + 0.35) / 0.7));
+          const { min, max } = sg.userData;
+          const newVal = min + norm * (max - min);
 
-      /* ══ RENDER LOOP (original) ════════════════════════════ */
-      function render() {
-        if (selectedController && selectedMode === 'transform') {
-          const currentQuat = selectedController.quaternion.clone();
-          const deltaQuat   = currentQuat.multiply(controllerStartQuat.clone().invert());
-          axesGroup.quaternion.copy(axesStartQuat).premultiply(deltaQuat);
-          const currentPos  = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld);
-          const deltaPos    = currentPos.clone().sub(controllerStartPos);
-          axesGroup.position.copy(axesStartPos).add(deltaPos);
+          sg.userData.val = newVal;
+          setSliderThumbPos(sg, newVal);
+          const valMesh = sg.getObjectByName('val_' + sg.userData.id);
+          if (valMesh) updateTextMesh(valMesh, newVal.toFixed(1), '#d0e8ff', 0.032, 400);
 
-        } else if (selectedController && selectedMode === 'slider') {
-          tempMatrix.identity().extractRotation(selectedController.matrixWorld);
-          raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
-          raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-          const hits = raycaster.intersectObjects(sliderGroup.children, true);
-          if (hits.length) {
-            const deltaX         = hits[0].point.x - sliderStartX;
-            const normalizedDelta = deltaX / 6.28;           /* track length */
-            xOffset = sliderStartOffset + normalizedDelta * 62.8;
-            xOffset = Math.max(-31.4, Math.min(31.4, xOffset));
-            xSlider.value         = xOffset;
-            xValue.textContent    = xOffset.toFixed(1);
-            syncSliderBg(xSlider);
-            updateFxCurve();
-            updateSliderThumb();
+          if (selectedMode === 'sliderA') {
+            paramA = newVal; aSlider.value = newVal; aValue.textContent = newVal.toFixed(1);
+          } else if (selectedMode === 'sliderB') {
+            paramB = newVal; bSlider.value = newVal; bValue.textContent = newVal.toFixed(1);
+          } else {
+            xOffset = newVal; xSlider.value = newVal; xValue.textContent = newVal.toFixed(1);
           }
+          updateFxCurve();
         }
-
-        renderer.render(scene, camera);
       }
-    </script>
-  </body>
+
+      /* il panel VR guarda sempre la camera */
+      vrPanel.lookAt(camera.position);
+      vrPanel.rotation.y += (Math.PI - vrPanel.rotation.y) * 0.0;
+
+      renderer.render(scene, camera);
+    }
+  </script>
+</body>
 </html>
