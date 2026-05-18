@@ -106,8 +106,8 @@
         <input type="range" id="bSlider" min="0.1" max="5" step="0.01" value="1" />
         <span id="bValue">1.00</span>
       </div>
+      <div id="functionText" style="margin-top:0.6rem; font-family: monospace; color: #ffd568;">y = 1.00 * cos(1.00 * x)</div>
       <p style="margin-top: 0.6rem; margin-bottom: 0;">A 3D cosine plot is shown with x, y, and z axes. Grab a connected VR controller and use the select trigger to rotate and translate the axis group.</p>
-      <div id="functionDisplay" style="margin-top:0.5rem; font-family: monospace; color: #ffd568;">y = 1.00 · cos(1.00 · x)</div>
     </div>
     <script type="module">
       import * as THREE from '../vendor/three/build/three.module.js';
@@ -181,7 +181,6 @@
       const bSlider = document.getElementById('bSlider');
       const bValue = document.getElementById('bValue');
       bSlider.addEventListener('input', onSliderChange);
-      const functionDisplay = document.getElementById('functionDisplay');
 
       window.addEventListener('resize', onWindowResize);
       renderer.setAnimationLoop(render);
@@ -395,6 +394,13 @@
         renderer.render(scene, camera);
       }
 
+      function updateFunctionText() {
+        const el = document.getElementById('functionText');
+        if (el) {
+          el.textContent = `y = ${amplitude.toFixed(2)} * cos(${frequency.toFixed(2)} * x)`;
+        }
+      }
+
       function createVRSlider() {
         const group = new THREE.Group();
         group.position.set(0, 0.5, 0.2);
@@ -446,13 +452,6 @@
           const normalizedB = (frequency - 0.1) / (5.0 - 0.1);
           bThumb.position.x = minX + normalizedB * trackLength;
         }
-      }
-
-      function updateFunctionText() {
-        if (!functionDisplay) return;
-        const A = amplitude.toFixed(2);
-        const B = frequency.toFixed(2);
-        functionDisplay.textContent = `y = ${A} · cos(${B} · x)`;
       }
     </script>
   </body>
