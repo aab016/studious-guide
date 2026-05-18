@@ -107,6 +107,7 @@
         <span id="bValue">1.00</span>
       </div>
       <p style="margin-top: 0.6rem; margin-bottom: 0;">A 3D cosine plot is shown with x, y, and z axes. Grab a connected VR controller and use the select trigger to rotate and translate the axis group.</p>
+      <div id="functionDisplay" style="margin-top:0.5rem; font-family: monospace; color: #ffd568;">y = 1.00 · cos(1.00 · x)</div>
     </div>
     <script type="module">
       import * as THREE from '../vendor/three/build/three.module.js';
@@ -158,6 +159,7 @@
       const sliderGroup = createVRSlider();
       scene.add(sliderGroup);
       updateSliderThumbs();
+      updateFunctionText();
 
       const controllers = [createController(0), createController(1)];
       controllers.forEach((controller) => scene.add(controller));
@@ -179,6 +181,7 @@
       const bSlider = document.getElementById('bSlider');
       const bValue = document.getElementById('bValue');
       bSlider.addEventListener('input', onSliderChange);
+      const functionDisplay = document.getElementById('functionDisplay');
 
       window.addEventListener('resize', onWindowResize);
       renderer.setAnimationLoop(render);
@@ -190,6 +193,7 @@
         bValue.textContent = frequency.toFixed(2);
         updateCosCurve();
         updateSliderThumbs();
+        updateFunctionText();
       }
 
       function updateCosCurve() {
@@ -374,6 +378,7 @@
               aValue.textContent = amplitude.toFixed(2);
               updateCosCurve();
               updateSliderThumbs();
+              updateFunctionText();
             } else {
               const minB = 0.1;
               const maxB = 5.0;
@@ -383,6 +388,7 @@
               bValue.textContent = frequency.toFixed(2);
               updateCosCurve();
               updateSliderThumbs();
+              updateFunctionText();
             }
           }
         }
@@ -440,6 +446,13 @@
           const normalizedB = (frequency - 0.1) / (5.0 - 0.1);
           bThumb.position.x = minX + normalizedB * trackLength;
         }
+      }
+
+      function updateFunctionText() {
+        if (!functionDisplay) return;
+        const A = amplitude.toFixed(2);
+        const B = frequency.toFixed(2);
+        functionDisplay.textContent = `y = ${A} · cos(${B} · x)`;
       }
     </script>
   </body>
