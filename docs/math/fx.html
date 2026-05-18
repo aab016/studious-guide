@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Galli, Santin — f(x) XR Pro Elite</title>
+    <title>Galli, Santin — f(x) XR Cyber Pro</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
 
@@ -18,95 +18,95 @@
       }
 
       /* ══════════════════════════════════════════
-         PANEL INTERFACCIA SCREEN (2D)
+         PANEL INTERFACCIA SCREEN DESKTOP (2D)
       ══════════════════════════════════════════ */
       #panel {
         position: absolute;
         left: 1.2rem; top: 1.2rem;
-        width: 340px;
+        width: 350px;
         z-index: 10;
         border-radius: 16px;
         overflow-y: auto;
         max-height: calc(100vh - 2.4rem);
         background:
-          linear-gradient(135deg, rgba(40,140,255,0.08) 0%, rgba(5,15,35,0.0) 60%),
-          rgba(4, 8, 18, 0.93);
-        border: 1px solid rgba(80, 180, 255, 0.22);
+          linear-gradient(135deg, rgba(0,170,255,0.08) 0%, rgba(5,15,35,0.0) 60%),
+          rgba(4, 9, 20, 0.94);
+        border: 1px solid rgba(0, 170, 255, 0.25);
         backdrop-filter: blur(30px) saturate(1.8);
         box-shadow: 
-          0 0 0 1px rgba(120,220,255,0.08) inset,
-          0 12px 50px rgba(0,0,0,0.85);
+          0 0 0 1px rgba(0,190,255,0.08) inset,
+          0 15px 50px rgba(0,0,0,0.9);
       }
+
+      #panel::-webkit-scrollbar { width: 4px; }
+      #panel::-webkit-scrollbar-thumb { background: rgba(0,170,255,0.3); border-radius: 2px; }
 
       #panel::before {
         content: ''; display: block; height: 3px;
-        background: linear-gradient(90deg, transparent 0%, #00aaff 25%, #ff007f 75%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, #00aaff 30%, #ff007f 70%, transparent 100%);
       }
 
-      .panel-inner { padding: 1rem; }
+      .panel-inner { padding: 1.2rem; }
       .ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
       .ph-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.95rem; color: #7dd6ff; letter-spacing: 0.04em; text-transform: uppercase; }
       .ph-sub { font-size: 0.65rem; color: rgba(140,190,240,0.45); }
       
-      .sec-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(100,170,245,0.5); margin-bottom: 0.5rem; margin-top: 0.8rem; }
+      .live-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #00ff66; box-shadow: 0 0 8px #00ff66;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+      .sec-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,170,255,0.55); margin-bottom: 0.5rem; margin-top: 0.9rem; }
 
       .fx-row { display: flex; align-items: center; gap: 0.4rem; }
       .fx-lbl { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.85rem; color: #fad85a; }
       #fxInput {
-        flex: 1; min-width: 0; background: rgba(50,130,240,0.08);
-        border: 1px solid rgba(80,170,255,0.25); border-radius: 8px; padding: 0.4rem 0.6rem;
+        flex: 1; min-width: 0; background: rgba(0,120,255,0.06);
+        border: 1px solid rgba(0,170,255,0.25); border-radius: 8px; padding: 0.45rem 0.6rem;
         font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #e8f4ff; outline: none;
       }
       
       #applyBtn {
-        background: linear-gradient(135deg, #00bbff 0%, #0088ff 100%); color: #02050a;
-        border: none; border-radius: 8px; padding: 0.4rem 0.7rem;
+        background: linear-gradient(135deg, #00bbff 0%, #0077ff 100%); color: #02050a;
+        border: none; border-radius: 8px; padding: 0.45rem 0.75rem;
         font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.7rem; cursor: pointer;
-        text-transform: uppercase; box-shadow: 0 2px 12px rgba(0,170,255,0.35);
+        text-transform: uppercase; box-shadow: 0 3px 12px rgba(0,170,255,0.35);
       }
+      #applyBtn:hover { opacity: 0.9; }
 
       #fxError { font-size: 0.65rem; color: #ff7aac; min-height: 0.85rem; margin-top: 0.3rem; }
 
-      .sr { display: grid; grid-template-columns: 24px 1fr 46px; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
-      .sn { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.8rem; text-align: center; }
-      .sn.a  { color: #5ae4ff; } .sn.b  { color: #ff7aac; }
-      .sv { font-size: 0.72rem; text-align: right; color: rgba(180,220,255,0.6); }
-
-      input[type='range'] {
-        -webkit-appearance: none; width: 100%; height: 3px; border-radius: 2px; background: rgba(30,70,140,0.6); outline: none;
-      }
-      #aSlider { background: linear-gradient(90deg, rgba(90,228,255,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
-      #bSlider { background: linear-gradient(90deg, rgba(255,122,172,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
-      input[type='range']::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#7dd6ff; cursor:pointer; }
-
-      .div { height: 1px; background: linear-gradient(90deg, transparent, rgba(80,170,255,0.2), transparent); margin: 0.8rem 0; }
-      .examples { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+      .examples { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; max-height: 140px; overflow-y: auto; padding-right: 2px; }
       .ex-chip {
         font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; padding: 0.2rem 0.5rem;
-        background: rgba(50,130,240,0.1); border: 1px solid rgba(80,170,255,0.2); border-radius: 4px; color: rgba(170,215,255,0.65); cursor: pointer;
+        background: rgba(0,130,240,0.08); border: 1px solid rgba(0,170,255,0.2); border-radius: 4px; color: rgba(160,215,255,0.7); cursor: pointer;
+        white-space: nowrap;
       }
+      .ex-chip:hover { background: rgba(0,170,255,0.18); color: #fff; border-color: #00aaff; }
 
-      /* Pad Direzionale Camera */
-      .cam-pad { display: flex; align-items: center; justify-content: center; margin: 0.5rem auto 0; width: 110px; height: 110px; position: relative; }
-      .cam-btn {
-        position: absolute; background: rgba(50,130,240,0.15); border: 1px solid rgba(80,170,255,0.35);
-        color: #7dd6ff; font-size: 0.85rem; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
+      .sr { display: grid; grid-template-columns: 24px 1fr 46px; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
+      .sn { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.8rem; text-align: center; }
+      .sn.a  { color: #5ae4ff; } .sn.b  { color: #ff7aac; } .sn.xo { color: #fad85a; }
+      .sv { font-size: 0.72rem; text-align: right; color: rgba(180,220,255,0.6); }
+
+      input[type='range'] { -webkit-appearance: none; width: 100%; height: 3px; border-radius: 2px; background: rgba(30,70,140,0.5); outline: none; }
+      #aSlider { background: linear-gradient(90deg, rgba(90,228,255,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
+      #bSlider { background: linear-gradient(90deg, rgba(255,122,172,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
+      #xSlider { background: linear-gradient(90deg, rgba(250,216,90,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
+      input[type='range']::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#7dd6ff; cursor:pointer; }
+
+      .div { height: 1px; background: linear-gradient(90deg, transparent, rgba(0,170,255,0.2), transparent); margin: 0.8rem 0; }
+
+      /* Interruttore di Blocco */
+      .lock-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+      .lock-lbl { font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: bold; color: #e8f4ff; letter-spacing: 0.02em; }
+      .toggle-btn {
+        background: rgba(255,70,70,0.15); border: 1px solid rgba(255,50,50,0.4); border-radius: 6px;
+        padding: 0.35rem 0.65rem; color: #ff6666; font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem; font-weight: bold; cursor: pointer; text-transform: uppercase;
       }
-      .cam-up { top: 0; left: 41px; } .cam-down { bottom: 0; left: 41px; }
-      .cam-left { left: 0; top: 41px; } .cam-right { right: 0; top: 41px; }
-      .cam-z-in { right: 0; top: 0; font-weight: bold; } .cam-z-out { left: 0; top: 0; font-weight: bold; }
-      .cam-center { position: absolute; top: 38px; left: 38px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(250,216,90,0.12); border: 1px solid rgba(250,216,90,0.35); border-radius: 50%; color: #fad85a; }
-
-      .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.6rem; }
-      .act-btn {
-        background: rgba(120,180,255,0.08); border: 1px solid rgba(80,160,255,0.25); border-radius: 6px;
-        padding: 0.45rem; color: #7dd6ff; font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; font-weight: bold;
-        text-align: center; cursor: pointer; text-transform: uppercase;
-      }
-      .act-btn.active { background: rgba(255,100,0,0.25); border-color: #ff6400; color: #fff; box-shadow: 0 0 10px rgba(255,100,0,0.2); }
-
-      canvas { display: block; }
+      .toggle-btn.locked { background: rgba(0,255,100,0.12); border-color: #00ff66; color: #00ff66; }
     </style>
   </head>
   <body>
@@ -114,45 +114,42 @@
     <div id="panel">
       <div class="panel-inner">
         <div class="ph">
-          <div class="ph-left"><span class="ph-title">f(x) Explorer XR</span><br><span class="ph-sub">Galli &amp; Santin</span></div>
+          <div class="ph-left"><span class="ph-title">f(x) Cyber XR</span><br><span class="ph-sub">Galli &amp; Santin</span></div>
+          <div class="live-dot"></div>
         </div>
 
-        <div class="sec-label">Formula</div>
+        <div class="sec-label">Formula Analitica</div>
         <div class="fx-row">
           <span class="fx-lbl">f(x)=</span>
-          <input id="fxInput" type="text" value="2*x - 1/x" />
+          <input id="fxInput" type="text" value="2*x - 1/x" autocomplete="off" spellcheck="false" />
           <button id="applyBtn">PLOT</button>
         </div>
         <div id="fxError"></div>
 
+        <div class="sec-label">Funzioni Nominate Base</div>
         <div class="examples">
-          <span class="ex-chip" data-fx="A*sin(B*x)">A·sin(B·x)</span>
-          <span class="ex-chip" data-fx="A*x^2 + B">A·x²+B</span>
-          <span class="ex-chip" data-fx="sin(A*x)/x">sin(A·x)/x</span>
+          <span class="ex-chip" data-fx="A*sin(B*x)">A·sin(B·x) [Onda Sinusoidale]</span>
+          <span class="ex-chip" data-fx="A*x^2 + B">A·x² + B [Parabola]</span>
+          <span class="ex-chip" data-fx="sin(A*x)/x">sin(A·x)/x [Sinc Cardinale]</span>
+          <span class="ex-chip" data-fx="A*Math.tan(B*x)">A·tan(B·x) [Tangente]</span>
+          <span class="ex-chip" data-fx="A*Math.exp(-Math.abs(x))">A·e^-|x| [Laplace Decadente]</span>
+          <span class="ex-chip" data-fx="A*Math.log(Math.abs(x)+1)+B">A·log(|x|+1)+B [Logaritmica]</span>
+          <span class="ex-chip" data-fx="A*Math.cos(x) + B*sin(2*x)">A·cos(x)+B·sin(2x) [Armonica]</span>
+          <span class="ex-chip" data-fx="A/(x^2 + 1) + B">A/(x²+1)+B [Lorentziana]</span>
         </div>
 
         <div class="div"></div>
-        <div class="sec-label">Parametri Dinamici</div>
+        <div class="sec-label">Parametri Live</div>
         <div class="sr"><span class="sn a">A</span><input type="range" id="aSlider" min="-10" max="10" step="0.1" value="1" /><span class="sv" id="aValue">1.0</span></div>
         <div class="sr"><span class="sn b">B</span><input type="range" id="bSlider" min="-10" max="10" step="0.1" value="1" /><span class="sv" id="bValue">1.0</span></div>
 
-        <div class="div"></div>
-        <div class="sec-label" style="text-align: center;">Muovi Visuale (Camera)</div>
-        <div class="cam-pad">
-          <button class="cam-btn cam-z-out" id="camZOut">−</button>
-          <button class="cam-btn cam-up" id="camUp">▲</button>
-          <button class="cam-btn cam-z-in" id="camZIn">＋</button>
-          <button class="cam-btn cam-left" id="camLeft">◀</button>
-          <div class="cam-center">📷</div>
-          <button class="cam-btn cam-right" id="camRight">▶</button>
-          <button class="cam-btn cam-down" id="camDown">▼</button>
-        </div>
+        <div class="sec-label">Offset Orizzontale</div>
+        <div class="sr"><span class="sn xo">x</span><input type="range" id="xSlider" min="-31.4" max="31.4" step="0.1" value="0" /><span class="sv" id="xValue">0.0</span></div>
 
         <div class="div"></div>
-        <div class="sec-label">Blocco/Sblocco Spostamenti</div>
-        <div class="action-grid">
-          <button class="act-btn" id="dragMenuBtn">Sblocca Menu</button>
-          <button class="act-btn" id="dragAxesBtn">Sblocca Assi</button>
+        <div class="lock-row">
+          <span class="lock-lbl">STATO INTERFACCIA:</span>
+          <button class="toggle-btn" id="lockToggleBtn">LIBERA</button>
         </div>
       </div>
     </div>
@@ -176,134 +173,142 @@
       const cameraRig = new THREE.Group();
       scene.add(cameraRig);
       const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
-      camera.position.set(0, 1.7, 3.8);
+      camera.position.set(0, 1.6, 3.8);
       cameraRig.add(camera);
 
-      scene.add(new THREE.HemisphereLight(0xaaccff, 0x081020, 0.9));
+      scene.add(new THREE.HemisphereLight(0xaaccff, 0x060c18, 0.9));
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
       dirLight.position.set(4, 8, 4);
       scene.add(dirLight);
 
-      /* pavimentazione ambientale scura */
-      const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x040914, roughness: 0.93 }));
+      /* Griglia pavimento scura */
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x040812, roughness: 0.95 }));
       floor.rotation.x = -Math.PI / 2; scene.add(floor);
-      const grid = new THREE.GridHelper(14, 28, 0x142847, 0x061124); grid.position.y = 0.001; scene.add(grid);
+      const grid = new THREE.GridHelper(14, 28, 0x122440, 0x050d1a); grid.position.y = 0.001; scene.add(grid);
 
-      /* ══ STATE MANAGEMENT ═════════════════════════════════ */
-      let paramA = 1, paramB = 1;
+      /* ══ STATE SYSTEM ══════════════════════════════════════ */
+      let paramA = 1, paramB = 1, xOffset = 0;
       let fxExpr = '2*x - 1/x';
       let fxCurve = null;
-      let activeDragMode = null; // 'menu', 'axes', o null per disabilitare lo spostamento accidentalmente
+      let movementLocked = false; // true = nasconde cerchiolini di movimento, evita modifiche spaziali accidentali
 
       const axesGroup = new THREE.Group();
       axesGroup.position.set(0, 1.25, -0.5);
       axesGroup.scale.setScalar(0.75);
       scene.add(axesGroup);
 
-      /* ══ HIGH QUALITY VR CANVAS INTERFACE (512x512) ═══════ */
+      /* ══ COSTRUZIONE ELEMENTI DI TRASCINAMENTO (CERCHIOLINI) ══ */
+      // Sfera per muovere il menu VR
+      const menuHandleGeo = new THREE.SphereGeometry(0.05, 32, 32);
+      const menuHandleMat = new THREE.MeshStandardMaterial({ color: 0x00ffaa, roughness: 0.2, metalness: 0.5, emissive: 0x00aa66, emissiveIntensity: 0.5 });
+      const menuHandle = new THREE.Mesh(menuHandleGeo, menuHandleMat);
+      menuHandle.name = "handle_menu";
+      menuHandle.position.set(-0.55, 1.95, -0.45);
+      scene.add(menuHandle);
+
+      // Sfera per muovere gli assi cartesiani
+      const axesHandleGeo = new THREE.SphereGeometry(0.06, 32, 32);
+      const axesHandleMat = new THREE.MeshStandardMaterial({ color: #ffaa00, roughness: 0.2, metalness: 0.5, emissive: #cc5500, emissiveIntensity: 0.5 });
+      const axesHandle = new THREE.Mesh(axesHandleGeo, axesHandleMat);
+      axesHandle.name = "handle_axes";
+      axesHandle.position.set(0, 0.4, 0); // Posizionata sotto l'origine degli assi interni
+      axesGroup.add(axesHandle);
+
+      /* ══ HIGH RES VR INTERFACE CANVAS (512x512) ════════════ */
       let vrUiMesh;
       const vrUiCanvas = document.createElement('canvas'); vrUiCanvas.width = 512; vrUiCanvas.height = 512;
       const vrUiCtx = vrUiCanvas.getContext('2d');
       const vrUiTexture = new THREE.CanvasTexture(vrUiCanvas);
 
       const hitBoxes = {
-        sliderA:  { x: 40, y: 110, w: 432, h: 35, min: -10, max: 10, type: 'slider', key: 'A' },
-        sliderB:  { x: 40, y: 190, w: 432, h: 35, min: -10, max: 10, type: 'slider', key: 'B' },
-        fChip1:   { x: 40,  y: 250, w: 132, h: 38, type: 'formula', fx: 'A*sin(B*x)' },
-        fChip2:   { x: 190, y: 250, w: 132, h: 38, type: 'formula', fx: 'A*x^2 + B' },
-        fChip3:   { x: 340, y: 250, w: 132, h: 38, type: 'formula', fx: 'sin(A*x)/x' },
-        btnUp:    { x: 236, y: 325, w: 40, h: 34, type: 'btn', action: 'camUp' },
-        btnDown:  { x: 236, y: 405, w: 40, h: 34, type: 'btn', action: 'camDown' },
-        btnLeft:  { x: 186, y: 365, w: 40, h: 34, type: 'btn', action: 'camLeft' },
-        btnRight: { x: 286, y: 365, w: 40, h: 34, type: 'btn', action: 'camRight' },
-        btnZIn:   { x: 346, y: 365, w: 40, h: 34, type: 'btn', action: 'camZIn' },
-        btnZOut:  { x: 126, y: 365, w: 40, h: 34, type: 'btn', action: 'camZOut' },
-        modeMenu: { x: 40,  y: 460, w: 206, h: 38, type: 'mode', mode: 'menu' },
-        modeAxes: { x: 266, y: 460, w: 206, h: 38, type: 'mode', mode: 'axes' }
+        sliderA:  { x: 40, y: 110, w: 432, h: 32, min: -10, max: 10, type: 'slider', key: 'A' },
+        sliderB:  { x: 40, y: 185, w: 432, h: 32, min: -10, max: 10, type: 'slider', key: 'B' },
+        sliderX:  { x: 40, y: 260, w: 432, h: 32, min: -31.4, max: 31.4, type: 'slider', key: 'X' },
+        // Griglia funzioni rapide
+        fChip1:   { x: 40,  y: 320, w: 135, h: 36, type: 'formula', fx: 'A*sin(B*x)' },
+        fChip2:   { x: 188, y: 320, w: 135, h: 36, type: 'formula', fx: 'A*x^2 + B' },
+        fChip3:   { x: 336, y: 320, w: 135, h: 36, type: 'formula', fx: 'sin(A*x)/x' },
+        fChip4:   { x: 40,  y: 365, w: 135, h: 36, type: 'formula', fx: 'A*Math.tan(B*x)' },
+        fChip5:   { x: 188, y: 365, w: 135, h: 36, type: 'formula', fx: 'A*Math.exp(-Math.abs(x))' },
+        fChip6:   { x: 336, y: 365, w: 135, h: 36, type: 'formula', fx: 'A*Math.log(Math.abs(x)+1)+B' },
+        // Interruttore Blocco in VR
+        lockToggle: { x: 40, y: 440, w: 432, h: 42, type: 'lock' }
       };
 
       function drawVrUi() {
-        // Sfondo scuro elegante lucido
-        vrUiCtx.fillStyle = '#040914'; vrUiCtx.fillRect(0, 0, 512, 512);
+        vrUiCtx.fillStyle = '#040814'; vrUiCtx.fillRect(0, 0, 512, 512);
         
-        // Effetto gradiente futuristico sul bordo
         let borderGrad = vrUiCtx.createLinearGradient(0, 0, 512, 512);
-        borderGrad.addColorStop(0, '#00aaff'); borderGrad.addColorStop(0.5, '#12254f'); borderGrad.addColorStop(1, '#ff007f');
+        borderGrad.addColorStop(0, '#00bfff'); borderGrad.addColorStop(0.5, '#0c162b'); borderGrad.addColorStop(1, '#ff0066');
         vrUiCtx.strokeStyle = borderGrad; vrUiCtx.lineWidth = 6; vrUiCtx.strokeRect(3, 3, 506, 506);
 
-        // Intestazione con formula corrente
-        vrUiCtx.fillStyle = '#7dd6ff'; vrUiCtx.font = 'bold 24px sans-serif';
-        vrUiCtx.fillText(`f(x) = ${fxExpr}`, 40, 50);
+        // Intestazione Titolo
+        vrUiCtx.fillStyle = '#7dd6ff'; vrUiCtx.font = 'bold 22px sans-serif'; vrUiCtx.fillText(`f(x) = ${fxExpr}`, 40, 48);
+        vrUiCtx.fillStyle = 'rgba(0, 170, 255, 0.3)'; vrUiCtx.fillRect(40, 62, 432, 2);
 
-        // Linea decorativa neon sotto il titolo
-        vrUiCtx.fillStyle = 'rgba(0, 170, 255, 0.4)'; vrUiCtx.fillRect(40, 65, 432, 2);
-
-        // Disegno Slider Parametro A
-        vrUiCtx.fillStyle = '#5ae4ff'; vrUiCtx.font = '16px monospace'; vrUiCtx.fillText(`Parametro A: ${paramA.toFixed(1)}`, 40, 100);
+        // Parametri Sliders
+        vrUiCtx.fillStyle = '#5ae4ff'; vrUiCtx.font = '15px monospace'; vrUiCtx.fillText(`Parametro A: ${paramA.toFixed(1)}`, 40, 96);
         drawCanvasSlider(hitBoxes.sliderA, paramA, '#5ae4ff');
 
-        // Disegno Slider Parametro B
-        vrUiCtx.fillStyle = '#ff7aac'; vrUiCtx.fillText(`Parametro B: ${paramB.toFixed(1)}`, 40, 180);
+        vrUiCtx.fillStyle = '#ff7aac'; vrUiCtx.fillText(`Parametro B: ${paramB.toFixed(1)}`, 40, 172);
         drawCanvasSlider(hitBoxes.sliderB, paramB, '#ff7aac');
 
-        // Pulsanti rapidi equazioni
-        drawCanvasChip(hitBoxes.fChip1, 'A·sin(B·x)');
-        drawCanvasChip(hitBoxes.fChip2, 'A·x²+B');
-        drawCanvasChip(hitBoxes.fChip3, 'sin(A·x)/x');
+        vrUiCtx.fillStyle = '#fad85a'; vrUiCtx.fillText(`Offset x: ${xOffset.toFixed(1)}`, 40, 246);
+        drawCanvasSlider(hitBoxes.sliderX, xOffset, '#fad85a');
 
-        // Configurazione visuale camera
-        vrUiCtx.fillStyle = 'rgba(200,225,255,0.45)'; vrUiCtx.font = 'bold 12px sans-serif'; vrUiCtx.fillText('CONTROLLO CAMERA X / Y / Z', 40, 318);
-        drawCanvasBtn(hitBoxes.btnUp, '▲'); drawCanvasBtn(hitBoxes.btnDown, '▼');
-        drawCanvasBtn(hitBoxes.btnLeft, '◀'); drawCanvasBtn(hitBoxes.btnRight, '▶');
-        drawCanvasBtn(hitBoxes.btnZIn, '＋'); drawCanvasBtn(hitBoxes.btnZOut, '─');
-        vrUiCtx.fillStyle = '#fad85a'; vrUiCtx.font = '22px sans-serif'; vrUiCtx.fillText('📷', 243, 390);
+        // Chip Funzioni
+        vrUiCtx.fillStyle = 'rgba(200,225,255,0.4)'; vrUiCtx.font = 'bold 11px sans-serif'; vrUiCtx.fillText('FUNZIONI DI BASE NOMINATE', 40, 312);
+        drawCanvasChip(hitBoxes.fChip1, 'sin(x)'); drawCanvasChip(hitBoxes.fChip2, 'x² Parabola'); drawCanvasChip(hitBoxes.fChip3, 'sinc(x)');
+        drawCanvasChip(hitBoxes.fChip4, 'tan(x)'); drawCanvasChip(hitBoxes.fChip5, 'Decadimento'); drawCanvasChip(hitBoxes.fChip6, 'Logaritmo');
 
-        // Interruttori di attivazione/disattivazione spostamento (Colore di allarme arancione se attivi)
-        drawModeBtn(hitBoxes.modeMenu, 'SBLOCCA MENU', activeDragMode === 'menu');
-        drawModeBtn(hitBoxes.modeAxes, 'SBLOCCA ASSI', activeDragMode === 'axes');
+        // Stato Bottone Blocco Spostamento
+        vrUiCtx.fillStyle = movementLocked ? 'rgba(0, 255, 100, 0.12)' : 'rgba(255, 70, 70, 0.12)';
+        vrUiCtx.fillRect(hitBoxes.lockToggle.x, hitBoxes.lockToggle.y, hitBoxes.lockToggle.w, hitBoxes.lockToggle.h);
+        vrUiCtx.strokeStyle = movementLocked ? '#00ff66' : '#ff4444';
+        vrUiCtx.lineWidth = 2; vrUiCtx.strokeRect(hitBoxes.lockToggle.x, hitBoxes.lockToggle.y, hitBoxes.lockToggle.w, hitBoxes.lockToggle.h);
+        vrUiCtx.fillStyle = movementLocked ? '#00ff66' : '#ff6666';
+        vrUiCtx.font = 'bold 14px sans-serif';
+        vrUiCtx.fillText(movementLocked ? 'STATO SPOSTAMENTI: BLOCCATI (SICURO)' : 'STATO SPOSTAMENTI: SBLOCCATI (MODIFICA SPAZIO)', 62, 466);
 
         vrUiTexture.needsUpdate = true;
       }
 
       function drawCanvasSlider(box, val, color) {
-        vrUiCtx.fillStyle = 'rgba(20,45,90,0.6)'; vrUiCtx.fillRect(box.x, box.y + 14, box.w, 6);
+        vrUiCtx.fillStyle = 'rgba(20,40,80,0.6)'; vrUiCtx.fillRect(box.x, box.y + 12, box.w, 6);
         const pct = (val - box.min) / (box.max - box.min);
-        vrUiCtx.fillStyle = color; vrUiCtx.fillRect(box.x, box.y + 14, box.w * pct, 6);
-        vrUiCtx.fillStyle = '#ffffff'; vrUiCtx.beginPath(); vrUiCtx.arc(box.x + (box.w * pct), box.y + 17, 9, 0, Math.PI * 2); vrUiCtx.fill();
+        vrUiCtx.fillStyle = color; vrUiCtx.fillRect(box.x, box.y + 12, box.w * pct, 6);
+        vrUiCtx.fillStyle = '#fff'; vrUiCtx.beginPath(); vrUiCtx.arc(box.x + (box.w * pct), box.y + 15, 8, 0, Math.PI * 2); vrUiCtx.fill();
       }
 
       function drawCanvasChip(box, text) {
         vrUiCtx.fillStyle = 'rgba(0, 170, 255, 0.08)'; vrUiCtx.fillRect(box.x, box.y, box.w, box.h);
-        vrUiCtx.strokeStyle = 'rgba(0, 170, 255, 0.35)'; vrUiCtx.lineWidth = 1.5; vrUiCtx.strokeRect(box.x, box.y, box.w, box.h);
-        vrUiCtx.fillStyle = '#99ccff'; vrUiCtx.font = '14px monospace'; vrUiCtx.fillText(text, box.x + 14, box.y + 24);
+        vrUiCtx.strokeStyle = 'rgba(0, 170, 255, 0.3)'; vrUiCtx.strokeRect(box.x, box.y, box.w, box.h);
+        vrUiCtx.fillStyle = '#a2caff'; vrUiCtx.font = '12px monospace'; vrUiCtx.fillText(text, box.x + 8, box.y + 22);
       }
 
-      function drawCanvasBtn(box, text) {
-        vrUiCtx.fillStyle = 'rgba(80, 170, 255, 0.13)'; vrUiCtx.fillRect(box.x, box.y, box.w, box.h);
-        vrUiCtx.strokeStyle = 'rgba(80, 170, 255, 0.45)'; vrUiCtx.lineWidth = 1.5; vrUiCtx.strokeRect(box.x, box.y, box.w, box.h);
-        vrUiCtx.fillStyle = '#7dd6ff'; vrUiCtx.font = 'bold 16px sans-serif'; vrUiCtx.fillText(text, box.x + 12, box.y + 23);
-      }
-
-      function drawModeBtn(box, text, isUnlocked) {
-        vrUiCtx.fillStyle = isUnlocked ? 'rgba(255, 100, 0, 0.22)' : 'rgba(80, 170, 255, 0.06)';
-        vrUiCtx.fillRect(box.x, box.y, box.w, box.h);
-        vrUiCtx.strokeStyle = isUnlocked ? '#ff6400' : 'rgba(80, 170, 255, 0.35)';
-        vrUiCtx.lineWidth = 2; vrUiCtx.strokeRect(box.x, box.y, box.w, box.h);
-        vrUiCtx.fillStyle = isUnlocked ? '#ffaa66' : '#7dd6ff';
-        vrUiCtx.font = 'bold 13px sans-serif'; vrUiCtx.fillText(text, box.x + 45, box.y + 24);
-      }
-
-      // Creazione del pannello 3D VR fluttuante nello spazio geometrico
-      const vrUiGeo = new THREE.PlaneGeometry(1.25, 1.25);
+      const vrUiGeo = new THREE.PlaneGeometry(1.2, 1.2);
       const vrUiMat = new THREE.MeshBasicMaterial({ map: vrUiTexture, side: THREE.DoubleSide, transparent: true });
       vrUiMesh = new THREE.Mesh(vrUiGeo, vrUiMat);
       vrUiMesh.position.set(-1.1, 1.35, -0.5); vrUiMesh.rotation.y = 0.35;
       scene.add(vrUiMesh);
 
-      /* ══ SYNC CONTROLLI INTERFACCIA SCHERMO (2D) ═══════════ */
+      // Collega la sfera del menu direttamente alla posizione relativa del pannello mesh
+      function updateHandlesVisibility() {
+        if (movementLocked) {
+          menuHandle.visible = false;
+          axesHandle.visible = false;
+        } else {
+          menuHandle.visible = true;
+          axesHandle.visible = true;
+          menuHandle.position.copy(vrUiMesh.position).add(new THREE.Vector3(0, 0.65, 0.02));
+        }
+      }
+
+      /* ══ SINCRONIZZAZIONE SCHERMO DESKTOP (2D) ════════════ */
       const aSlider = document.getElementById('aSlider'); const aValue = document.getElementById('aValue');
       const bSlider = document.getElementById('bSlider'); const bValue = document.getElementById('bValue');
-      const dragMenuBtn = document.getElementById('dragMenuBtn'); const dragAxesBtn = document.getElementById('dragAxesBtn');
+      const xSlider = document.getElementById('xSlider'); const xValue = document.getElementById('xValue');
+      const lockToggleBtn = document.getElementById('lockToggleBtn');
 
       function syncSliderBg(el) {
         const pct = ((parseFloat(el.value) - parseFloat(el.min)) / (parseFloat(el.max) - parseFloat(el.min)) * 100).toFixed(1) + '%';
@@ -313,35 +318,27 @@
       function updateAllViews() {
         aValue.textContent = paramA.toFixed(1); aSlider.value = paramA;
         bValue.textContent = paramB.toFixed(1); bSlider.value = paramB;
-        syncSliderBg(aSlider); syncSliderBg(bSlider);
+        xValue.textContent = xOffset.toFixed(1); xSlider.value = xOffset;
+        syncSliderBg(aSlider); syncSliderBg(bSlider); syncSliderBg(xSlider);
         updateFxCurve();
+        updateHandlesVisibility();
         drawVrUi();
       }
 
       aSlider.addEventListener('input', e => { paramA = parseFloat(e.target.value); updateAllViews(); });
       bSlider.addEventListener('input', e => { paramB = parseFloat(e.target.value); updateAllViews(); });
+      xSlider.addEventListener('input', e => { xOffset = parseFloat(e.target.value); updateAllViews(); });
 
-      function toggleDragMode(mode, btnEl) {
-        if (activeDragMode === mode) {
-          activeDragMode = null; btnEl.classList.remove('active');
+      function toggleMovementLock() {
+        movementLocked = !movementLocked;
+        if (movementLocked) {
+          lockToggleBtn.textContent = "BLOCCATO"; lockToggleBtn.classList.add('locked');
         } else {
-          activeDragMode = mode;
-          dragMenuBtn.classList.remove('active'); dragAxesBtn.classList.remove('active');
-          btnEl.classList.add('active');
+          lockToggleBtn.textContent = "LIBERA"; lockToggleBtn.classList.remove('locked');
         }
-        drawVrUi();
+        updateAllViews();
       }
-      dragMenuBtn.addEventListener('click', () => toggleDragMode('menu', dragMenuBtn));
-      dragAxesBtn.addEventListener('click', () => toggleDragMode('axes', dragAxesBtn));
-
-      /* Movimenti camera applicati al Rig */
-      const CAM_SPEED = 0.15;
-      document.getElementById('camUp').addEventListener('click', () => { cameraRig.position.y += CAM_SPEED; });
-      document.getElementById('camDown').addEventListener('click', () => { cameraRig.position.y -= CAM_SPEED; });
-      document.getElementById('camLeft').addEventListener('click', () => { cameraRig.position.x -= CAM_SPEED; });
-      document.getElementById('camRight').addEventListener('click', () => { cameraRig.position.x += CAM_SPEED; });
-      document.getElementById('camZIn').addEventListener('click', () => { cameraRig.position.z -= CAM_SPEED; });
-      document.getElementById('camZOut').addEventListener('click', () => { cameraRig.position.z += CAM_SPEED; });
+      lockToggleBtn.addEventListener('click', toggleMovementLock);
 
       document.getElementById('applyBtn').addEventListener('click', () => {
         fxExpr = document.getElementById('fxInput').value.trim(); updateAllViews();
@@ -352,7 +349,7 @@
         });
       });
 
-      /* ══ LOGICA COMPILATORE MATEMATICO f(x) ══════════════ */
+      /* ══ COMPILATORE DELLE ESPRESSIONI MATEMATICHE f(x) ═══ */
       function buildEval(expr) {
         const e = expr.replace(/\^/g, '**').replace(/\bsin\b/g, 'Math.sin').replace(/\bcos\b/g, 'Math.cos').replace(/\btan\b/g, 'Math.tan').replace(/\bpi\b/gi, 'Math.PI');
         return new Function('x', 'A', 'B', `"use strict"; return (${e});`);
@@ -362,18 +359,18 @@
         if (fxCurve) { axesGroup.remove(fxCurve); }
         let fn; try { fn = buildEval(fxExpr); } catch(_) { return; }
         const segments = []; let seg = [];
-        const start = -Math.PI * 4, end = Math.PI * 4, step = 0.05, SCALE_X = 0.3, SCALE_Y = 0.55;
+        const start = -Math.PI * 4, end = Math.PI * 4, step = 0.04, SCALE_X = 0.3, SCALE_Y = 0.55;
 
         for (let t = start; t <= end; t += step) {
-          let y = fn(t, paramA, paramB);
-          if (!isFinite(y) || Math.abs(y * SCALE_Y) > 5.0) {
+          let cx = t + xOffset; let y = fn(cx, paramA, paramB);
+          if (!isFinite(y) || Math.abs(y * SCALE_Y) > 5.5) {
             if (seg.length > 1) segments.push(seg); seg = [];
           } else { seg.push(new THREE.Vector3(t * SCALE_X, y * SCALE_Y, 0)); }
         }
         if (seg.length > 1) segments.push(seg);
 
         fxCurve = new THREE.Group();
-        const mat = new THREE.LineBasicMaterial({ color: 0xffdd33, linewidth: 2.5 });
+        const mat = new THREE.LineBasicMaterial({ color: 0xffdd33, linewidth: 3 });
         segments.forEach(pts => {
           const geo = new THREE.BufferGeometry().setFromPoints(pts);
           fxCurve.add(new THREE.Line(geo, mat));
@@ -381,22 +378,21 @@
         axesGroup.add(fxCurve);
       }
 
-      /* ══ GENERAZIONE ASSI CARTESIANI CON FRECCE RIPRISTINATE ═ */
+      /* ══ CREAZIONE ASSI CARTESIANI CON CONI RIPRISTINATI ══ */
       createAxes();
       updateAllViews();
 
       function createAxes() {
-        const length = 3.0, thickness = 0.022;
-        const mX = new THREE.MeshStandardMaterial({ color: 0x5ae4ff, roughness: 0.3, metalness: 0.2, emissive: 0x1a5070 });
-        const mY = new THREE.MeshStandardMaterial({ color: 0x7affa0, roughness: 0.3, metalness: 0.2, emissive: 0x105030 });
-        const mZ = new THREE.MeshStandardMaterial({ color: 0xff7aac, roughness: 0.3, metalness: 0.2, emissive: 0x501030 });
+        const length = 3.0, thickness = 0.024;
+        const mX = new THREE.MeshStandardMaterial({ color: 0x5ae4ff, roughness: 0.3, metalness: 0.2, emissive: 0x144060 });
+        const mY = new THREE.MeshStandardMaterial({ color: 0x7affa0, roughness: 0.3, metalness: 0.2, emissive: 0x0c4020 });
+        const mZ = new THREE.MeshStandardMaterial({ color: 0xff7aac, roughness: 0.3, metalness: 0.2, emissive: 0.400510 });
 
-        // Cilindri principali degli assi
         const xCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mX); xCyl.rotation.z = -Math.PI/2; xCyl.position.x = length/2; axesGroup.add(xCyl);
         const yCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mY); yCyl.position.y = length/2; axesGroup.add(yCyl);
         const zCyl = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), mZ); zCyl.rotation.x = Math.PI/2; zCyl.position.z = length/2; axesGroup.add(zCyl);
 
-        // FRECCE DIREZIONALI RIPRISTINATE (Coni geometrici)
+        // Frecce a cono
         const coneGeo = new THREE.ConeGeometry(0.065, 0.2, 16);
         const xArrow = new THREE.Mesh(coneGeo, mX); xArrow.rotation.z = -Math.PI/2; xArrow.position.set(length, 0, 0);
         const yArrow = new THREE.Mesh(coneGeo, mY); yArrow.position.set(0, length, 0);
@@ -404,24 +400,24 @@
         axesGroup.add(xArrow, yArrow, zArrow);
       }
 
-      /* ══ LOGICA PUNTATORI E CONTROLLER VR ═════════════════ */
+      /* ══ LOGICA INTERAZIONE E TRASCINAMENTO CONTROLLER VR ══ */
       const controllers = [renderer.xr.getController(0), renderer.xr.getController(1)];
       controllers.forEach((c) => {
         scene.add(c);
         c.addEventListener('selectstart', onSelectStart);
         c.addEventListener('selectend', onSelectEnd);
         
-        // Raggio laser grafico di puntamento
         const rayGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]);
-        const rayMat = new THREE.LineBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.6 });
+        const rayMat = new THREE.LineBasicMaterial({ color: 0x00bfff, transparent: true, opacity: 0.5 });
         const ray = new THREE.Line(rayGeo, rayMat); ray.scale.z = 8; c.add(ray);
       });
 
       const raycaster = new THREE.Raycaster();
       const tempMatrix = new THREE.Matrix4();
       let selectedController = null;
+      let vrDragTarget = null; // 'menu', 'axes', o null
       let activeBox = null;
-      let initialObjectOffset = new THREE.Vector3();
+      let initialGrabOffset = new THREE.Vector3();
 
       function onSelectStart(event) {
         const controller = event.target;
@@ -429,27 +425,24 @@
         raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
         raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-        // Se lo SPOSTAMENTO MENU è abilitato e sbloccato
-        if (activeDragMode === 'menu') {
-          const hits = raycaster.intersectObject(vrUiMesh);
-          if (hits.length > 0) {
-            selectedController = controller;
-            initialObjectOffset.copy(vrUiMesh.position).sub(hits[0].point);
+        if (!movementLocked) {
+          // Controllo selezione della maniglia sferica del Menu
+          const hitMenuHandle = raycaster.intersectObject(menuHandle);
+          if (hitMenuHandle.length > 0) {
+            selectedController = controller; vrDragTarget = 'menu';
+            initialGrabOffset.copy(vrUiMesh.position).sub(hitMenuHandle[0].point);
             return;
           }
-        }
-        
-        // Se lo SPOSTAMENTO ASSI è abilitato e sbloccato
-        if (activeDragMode === 'axes') {
-          const hits = raycaster.intersectObject(axesGroup, true);
-          if (hits.length > 0) {
-            selectedController = controller;
-            initialObjectOffset.copy(axesGroup.position).sub(hits[0].point);
+          // Controllo selezione della maniglia sferica degli Assi
+          const hitAxesHandle = raycaster.intersectObject(axesHandle);
+          if (hitAxesHandle.length > 0) {
+            selectedController = controller; vrDragTarget = 'axes';
+            initialGrabOffset.copy(axesGroup.position).sub(hitAxesHandle[0].point);
             return;
           }
         }
 
-        // Interazione standard con pulsanti e slider del canvas VR
+        // Interazione standard con interfaccia UI del Canvas VR
         const intersects = raycaster.intersectObject(vrUiMesh);
         if (intersects.length > 0) {
           const uv = intersects[0].uv;
@@ -465,7 +458,7 @@
         }
       }
 
-      function onSelectEnd() { selectedController = null; activeBox = null; }
+      function onSelectEnd() { selectedController = null; vrDragTarget = null; activeBox = null; }
 
       function handleVrInteraction(canvasX) {
         if (!activeBox) return;
@@ -475,6 +468,7 @@
           const val = activeBox.min + pct * (activeBox.max - activeBox.min);
           if (activeBox.key === 'A') paramA = val;
           if (activeBox.key === 'B') paramB = val;
+          if (activeBox.key === 'X') xOffset = val;
           updateAllViews();
         } 
         else if (activeBox.type === 'formula') {
@@ -482,20 +476,8 @@
           document.getElementById('fxInput').value = fxExpr;
           updateAllViews();
         }
-        else if (activeBox.type === 'mode') {
-          activeDragMode = (activeDragMode === activeBox.mode) ? null : activeBox.mode;
-          dragMenuBtn.classList.remove('active'); dragAxesBtn.classList.remove('active');
-          if (activeDragMode === 'menu') dragMenuBtn.classList.add('active');
-          if (activeDragMode === 'axes') dragAxesBtn.classList.add('active');
-          drawVrUi();
-        }
-        else if (activeBox.type === 'btn') {
-          if (activeBox.action === 'camUp') cameraRig.position.y += CAM_SPEED;
-          if (activeBox.action === 'camDown') cameraRig.position.y -= CAM_SPEED;
-          if (activeBox.action === 'camLeft') cameraRig.position.x -= CAM_SPEED;
-          if (activeBox.action === 'camRight') cameraRig.position.x += CAM_SPEED;
-          if (activeBox.action === 'camZIn') cameraRig.position.z -= CAM_SPEED;
-          if (activeBox.action === 'camZOut') cameraRig.position.z += CAM_SPEED;
+        else if (activeBox.type === 'lock') {
+          toggleMovementLock();
         }
       }
 
@@ -504,19 +486,20 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
       });
 
-      /* ══ RENDERING E LOGICA TRASCINAMENTO CONTINUO ════════ */
+      /* ══ RENDERING E LOOP DI MOVIMENTO IN TEMPO REALE ══════ */
       renderer.setAnimationLoop(() => {
         if (selectedController) {
           tempMatrix.identity().extractRotation(selectedController.matrixWorld);
           raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
           raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-          if (activeDragMode === 'menu') {
-            const targetPos = new THREE.Vector3().copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 1.4).add(initialObjectOffset);
+          if (vrDragTarget === 'menu') {
+            const targetPos = new THREE.Vector3().copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 1.4).add(initialGrabOffset);
             vrUiMesh.position.copy(targetPos);
+            menuHandle.position.copy(targetPos).add(new THREE.Vector3(0, 0.65, 0.02));
           } 
-          else if (activeDragMode === 'axes') {
-            const targetPos = new THREE.Vector3().copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 1.6).add(initialObjectOffset);
+          else if (vrDragTarget === 'axes') {
+            const targetPos = new THREE.Vector3().copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 1.6).add(initialGrabOffset);
             axesGroup.position.copy(targetPos);
           } 
           else if (activeBox && activeBox.type === 'slider') {
