@@ -103,7 +103,7 @@
       </div>
       <div id="sliderContainer" style="margin-top:0.4rem;">
         <span id="sliderLabel">B:</span>
-        <input type="range" id="bSlider" min="-5" max="5" step="0.01" value="1" />
+        <input type="range" id="bSlider" min="0" max="5" step="0.01" value="1" />
         <span id="bValue">1.00</span>
       </div>
       <div id="functionText" style="margin-top:0.6rem; font-family: monospace; color: #ffd568;">y = 1.00 * cos(1.00 * x)</div>
@@ -379,7 +379,7 @@
               updateSliderThumbs();
               updateFunctionText();
             } else {
-              const minB = -5.0;
+              const minB = 0.0;
               const maxB = 5.0;
               frequency = minB + normalized * (maxB - minB);
               frequency = Math.max(minB, Math.min(maxB, frequency));
@@ -449,7 +449,7 @@
           aThumb.position.x = minX + normalizedA * trackLength;
         }
         if (bThumb) {
-          const normalizedB = (frequency - (-5.0)) / (5.0 - (-5.0));
+          const normalizedB = frequency / 5.0;
           bThumb.position.x = minX + normalizedB * trackLength;
         }
       }
