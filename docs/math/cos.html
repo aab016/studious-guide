@@ -98,12 +98,12 @@
       <strong>Cos Plot XR</strong>
       <div id="sliderContainer">
         <span id="sliderLabel">A:</span>
-        <input type="range" id="aSlider" min="0" max="2" step="0.01" value="1" />
+        <input type="range" id="aSlider" min="-5" max="5" step="0.01" value="1" />
         <span id="aValue">1.00</span>
       </div>
       <div id="sliderContainer" style="margin-top:0.4rem;">
         <span id="sliderLabel">B:</span>
-        <input type="range" id="bSlider" min="0.1" max="5" step="0.01" value="1" />
+        <input type="range" id="bSlider" min="-5" max="5" step="0.01" value="1" />
         <span id="bValue">1.00</span>
       </div>
       <div id="functionText" style="margin-top:0.6rem; font-family: monospace; color: #ffd568;">y = 1.00 * cos(1.00 * x)</div>
@@ -369,8 +369,8 @@
             const trackLength = maxX - minX;
             const normalized = (point.x - minX) / trackLength;
             if (selectedMode === 'vrSliderA') {
-              const minA = 0.0;
-              const maxA = 2.0;
+              const minA = -5.0;
+              const maxA = 5.0;
               amplitude = minA + normalized * (maxA - minA);
               amplitude = Math.max(minA, Math.min(maxA, amplitude));
               aSlider.value = amplitude;
@@ -379,7 +379,7 @@
               updateSliderThumbs();
               updateFunctionText();
             } else {
-              const minB = 0.1;
+              const minB = -5.0;
               const maxB = 5.0;
               frequency = minB + normalized * (maxB - minB);
               frequency = Math.max(minB, Math.min(maxB, frequency));
@@ -445,11 +445,11 @@
         const maxX = 3.14;
         const trackLength = maxX - minX;
         if (aThumb) {
-          const normalizedA = (amplitude - 0.0) / (2.0 - 0.0);
+          const normalizedA = (amplitude - (-5.0)) / (5.0 - (-5.0));
           aThumb.position.x = minX + normalizedA * trackLength;
         }
         if (bThumb) {
-          const normalizedB = (frequency - 0.1) / (5.0 - 0.1);
+          const normalizedB = (frequency - (-5.0)) / (5.0 - (-5.0));
           bThumb.position.x = minX + normalizedB * trackLength;
         }
       }
