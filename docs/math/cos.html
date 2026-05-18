@@ -97,9 +97,14 @@
     <div id="info">
       <strong>Cos Plot XR</strong>
       <div id="sliderContainer">
-        <span id="sliderLabel">x offset:</span>
-        <input type="range" id="xSlider" min="-31.4" max="31.4" step="0.1" value="0" />
-        <span id="xValue">0.0</span>
+        <span id="sliderLabel">A:</span>
+        <input type="range" id="aSlider" min="0" max="2" step="0.01" value="1" />
+        <span id="aValue">1.00</span>
+      </div>
+      <div id="sliderContainer" style="margin-top:0.4rem;">
+        <span id="sliderLabel">B:</span>
+        <input type="range" id="bSlider" min="0.1" max="5" step="0.01" value="1" />
+        <span id="bValue">1.00</span>
       </div>
       <p style="margin-top: 0.6rem; margin-bottom: 0;">A 3D cosine plot is shown with x, y, and z axes. Grab a connected VR controller and use the select trigger to rotate and translate the axis group.</p>
     </div>
@@ -144,13 +149,15 @@
       scene.add(axesGroup);
 
       let cosCurve = null;
-      let xOffset = 0;
+      let amplitude = 1.0;
+      let frequency = 1.0;
 
       createAxes();
-      cosCurve = createCosCurve(xOffset);
+      cosCurve = createCosCurve(amplitude, frequency);
 
       const sliderGroup = createVRSlider();
       scene.add(sliderGroup);
+      updateSliderThumbs();
 
       const controllers = [createController(0), createController(1)];
       controllers.forEach((controller) => scene.add(controller));
@@ -166,57 +173,33 @@
       let sliderStartX = 0;
       let sliderStartOffset = 0;
 
-      const xSlider = document.getElementById('xSlider');
-      const xValue = document.getElementById('xValue');
-      xSlider.addEventListener('input', onSliderChange);
+      const aSlider = document.getElementById('aSlider');
+      const aValue = document.getElementById('aValue');
+      aSlider.addEventListener('input', onSliderChange);
+      const bSlider = document.getElementById('bSlider');
+      const bValue = document.getElementById('bValue');
+      bSlider.addEventListener('input', onSliderChange);
 
       window.addEventListener('resize', onWindowResize);
       renderer.setAnimationLoop(render);
 
       function onSliderChange(event) {
-        xOffset = parseFloat(event.target.value);
-        xValue.textContent = xOffset.toFixed(1);
+        amplitude = parseFloat(aSlider.value);
+        frequency = parseFloat(bSlider.value);
+        aValue.textContent = amplitude.toFixed(2);
+        bValue.textContent = frequency.toFixed(2);
         updateCosCurve();
-        updateSliderThumb();
+        updateSliderThumbs();
       }
 
       function updateCosCurve() {
         if (cosCurve) {
           axesGroup.remove(cosCurve);
         }
-        cosCurve = createCosCurve(xOffset);
+        cosCurve = createCosCurve(amplitude, frequency);
       }
 
-      function updateSliderThumb() {
-        const thumbMesh = sliderGroup.getObjectByName('sliderThumb');
-        if (thumbMesh) {
-          const minX = -3.14;
-          const maxX = 3.14;
-          const trackLength = maxX - minX;
-          const normalizedValue = (xOffset - (-31.4)) / (31.4 - (-31.4));
-          thumbMesh.position.x = minX + normalizedValue * trackLength;
-        }
-      }
-
-      function createVRSlider() {
-        const group = new THREE.Group();
-        group.position.set(0, 0.5, 0.2);
-
-        const trackGeometry = new THREE.BoxGeometry(6.28, 0.06, 0.06);
-        const trackMaterial = new THREE.MeshStandardMaterial({ color: 0x1a3a5c, roughness: 0.8, metalness: 0.2 });
-        const track = new THREE.Mesh(trackGeometry, trackMaterial);
-        track.name = 'sliderTrack';
-        group.add(track);
-
-        const thumbGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.15);
-        const thumbMaterial = new THREE.MeshStandardMaterial({ color: 0x88c8ff, roughness: 0.3, metalness: 0.6, emissive: 0x44a0ff, emissiveIntensity: 0.3 });
-        const thumb = new THREE.Mesh(thumbGeometry, thumbMaterial);
-        thumb.name = 'sliderThumb';
-        thumb.position.x = 0;
-        group.add(thumb);
-
-        return group;
-      }
+      
 
       function createAxes() {
         const material = new THREE.MeshStandardMaterial({ color: 0x88c8ff, roughness: 0.3, metalness: 0.2 });
@@ -282,13 +265,13 @@
         return label;
       }
 
-      function createCosCurve(xOff) {
+      function createCosCurve(A, B) {
         const points = [];
         const start = -Math.PI * 4;
         const end = Math.PI * 4;
         const step = 0.08;
         for (let x = start; x <= end; x += step) {
-          points.push(new THREE.Vector3((x + xOff) * 0.28, Math.cos(x + xOff) * 0.7, 0));
+          points.push(new THREE.Vector3(x * 0.28, A * Math.cos(B * x) * 0.7, 0));
         }
 
         const curveGeometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -327,16 +310,12 @@
         const intersections = getControllerIntersections(controller);
         if (intersections.length) {
           const hitObject = intersections[0].object;
-          if (hitObject.name === 'sliderThumb') {
-            selectedMode = 'slider';
+          if (hitObject.name === 'aThumb' || hitObject.name === 'aTrack') {
+            selectedMode = 'vrSliderA';
             selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartOffset = xOffset;
-          } else if (hitObject.name === 'sliderTrack') {
-            selectedMode = 'slider';
+          } else if (hitObject.name === 'bThumb' || hitObject.name === 'bTrack') {
+            selectedMode = 'vrSliderB';
             selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartOffset = xOffset;
           } else {
             selectedMode = 'transform';
             selectedController = controller;
@@ -375,28 +354,92 @@
           const currentPos = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld);
           const deltaPos = currentPos.clone().sub(controllerStartPos);
           axesGroup.position.copy(axesStartPos).add(deltaPos);
-        } else if (selectedController && selectedMode === 'slider') {
+        } else if (selectedController && (selectedMode === 'vrSliderA' || selectedMode === 'vrSliderB')) {
           tempMatrix.identity().extractRotation(selectedController.matrixWorld);
           raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
           raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
           const sliderIntersections = raycaster.intersectObjects(sliderGroup.children, true);
           if (sliderIntersections.length) {
-            const currentX = sliderIntersections[0].point.x;
-            const deltaX = currentX - sliderStartX;
+            const point = sliderIntersections[0].point;
             const minX = -3.14;
             const maxX = 3.14;
             const trackLength = maxX - minX;
-            const normalizedDelta = deltaX / trackLength;
-            const offsetRange = 31.4 - (-31.4);
-            xOffset = sliderStartOffset + normalizedDelta * offsetRange;
-            xOffset = Math.max(-31.4, Math.min(31.4, xOffset));
-            xSlider.value = xOffset;
-            xValue.textContent = xOffset.toFixed(1);
-            updateCosCurve();
-            updateSliderThumb();
+            const normalized = (point.x - minX) / trackLength;
+            if (selectedMode === 'vrSliderA') {
+              const minA = 0.0;
+              const maxA = 2.0;
+              amplitude = minA + normalized * (maxA - minA);
+              amplitude = Math.max(minA, Math.min(maxA, amplitude));
+              aSlider.value = amplitude;
+              aValue.textContent = amplitude.toFixed(2);
+              updateCosCurve();
+              updateSliderThumbs();
+            } else {
+              const minB = 0.1;
+              const maxB = 5.0;
+              frequency = minB + normalized * (maxB - minB);
+              frequency = Math.max(minB, Math.min(maxB, frequency));
+              bSlider.value = frequency;
+              bValue.textContent = frequency.toFixed(2);
+              updateCosCurve();
+              updateSliderThumbs();
+            }
           }
         }
         renderer.render(scene, camera);
+      }
+
+      function createVRSlider() {
+        const group = new THREE.Group();
+        group.position.set(0, 0.5, 0.2);
+
+        const minX = -3.14;
+        const maxX = 3.14;
+        const trackLength = maxX - minX;
+
+        // A track (amplitude)
+        const trackAGeom = new THREE.BoxGeometry(trackLength, 0.06, 0.06);
+        const trackMat = new THREE.MeshStandardMaterial({ color: 0x1a3a5c, roughness: 0.8, metalness: 0.2 });
+        const trackA = new THREE.Mesh(trackAGeom, trackMat);
+        trackA.name = 'aTrack';
+        trackA.position.set((minX + maxX) / 2, 0.02, 0);
+        group.add(trackA);
+
+        const thumbGeom = new THREE.BoxGeometry(0.18, 0.15, 0.15);
+        const thumbMat = new THREE.MeshStandardMaterial({ color: 0x88c8ff, roughness: 0.3, metalness: 0.6, emissive: 0x44a0ff, emissiveIntensity: 0.3 });
+        const aThumb = new THREE.Mesh(thumbGeom, thumbMat);
+        aThumb.name = 'aThumb';
+        aThumb.position.set(0, 0.02, 0);
+        group.add(aThumb);
+
+        // B track (frequency) slightly below
+        const trackB = new THREE.Mesh(trackAGeom.clone(), trackMat.clone());
+        trackB.name = 'bTrack';
+        trackB.position.set((minX + maxX) / 2, -0.18, 0);
+        group.add(trackB);
+
+        const bThumb = new THREE.Mesh(thumbGeom.clone(), thumbMat.clone());
+        bThumb.name = 'bThumb';
+        bThumb.position.set(0, -0.18, 0);
+        group.add(bThumb);
+
+        return group;
+      }
+
+      function updateSliderThumbs() {
+        const aThumb = sliderGroup.getObjectByName('aThumb');
+        const bThumb = sliderGroup.getObjectByName('bThumb');
+        const minX = -3.14;
+        const maxX = 3.14;
+        const trackLength = maxX - minX;
+        if (aThumb) {
+          const normalizedA = (amplitude - 0.0) / (2.0 - 0.0);
+          aThumb.position.x = minX + normalizedA * trackLength;
+        }
+        if (bThumb) {
+          const normalizedB = (frequency - 0.1) / (5.0 - 0.1);
+          bThumb.position.x = minX + normalizedB * trackLength;
+        }
       }
     </script>
   </body>
