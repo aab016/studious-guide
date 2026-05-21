@@ -256,7 +256,6 @@
       function updateSphere() {
         if (sphereMesh) {
           sphereMesh.scale.setScalar(radius);
-          // Modificato per accettare le reali posizioni relative dell'origine degli assi
           sphereMesh.position.set(centerX, radius + centerY, centerZ);
         }
       }
@@ -290,7 +289,7 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.fillStyle = 'rgba(5, 9, 24, 0.0)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.font = 'bold 50px system-ui, sans-serif'; // Leggermente ridotto per far entrare il testo più lungo
+          ctx.font = 'bold 45px system-ui, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = '#dbe8ff';
@@ -371,7 +370,7 @@
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = 'rgba(5, 9, 24, 0.0)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = 'bold 50px system-ui, sans-serif';
+        ctx.font = 'bold 45px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#dbe8ff';
