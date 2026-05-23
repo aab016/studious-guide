@@ -13,6 +13,7 @@ app/my-pwa/build
 app/my-pwa/app/build
 app/my-pwa/app-release-bundle.aab
 app/my-pwa/app-release-signed.apk
-.gitignore
 app/my-pwa/app-release-unsigned-aligned.apk
 app/my-pwa/app-release-signed.apk.idsig
+docs/physics/cert.pem
+docs/physics/key.pem
