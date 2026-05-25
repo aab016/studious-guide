@@ -181,6 +181,9 @@
 
       createAxes();
       sphereMesh = createSphere(radius, centerX, centerY, centerZ);
+      
+      // Gli slider VR sono posizionati a z = -2 nell'ambiente.
+      // Creiamo l'etichetta inserendola direttamente nella scena in modo che stia sotto i pannelli fissi degli slider.
       formulaMesh = createFormulaLabel(radius, centerX, centerY, centerZ);
 
       const radiusSliderGroup = createVRSlider('radius');
@@ -380,12 +383,13 @@
         texture.encoding = THREE.sRGBEncoding;
 
         const label = new THREE.Mesh(
-          new THREE.PlaneGeometry(2.5, 0.6),
+          new THREE.PlaneGeometry(3.5, 0.8),
           new THREE.MeshBasicMaterial({ map: texture, transparent: true })
         );
-        label.position.set(0, 2.5, -0.5);
-        label.lookAt(camera.position);
-        axesGroup.add(label);
+        
+        // Posizionato stabilmente sotto l'ultimo slider (l'ultimo slider è a y = 0.1, z = -2)
+        label.position.set(0, -0.4, -2);
+        scene.add(label); 
         return label;
       }
 
@@ -575,11 +579,21 @@
             }
             updateSphere();
             updateFormulaBox();
+
+            // Aggiorna dinamicamente i valori di partenza per trascinamenti fluidi in VR
+            sliderStartX = currentX;
+            if (selectedMode === 'slider_radius') sliderStartValue = radius;
+            else if (selectedMode === 'slider_center') sliderStartValue = centerX;
+            else if (selectedMode === 'slider_centerY') sliderStartValue = centerY;
+            else if (selectedMode === 'slider_centerZ') sliderStartValue = centerZ;
           }
         }
+
+        // Mantiene l'orientamento corretto verso gli occhi dell'utente in VR sotto gli slider
         if (formulaMesh) {
           formulaMesh.lookAt(camera.position);
         }
+
         renderer.render(scene, camera);
       }
     </script>
