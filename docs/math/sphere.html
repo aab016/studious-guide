@@ -136,22 +136,22 @@
         <span id="radiusValue" class="valueLabel">1.0</span>
       </div>
       <div class="sliderRow">
-        <span>center x:</span>
+        <span>x:</span>
         <input type="range" id="centerSlider" min="-2" max="2" step="0.1" value="0" />
         <span id="centerValue" class="valueLabel">0.0</span>
       </div>
       <div class="sliderRow">
-        <span>center y:</span>
+        <span>y:</span>
         <input type="range" id="centerYSlider" min="-2" max="2" step="0.1" value="0" />
         <span id="centerYValue" class="valueLabel">0.0</span>
       </div>
       <div class="sliderRow">
-        <span>center z:</span>
+        <span>z:</span>
         <input type="range" id="centerZSlider" min="-2" max="2" step="0.1" value="0" />
         <span id="centerZValue" class="valueLabel">0.0</span>
       </div>
-      <div id="formulaBox">radius = 1.0, center x = 0.0, center y = 0.0, center z = 0.0</div>
-      <p style="margin-top: 0.7rem; margin-bottom: 0;">A 3D sphere is displayed with adjustable radius and center positions. Grab a connected VR controller and use the select trigger to rotate and translate the axis group, or use the VR sliders to change the sphere radius and center position.</p>
+      <div id="formulaBox">radius = 1.0, x = 0.0, y = 0.0, z = 0.0</div>
+      <p style="margin-top: 0.7rem; margin-bottom: 0;">A 3D sphere is displayed with adjustable radius and positions. Grab a connected VR controller and use the select trigger to rotate and translate the axis group, or use the VR sliders to change the sphere radius and position.</p>
     </div>
     <script type="module">
       import * as THREE from '../vendor/three/build/three.module.js';
@@ -169,7 +169,7 @@
       scene.background = new THREE.Color(0x050a18);
 
       const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
-      camera.position.set(0, 1.8, 4);
+      camera.position.set(0, 1.6, 4);
 
       const ambientLight = new THREE.HemisphereLight(0xffffff, 0x202035, 0.9);
       scene.add(ambientLight);
@@ -178,15 +178,15 @@
       scene.add(directionalLight);
 
       const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, 10),
+        new THREE.PlaneGeometry(20, 20),
         new THREE.MeshStandardMaterial({ color: 0x081025, roughness: 0.95, metalness: 0.05 })
       );
       floor.rotation.x = -Math.PI / 2;
       floor.position.y = 0;
       scene.add(floor);
 
-      const grid = new THREE.GridHelper(8, 16, 0x204b8a, 0x10203a);
-      grid.position.y = 0.001;
+      const grid = new THREE.GridHelper(20, 40, 0x204b8a, 0x10203a);
+      grid.position.y = 0.01;
       scene.add(grid);
 
       const axesGroup = new THREE.Group();
@@ -199,28 +199,25 @@
       let centerY = 0;
       let centerZ = 0;
       let formulaMesh = null;
-      let exitVRMesh = null;
 
       createAxes();
       sphereMesh = createSphere(radius, centerX, centerY, centerZ);
-      
       formulaMesh = createFormulaLabel(radius, centerX, centerY, centerZ);
-      exitVRMesh = createExitVRButton();
 
       const radiusSliderGroup = createVRSlider('radius');
-      radiusSliderGroup.position.set(0, 1.3, -2);
+      radiusSliderGroup.position.set(0, 1.5, -2.5);
       scene.add(radiusSliderGroup);
 
       const centerSliderGroup = createVRSlider('center');
-      centerSliderGroup.position.set(0, 0.9, -2);
+      centerSliderGroup.position.set(0, 1.2, -2.5);
       scene.add(centerSliderGroup);
 
       const centerYSliderGroup = createVRSlider('centerY');
-      centerYSliderGroup.position.set(0, 0.5, -2);
+      centerYSliderGroup.position.set(0, 0.9, -2.5);
       scene.add(centerYSliderGroup);
 
       const centerZSliderGroup = createVRSlider('centerZ');
-      centerZSliderGroup.position.set(0, 0.1, -2);
+      centerZSliderGroup.position.set(0, 0.6, -2.5);
       scene.add(centerZSliderGroup);
 
       updateSliderThumb('radius', radius);
@@ -260,7 +257,6 @@
       window.addEventListener('resize', onWindowResize);
       renderer.setAnimationLoop(render);
 
-      // Gestione della visibilità del tasto back della pagina in base alla modalità XR
       renderer.xr.addEventListener('sessionstart', () => {
         document.getElementById('backButton').style.display = 'none';
       });
@@ -285,6 +281,7 @@
         updateSliderThumb('centerZ', centerZ);
       }
 
+      // Aggiorna la sfera nel mondo 3D
       function updateSphere() {
         if (sphereMesh) {
           sphereMesh.scale.setScalar(radius);
@@ -311,8 +308,9 @@
         }
       }
 
+      // Gestione del pannello stringa info (Rimosso 'center' da z)
       function updateFormulaBox() {
-        const text = `radius = ${radius.toFixed(1)}, center x = ${centerX.toFixed(1)}, center y = ${centerY.toFixed(1)}, center z = ${centerZ.toFixed(1)}`;
+        const text = `radius = ${radius.toFixed(1)}, x = ${centerX.toFixed(1)}, y = ${centerY.toFixed(1)}, z = ${centerZ.toFixed(1)}`;
         formulaBox.textContent = text;
 
         if (formulaMesh) {
@@ -395,7 +393,7 @@
       }
 
       function createFormulaLabel(radius, centerX, centerY, centerZ) {
-        const text = `radius = ${radius.toFixed(1)}, center x = ${centerX.toFixed(1)}, center y = ${centerY.toFixed(1)}, center z = ${centerZ.toFixed(1)}`;
+        const text = `radius = ${radius.toFixed(1)}, x = ${centerX.toFixed(1)}, y = ${centerY.toFixed(1)}, z = ${centerZ.toFixed(1)}`;
         const canvas = document.createElement('canvas');
         canvas.width = 1024;
         canvas.height = 256;
@@ -416,43 +414,9 @@
           new THREE.MeshBasicMaterial({ map: texture, transparent: true })
         );
         
-        label.position.set(0, -0.4, -2);
+        label.position.set(0, 0.2, -2.5);
         scene.add(label); 
         return label;
-      }
-
-      function createExitVRButton() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 128;
-        const ctx = canvas.getContext('2d');
-        
-        // Sfondo rosso/arancio scuro per il bottone di uscita
-        ctx.fillStyle = '#6b1d1d';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Bordo luminoso
-        ctx.lineWidth = 6;
-        ctx.strokeStyle = '#ff6b6b';
-        ctx.strokeRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.font = 'bold 36px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText('EXIT VR', canvas.width / 2, canvas.height / 2);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
-
-        const buttonMesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.8, 0.4),
-          new THREE.MeshBasicMaterial({ map: texture })
-        );
-        buttonMesh.name = 'exit_vr_button';
-        // Posizionato leggermente a destra sotto l'etichetta delle coordinate
-        buttonMesh.position.set(2.3, -0.4, -2);
-        scene.add(buttonMesh);
-        return buttonMesh;
       }
 
       function createVRSlider(name) {
@@ -518,15 +482,6 @@
         const intersections = getControllerIntersections(controller);
         if (intersections.length) {
           const hitObject = intersections[0].object;
-          
-          // Controllo se è stato premuto il pulsante di uscita dal VR
-          if (hitObject.name === 'exit_vr_button') {
-            const session = renderer.xr.getSession();
-            if (session) {
-              session.end();
-            }
-            return;
-          }
 
           if (hitObject.name === 'radius_thumb' || hitObject.name === 'radius_track') {
             selectedMode = 'slider_radius';
@@ -559,6 +514,7 @@
         }
       }
 
+      // Rilascia la selezione
       function onSelectEnd() {
         selectedController = null;
         selectedMode = null;
@@ -572,8 +528,7 @@
           raycaster.intersectObjects(centerSliderGroup.children, true),
           raycaster.intersectObjects(centerYSliderGroup.children, true),
           raycaster.intersectObjects(centerZSliderGroup.children, true),
-          raycaster.intersectObjects(axesGroup.children, true),
-          [exitVRMesh] // Includiamo il pulsante di uscita nei possibili oggetti intersecabili dal raggio
+          raycaster.intersectObjects(axesGroup.children, true)
         );
       }
 
@@ -663,9 +618,6 @@
 
         if (formulaMesh) {
           formulaMesh.lookAt(camera.position);
-        }
-        if (exitVRMesh) {
-          exitVRMesh.lookAt(camera.position);
         }
 
         renderer.render(scene, camera);
