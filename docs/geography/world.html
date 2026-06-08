@@ -71,6 +71,98 @@
     #controls li {
       margin-bottom: 4px;
     }
+    #countryCard {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.97);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+      z-index: 20;
+      max-width: 520px;
+      display: none;
+      align-items: flex-start;
+      gap: 14px;
+      text-align: left;
+    }
+    #countryCard.show {
+      display: flex;
+    }
+    #countryCard .country-card-body {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+    }
+    #countryCard .country-flag {
+      width: 100px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    #countryCard .country-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #countryCard .country-details h2 {
+      font-size: 18px;
+      margin: 0;
+      color: #1a1a2e;
+    }
+    #countryCard .country-details p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    #countryCard .country-details .country-stats {
+      display: grid;
+      gap: 8px;
+    }
+    #countryCard .country-details .country-stats div {
+      display: flex;
+      justify-content: space-between;
+      color: #374151;
+      font-size: 13px;
+    }
+    #countryCard .country-details .country-stats div span:last-child {
+      font-weight: 700;
+      color: #111827;
+    }
+    #countryBorders {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #374151;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    #countryBorders strong {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+    #countryClose {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+    #countryClose:hover {
+      background: #dc2626;
+    }
     #loading {
       position: absolute;
       top: 50%;
@@ -240,6 +332,23 @@
     <div id="countryName">Caricamento...</div>
   </div>
 
+  <div id="countryCard">
+    <button id="countryClose">×</button>
+    <div class="country-card-body">
+      <img id="countryFlag" class="country-flag" src="" alt="Bandiera della nazione">
+      <div class="country-details">
+        <h2 id="countryTitle">Nome Nazione</h2>
+        <p id="countrySubtitle">Seleziona una nazione per visualizzare i dettagli.</p>
+        <div class="country-stats">
+          <div><span>Superficie</span><span id="countryArea">—</span></div>
+          <div><span>Popolazione</span><span id="countryPopulation">—</span></div>
+        </div>
+        <div id="countryBorders"><strong>Stati confinanti</strong> <span id="countryBordersText">Informazioni non disponibili.</span></div>
+        <p id="countryDescription">Qui apparirà una breve descrizione del paese selezionato.</p>
+      </div>
+    </div>
+  </div>
+
   <div id="controls">
     <h3>🎮 Controlli</h3>
     <ul>
@@ -250,10 +359,20 @@
     </ul>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/src/earcut.js"></script>
   <script src="../vendor/three/build/three.module.js" type="module"></script>
   <script type="module">
+    // Global error handler for debugging
+    window.addEventListener('error', (event) => {
+      console.error('Global error:', event.error);
+      document.getElementById('countryName').textContent = '❌ Errore: ' + (event.error?.message || 'Errore sconosciuto');
+    });
+
     import * as THREE from '../vendor/three/build/three.module.js';
     import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+
+    console.log('THREE loaded:', !!THREE);
+    console.log('VRButton loaded:', !!VRButton);
 
     // Scene setup
     const canvas = document.getElementById('canvas');
@@ -264,7 +383,9 @@
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x0d1b2a);
+    renderer.shadowMap.enabled = false;
     renderer.xr.enabled = true;
     renderer.xr.setReferenceSpaceType('local-floor');
     document.body.appendChild(VRButton.createButton(renderer));
@@ -274,42 +395,62 @@
       camera.lookAt(0, 0, 0);
     });
 
-    // Colori unici per nazione
+    // Colori unici per nazione - generatore HSL deterministico per palette gradevole
     const countryColors = {};
-    let colorIndex = 0;
-    const colors = [
-      0xFF6B6B, 0x4ECDC4, 0x45B7D1, 0xFFA07A, 0xFF8C42, 0x6C5B7B, 0x355C7D, 0xF67280,
-      0xC06C84, 0x6A89CC, 0xA0D995, 0xFF6B9D, 0xC44569, 0xF38181, 0xAAF683, 0xFECE5C,
-      0xFF006E, 0x3A86FF, 0x00D9FF, 0xFFD60A, 0x88E1F2, 0x48BFE3, 0x06FFA5, 0xFB5607,
-      0x8338EC, 0xFFBE0B, 0xFF8C42, 0x06FFA5, 0x3A86FF, 0xFFBE0B, 0xFF006E, 0xFFBE0B
-    ];
+
+    function hashString(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = ((h << 5) - h) + str.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h);
+    }
+
+    function hslToHex(h, s, l) {
+      s /= 100; l /= 100;
+      const k = n => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      const r = Math.round(255 * f(0));
+      const g = Math.round(255 * f(8));
+      const b = Math.round(255 * f(4));
+      return (r << 16) | (g << 8) | b;
+    }
 
     function getCountryColor(countryName) {
-      if (!countryColors[countryName]) {
-        countryColors[countryName] = colors[colorIndex % colors.length];
-        colorIndex++;
-      }
-      return countryColors[countryName];
+      if (countryColors[countryName]) return countryColors[countryName];
+      const hGolden = 137.508;
+      const hSeed = (hashString(countryName) * hGolden) % 360;
+      const hue = Math.floor(hSeed);
+      // Palette vivace ma leggibile: saturation alta, lightness media
+      const saturation = 68;
+      const lightness = 58;
+      const hex = hslToHex(hue, saturation, lightness);
+      countryColors[countryName] = hex;
+      return hex;
     }
+
+    const HIGHLIGHT_COLOR = 0xffe066; // giallo caldo per selezione
 
     // Mappa dei continenti (nome paese -> continente, centro lat/lng, zoom)
     const continents = {
-      'Africa': { center: [10, -5], zoom: 3 },
-      'Antarctica': { center: [0, -80], zoom: 3 },
-      'Asia': { center: [95, 30], zoom: 2.5 },
-      'Europe': { center: [15, 50], zoom: 4 },
-      'North America': { center: [-100, 45], zoom: 3 },
-      'Oceania': { center: [133, -25], zoom: 3.5 },
-      'South America': { center: [-60, -15], zoom: 3 }
+      'Africa': { center: [10, -5], zoom: 3 , borders: 'Informazioni sui confini non disponibili.'},
+      'Antarctica': { center: [0, -80], zoom: 3 , borders: 'Nessun confine terrestre.'},
+      'Asia': { center: [95, 30], zoom: 2.5 , borders: 'Informazioni sui confini non disponibili.'},
+      'Europe': { center: [15, 50], zoom: 4 , borders: 'Informazioni sui confini non disponibili.'},
+      'North America': { center: [-100, 45], zoom: 3 , borders: 'Informazioni sui confini non disponibili.'},
+      'Oceania': { center: [133, -25], zoom: 3.5 , borders: 'Informazioni sui confini non disponibili.'},
+      'South America': { center: [-60, -15], zoom: 3 , borders: 'Informazioni sui confini non disponibili.'}
     };
 
     const countryToContinent = {
-      'Egypt': 'Africa', 'South Africa': 'Africa', 'Nigeria': 'Nigeria', 'Kenya': 'Africa', 'Ethiopia': 'Africa', 'Ghana': 'Africa', 'Morocco': 'Africa', 'Tunisia': 'Africa', 'Algeria': 'Africa', 'Sudan': 'Africa', 'Tanzania': 'Africa', 'Uganda': 'Africa', 'Cameroon': 'Africa', 'Zambia': 'Africa', 'Zimbabwe': 'Africa', 'Mali': 'Africa', 'Senegal': 'Africa', 'Burkina Faso': 'Africa', 'Benin': 'Africa', 'Niger': 'Africa', 'Angola': 'Africa', 'Mozambique': 'Africa', 'Madagascar': 'Africa', 'Malawi': 'Africa', 'Botswana': 'Africa', 'Namibia': 'Africa', 'Mauritius': 'Africa', 'Djibouti': 'Africa', 'Eritrea': 'Africa', 'Liberia': 'Africa', 'Sierra Leone': 'Africa', 'Guinea': 'Africa', 'Ivory Coast': 'Africa', 'Togo': 'Africa', 'Equatorial Guinea': 'Africa', 'Guinea-Bissau': 'Africa', 'Cape Verde': 'Africa', 'Mauritania': 'Africa', 'Somalia': 'Africa', 'Gabon': 'Africa', 'Congo': 'Africa', 'Central African Republic': 'Africa',
-      'Russia': 'Asia', 'China': 'Asia', 'India': 'Asia', 'Japan': 'Asia', 'Thailand': 'Asia', 'Vietnam': 'Asia', 'Malaysia': 'Asia', 'Indonesia': 'Asia', 'Philippines': 'Asia', 'Bangladesh': 'Asia', 'Pakistan': 'Asia', 'Iran': 'Asia', 'Iraq': 'Asia', 'Saudi Arabia': 'Asia', 'Israel': 'Asia', 'Jordan': 'Asia', 'Lebanon': 'Asia', 'Syria': 'Asia', 'Turkey': 'Asia', 'United Arab Emirates': 'Asia', 'Qatar': 'Asia', 'Bahrain': 'Asia', 'Kuwait': 'Asia', 'Oman': 'Asia', 'Yemen': 'Asia', 'South Korea': 'Asia', 'North Korea': 'Asia', 'Mongolia': 'Asia', 'Kazakhstan': 'Asia', 'Uzbekistan': 'Asia', 'Turkmenistan': 'Asia', 'Tajikistan': 'Asia', 'Kyrgyzstan': 'Asia', 'Afghanistan': 'Asia', 'Nepal': 'Asia', 'Bhutan': 'Asia', 'Sri Lanka': 'Asia', 'Myanmar': 'Asia', 'Laos': 'Asia', 'Cambodia': 'Asia', 'Brunei': 'Asia', 'Singapore': 'Asia', 'Timor-Leste': 'Asia', 'Maldives': 'Asia', 'Hong Kong': 'Asia', 'Taiwan': 'Asia',
-      'Italy': 'Europe', 'France': 'Europe', 'Germany': 'Europe', 'Spain': 'Europe', 'Portugal': 'Europe', 'United Kingdom': 'Europe', 'Ireland': 'Europe', 'Poland': 'Europe', 'Ukraine': 'Europe', 'Greece': 'Europe', 'Romania': 'Europe', 'Bulgaria': 'Europe', 'Croatia': 'Europe', 'Slovenia': 'Europe', 'Serbia': 'Europe', 'Bosnia': 'Europe', 'Montenegro': 'Europe', 'Albania': 'Europe', 'Macedonia': 'Europe', 'Hungary': 'Europe', 'Slovakia': 'Europe', 'Czech Republic': 'Europe', 'Austria': 'Europe', 'Switzerland': 'Europe', 'Belgium': 'Europe', 'Netherlands': 'Europe', 'Denmark': 'Europe', 'Sweden': 'Europe', 'Finland': 'Europe', 'Norway': 'Europe', 'Iceland': 'Europe', 'Luxembourg': 'Europe', 'Malta': 'Europe', 'Cyprus': 'Europe', 'Belarus': 'Europe', 'Moldova': 'Europe', 'Lithuania': 'Europe', 'Latvia': 'Europe', 'Estonia': 'Europe',
-      'Brazil': 'South America', 'Argentina': 'South America', 'Colombia': 'South America', 'Peru': 'South America', 'Venezuela': 'South America', 'Chile': 'South America', 'Ecuador': 'South America', 'Bolivia': 'South America', 'Paraguay': 'South America', 'Uruguay': 'South America', 'Guyana': 'South America', 'Suriname': 'South America', 'French Guiana': 'South America',
-      'Canada': 'North America', 'United States': 'North America', 'Mexico': 'North America', 'Guatemala': 'North America', 'Honduras': 'North America', 'El Salvador': 'North America', 'Nicaragua': 'North America', 'Costa Rica': 'North America', 'Panama': 'North America', 'Belize': 'North America', 'Jamaica': 'North America', 'Trinidad and Tobago': 'North America', 'Bahamas': 'North America', 'Cuba': 'North America', 'Dominican Republic': 'North America', 'Haiti': 'North America', 'Puerto Rico': 'North America',
-      'Australia': 'Oceania', 'New Zealand': 'Oceania', 'Fiji': 'Oceania', 'Papua New Guinea': 'Oceania', 'Solomon Islands': 'Oceania', 'Samoa': 'Oceania', 'Kiribati': 'Oceania', 'Nauru': 'Oceania', 'Tuvalu': 'Oceania', 'Palau': 'Oceania',
+      'Egypt': 'Africa', 'South Africa': 'Africa', 'Nigeria': 'Africa', 'Kenya': 'Africa', 'Ethiopia': 'Africa', 'Ghana': 'Africa', 'Morocco': 'Africa', 'Tunisia': 'Africa', 'Algeria': 'Africa', 'Sudan': 'Africa', 'Tanzania': 'Africa', 'Uganda': 'Africa', 'Cameroon': 'Africa', 'Zambia': 'Africa', 'Zimbabwe': 'Africa', 'Mali': 'Africa', 'Senegal': 'Africa', 'Burkina Faso': 'Africa', 'Benin': 'Africa', 'Niger': 'Africa', 'Angola': 'Africa', 'Mozambique': 'Africa', 'Madagascar': 'Africa', 'Malawi': 'Africa', 'Botswana': 'Africa', 'Namibia': 'Africa', 'Mauritius': 'Africa', 'Djibouti': 'Africa', 'Eritrea': 'Africa', 'Liberia': 'Africa', 'Sierra Leone': 'Africa', 'Guinea': 'Africa', 'Ivory Coast': 'Africa', 'Togo': 'Africa', 'Equatorial Guinea': 'Africa', 'Guinea-Bissau': 'Africa', 'Cape Verde': 'Africa', 'Mauritania': 'Africa', 'Somalia': 'Africa', 'Gabon': 'Africa', 'Congo': 'Africa', 'Central African Republic': 'Africa', 'Camerun': 'Africa', 'Capo Verde': 'Africa', 'Ciad': 'Africa', 'Comore': 'Africa', 'Costa d\'Avorio': 'Africa', 'Eswatini': 'Africa', 'Gambia': 'Africa', 'Guinea Equatoriale': 'Africa', 'Lesotho': 'Africa', 'Libia': 'Africa', 'Ruanda': 'Africa', 'Seychelles': 'Africa', 'Sudafrica': 'Africa', 'Sudan del Sud': 'Africa',
+      'Russia': 'Asia', 'China': 'Asia', 'India': 'Asia', 'Japan': 'Asia', 'Thailand': 'Asia', 'Vietnam': 'Asia', 'Malaysia': 'Asia', 'Indonesia': 'Asia', 'Philippines': 'Asia', 'Bangladesh': 'Asia', 'Pakistan': 'Asia', 'Iran': 'Asia', 'Iraq': 'Asia', 'Saudi Arabia': 'Asia', 'Israel': 'Asia', 'Jordan': 'Asia', 'Lebanon': 'Asia', 'Syria': 'Asia', 'Turkey': 'Asia', 'United Arab Emirates': 'Asia', 'Qatar': 'Asia', 'Bahrain': 'Asia', 'Kuwait': 'Asia', 'Oman': 'Asia', 'Yemen': 'Asia', 'South Korea': 'Asia', 'North Korea': 'Asia', 'Mongolia': 'Asia', 'Kazakhstan': 'Asia', 'Uzbekistan': 'Asia', 'Turkmenistan': 'Asia', 'Tajikistan': 'Asia', 'Kyrgyzstan': 'Asia', 'Afghanistan': 'Asia', 'Nepal': 'Asia', 'Bhutan': 'Asia', 'Sri Lanka': 'Asia', 'Myanmar': 'Asia', 'Laos': 'Asia', 'Cambodia': 'Asia', 'Brunei': 'Asia', 'Singapore': 'Asia', 'Timor-Leste': 'Asia', 'Timor Est': 'Asia', 'Maldives': 'Asia', 'Maldive': 'Asia', 'Hong Kong': 'Asia', 'Taiwan': 'Asia', 'Arabia Saudita': 'Asia', 'Azerbaigian': 'Asia', 'Birmania': 'Asia', 'Corea del Nord': 'Asia', 'Corea del Sud': 'Asia', 'Emirati Arabi Uniti': 'Asia', 'Filippine': 'Asia', 'Georgia': 'Asia', 'Gibuti': 'Asia', 'Giordania': 'Asia', 'Giappone': 'Asia', 'Hong Kong': 'Asia', 'Israele': 'Asia', 'Libano': 'Asia', 'Malesia': 'Asia', 'Papua Nuova Guinea': 'Asia',
+      'Italy': 'Europe', 'France': 'Europe', 'Germany': 'Europe', 'Spain': 'Europe', 'Portugal': 'Europe', 'United Kingdom': 'Europe', 'Ireland': 'Europe', 'Poland': 'Europe', 'Ukraine': 'Europe', 'Greece': 'Europe', 'Romania': 'Europe', 'Bulgaria': 'Europe', 'Croatia': 'Europe', 'Slovenia': 'Europe', 'Serbia': 'Europe', 'Bosnia': 'Europe', 'Montenegro': 'Europe', 'Albania': 'Europe', 'Macedonia': 'Europe', 'Hungary': 'Europe', 'Slovakia': 'Europe', 'Czech Republic': 'Europe', 'Austria': 'Europe', 'Switzerland': 'Europe', 'Belgium': 'Europe', 'Netherlands': 'Europe', 'Denmark': 'Europe', 'Sweden': 'Europe', 'Finland': 'Europe', 'Norway': 'Europe', 'Iceland': 'Europe', 'Luxembourg': 'Europe', 'Malta': 'Europe', 'Cyprus': 'Europe', 'Belarus': 'Europe', 'Moldova': 'Europe', 'Lithuania': 'Europe', 'Latvia': 'Europe', 'Estonia': 'Europe', 'Andorra': 'Europe', 'Armenia': 'Europe', 'Austria': 'Europe', 'Belgio': 'Europe', 'Bielorussia': 'Europe', 'Bosnia ed Erzegovina': 'Europe', 'Bulgaria': 'Europe', 'Cipro': 'Europe', 'Croazia': 'Europe', 'Danimarca': 'Europe', 'Estonia': 'Europe', 'Finlandia': 'Europe', 'Francia': 'Europe', 'Germania': 'Europe', 'Gibilterra': 'Europe', 'Giordania': 'Europe', 'Grecia': 'Europe', 'Grenada': 'Europe', 'Irlanda': 'Europe', 'Islanda': 'Europe', 'Italia': 'Europe', 'Liechtenstein': 'Europe', 'Lituania': 'Europe', 'Lussemburgo': 'Europe', 'Macedonia del Nord': 'Europe', 'Malta': 'Europe', 'Moldavia': 'Europe', 'Monaco': 'Europe', 'Montenegro': 'Europe', 'Norvegia': 'Europe', 'Paesi Bassi': 'Europe', 'Polonia': 'Europe', 'Portogallo': 'Europe', 'Regno Unito': 'Europe', 'Repubblica Ceca': 'Europe', 'Repubblica Dominicana': 'Europe', 'Romania': 'Europe', 'Russia': 'Europe', 'San Marino': 'Europe', 'Santa Sede': 'Europe', 'Serbia': 'Europe', 'Slovacchia': 'Europe', 'Slovenia': 'Europe', 'Spagna': 'Europe', 'Svezia': 'Europe', 'Svizzera': 'Europe', 'Turchia': 'Europe', 'Ucraina': 'Europe', 'Ungheria': 'Europe',
+      'Brazil': 'South America', 'Argentina': 'South America', 'Colombia': 'South America', 'Peru': 'South America', 'Venezuela': 'South America', 'Chile': 'South America', 'Ecuador': 'South America', 'Bolivia': 'South America', 'Paraguay': 'South America', 'Uruguay': 'South America', 'Guyana': 'South America', 'Suriname': 'South America', 'French Guiana': 'South America', 'Argentina': 'South America', 'Brasile': 'South America', 'Cile': 'South America', 'Colombia': 'South America', 'Ecuador': 'South America', 'Guyana': 'South America', 'Paraguai': 'South America', 'Perù': 'South America', 'Suriname': 'South America', 'Uruguay': 'South America', 'Venezuela': 'South America',
+      'Canada': 'North America', 'United States': 'North America', 'Mexico': 'North America', 'Guatemala': 'North America', 'Honduras': 'North America', 'El Salvador': 'North America', 'Nicaragua': 'North America', 'Costa Rica': 'North America', 'Panama': 'North America', 'Belize': 'North America', 'Jamaica': 'North America', 'Trinidad and Tobago': 'North America', 'Bahamas': 'North America', 'Cuba': 'North America', 'Dominican Republic': 'North America', 'Haiti': 'North America', 'Puerto Rico': 'North America', 'Antigua e Barbuda': 'North America', 'Bahamas': 'North America', 'Barbados': 'North America', 'Belize': 'North America', 'Canada': 'North America', 'Costa Rica': 'North America', 'Cuba': 'North America', 'Dominica': 'North America', 'El Salvador': 'North America', 'Giamaica': 'North America', 'Granada': 'North America', 'Grenada': 'North America', 'Guatemala': 'North America', 'Haiti': 'North America', 'Honduras': 'North America', 'Isole Marshall': 'North America', 'Messico': 'North America', 'Micronesia': 'North America', 'Nicaragua': 'North America', 'Panama': 'North America', 'Repubblica Dominicana': 'North America', 'Saint Kitts e Nevis': 'North America', 'Saint Lucia': 'North America', 'Saint Vincent e Grenadine': 'North America', 'Stati Uniti': 'North America', 'Trinidad e Tobago': 'North America',
+      'Australia': 'Oceania', 'New Zealand': 'Oceania', 'Fiji': 'Oceania', 'Papua New Guinea': 'Oceania', 'Solomon Islands': 'Oceania', 'Samoa': 'Oceania', 'Kiribati': 'Oceania', 'Nauru': 'Oceania', 'Tuvalu': 'Oceania', 'Palau': 'Oceania', 'Australia': 'Oceania', 'Figi': 'Oceania', 'Isole Salomone': 'Oceania', 'Nuova Zelanda': 'Oceania', 'Samoa': 'Oceania', 'Tonga': 'Oceania', 'Tuvalu': 'Oceania', 'Vanuatu': 'Oceania',
       'Antarctica': 'Antarctica'
     };
 
@@ -320,7 +461,7 @@
     async function loadWorldMap() {
       try {
         console.log('Caricamento GeoJSON...');
-        const response = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson');
+        const response = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson');
         const geojson = await response.json();
 
         console.log('Creazione geometrie...');
@@ -343,7 +484,7 @@
           }
         });
 
-        scene.add(group);
+        worldGroup.add(group);
         document.getElementById('loading').style.display = 'none';
         document.getElementById('countryName').textContent = 'Clicca su una nazione';
       } catch (error) {
@@ -353,81 +494,741 @@
     }
 
     function createCountryMesh(coordinates, countryName, color, group, continent) {
-      const shape = new THREE.Shape();
-      const outerRing = coordinates[0];
+      const MESH_RADIUS = 1.004;
+      const BORDER_RADIUS = 1.006;
 
-      // Converti coordinate geografiche in coordinate 3D sferiche
-      const points = outerRing.map(([lng, lat]) => {
+      function geoToVec([lng, lat]) {
         const latRad = (lat * Math.PI) / 180;
         const lngRad = (lng * Math.PI) / 180;
-
-        const x = Math.cos(latRad) * Math.sin(lngRad);
-        const y = Math.sin(latRad);
-        const z = Math.cos(latRad) * Math.cos(lngRad);
-
-        return new THREE.Vector3(x, y, z);
-      });
-
-      // Crea geometria con edges
-      const geom = new THREE.BufferGeometry();
-      const vertices = [];
-
-      points.forEach(p => {
-        vertices.push(p.x, p.y, p.z);
-      });
-
-      geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-
-      // Calcola le facce
-      const indices = [];
-      for (let i = 1; i < points.length - 1; i++) {
-        indices.push(0, i, i + 1);
+        return new THREE.Vector3(
+          Math.cos(latRad) * Math.sin(lngRad),
+          Math.sin(latRad),
+          Math.cos(latRad) * Math.cos(lngRad)
+        ); // già unitario, no normalize() necessario
       }
-      geom.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
+
+      // Densifica un anello: ritorna { vecs: Vector3[], coords: [lng,lat][] }
+      function densifyRing(ring, maxAngleDeg = 0.5) {
+        const maxAngle = (maxAngleDeg * Math.PI) / 180;
+        const vecs = ring.map(geoToVec);
+        const outVecs = [];
+        const outCoords = [];
+        for (let i = 0; i < vecs.length; i++) {
+          const a = vecs[i];
+          const b = vecs[(i + 1) % vecs.length];
+          const ca = ring[i];
+          const cb = ring[(i + 1) % ring.length];
+          outVecs.push(a.clone());
+          outCoords.push([ca[0], ca[1]]);
+          const dot = THREE.MathUtils.clamp(a.dot(b), -1, 1);
+          const angle = Math.acos(dot);
+          if (angle > maxAngle) {
+            const steps = Math.ceil(angle / maxAngle);
+            for (let s = 1; s < steps; s++) {
+              const t = s / steps;
+              const w = angle;
+              const s1 = Math.sin((1 - t) * w) / Math.sin(w);
+              const s2 = Math.sin(t * w) / Math.sin(w);
+              outVecs.push(new THREE.Vector3(
+                a.x * s1 + b.x * s2,
+                a.y * s1 + b.y * s2,
+                a.z * s1 + b.z * s2
+              ));
+              outCoords.push([
+                ca[0] + (cb[0] - ca[0]) * t,
+                ca[1] + (cb[1] - ca[1]) * t
+              ]);
+            }
+          }
+        }
+        return { vecs: outVecs, coords: outCoords };
+      }
+
+      const outerRing = coordinates[0];
+      if (!outerRing || outerRing.length < 3) return null;
+
+      // Normalizza le longitudini per evitare salti al meridiano ±180°
+      function unwrapLng(coords) {
+        if (coords.length === 0) return coords;
+        const out = [[...coords[0]]];
+        for (let i = 1; i < coords.length; i++) {
+          let lng = coords[i][0];
+          const prev = out[i - 1][0];
+          while (lng - prev > 180) lng -= 360;
+          while (prev - lng > 180) lng += 360;
+          out.push([lng, coords[i][1]]);
+        }
+        return out;
+      }
+
+      const outerDens = densifyRing(unwrapLng(outerRing));
+      if (outerDens.vecs.length < 3) return null;
+
+      // Centroide sferico per il sollevamento
+      const centroid = outerDens.vecs.reduce(
+        (acc, p) => acc.add(p.clone()), new THREE.Vector3()
+      ).normalize();
+
+      const flatCoords = [];
+      const holeIndices = [];
+      outerDens.coords.forEach(([lng, lat]) => flatCoords.push(lng, lat));
+
+      const holesUnwrapped = [];
+      for (let r = 1; r < coordinates.length; r++) {
+        const h = densifyRing(unwrapLng(coordinates[r]));
+        if (h.vecs.length >= 3) {
+          holesUnwrapped.push(h);
+          holeIndices.push(flatCoords.length / 2);
+          h.coords.forEach(([lng, lat]) => flatCoords.push(lng, lat));
+        }
+      }
+
+      // Array parallelo vettori 3D reali
+      const allVecs = [...outerDens.vecs];
+      holesUnwrapped.forEach(h => allVecs.push(...h.vecs));
+
+      const earcutFn = (typeof earcut !== 'undefined') ? earcut : window.earcut;
+      if (!earcutFn) return null;
+      let triangles;
+      try {
+        triangles = earcutFn(flatCoords, holeIndices.length ? holeIndices : null, 2);
+      } catch (e) { return null; }
+      if (!triangles || triangles.length === 0) return null;
+
+      // Suddivisione sferica: ogni triangolo piatto "affonda" dentro la sfera.
+      // Suddividiamo ricorsivamente i triangoli troppo grandi riproiettando
+      // i midpoint sulla superficie sferica, così nessun punto sta dentro il globo.
+      const MAX_EDGE = 0.15; // soglia in unità sferiche (abbassa per più dettaglio)
+
+      const subdividedPos = []; // [x,y,z, ...]
+      const subdividedIdx = [];
+      const vertCache = new Map(); // chiave → indice nel subdividedPos
+
+      // Aggiunge un vettore alla lista e ritorna il suo indice (con dedup)
+      function addVert(v) {
+        // normalizza sulla sfera e scala
+        const len = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        const nx = v[0]/len * MESH_RADIUS;
+        const ny = v[1]/len * MESH_RADIUS;
+        const nz = v[2]/len * MESH_RADIUS;
+        const key = `${nx.toFixed(6)},${ny.toFixed(6)},${nz.toFixed(6)}`;
+        if (vertCache.has(key)) return vertCache.get(key);
+        const idx = subdividedPos.length / 3;
+        subdividedPos.push(nx, ny, nz);
+        vertCache.set(key, idx);
+        return idx;
+      }
+
+      function midpoint(a, b) {
+        return [(a[0]+b[0])/2, (a[1]+b[1])/2, (a[2]+b[2])/2];
+      }
+
+      function edgeLen(a, b) {
+        const dx=a[0]-b[0], dy=a[1]-b[1], dz=a[2]-b[2];
+        return Math.sqrt(dx*dx+dy*dy+dz*dz);
+      }
+
+      function subdivTri(a, b, c, depth) {
+        if (depth > 4) { // limite ricorsione di sicurezza
+          subdividedIdx.push(addVert(a), addVert(b), addVert(c));
+          return;
+        }
+        const ab = edgeLen(a,b), bc = edgeLen(b,c), ca = edgeLen(c,a);
+        if (ab <= MAX_EDGE && bc <= MAX_EDGE && ca <= MAX_EDGE) {
+          subdividedIdx.push(addVert(a), addVert(b), addVert(c));
+          return;
+        }
+        // Suddividi il lato più lungo
+        if (ab >= bc && ab >= ca) {
+          const m = midpoint(a, b);
+          subdivTri(a, m, c, depth+1);
+          subdivTri(m, b, c, depth+1);
+        } else if (bc >= ab && bc >= ca) {
+          const m = midpoint(b, c);
+          subdivTri(a, b, m, depth+1);
+          subdivTri(a, m, c, depth+1);
+        } else {
+          const m = midpoint(c, a);
+          subdivTri(a, b, m, depth+1);
+          subdivTri(m, b, c, depth+1);
+        }
+      }
+
+      // Converti allVecs in array [x,y,z] per la suddivisione
+      const vArr = allVecs.map(v => [v.x, v.y, v.z]);
+      for (let i = 0; i < triangles.length; i += 3) {
+        subdivTri(vArr[triangles[i]], vArr[triangles[i+1]], vArr[triangles[i+2]], 0);
+      }
+
+      const positions = new Float32Array(subdividedPos);
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geom.setIndex(subdividedIdx);
       geom.computeVertexNormals();
 
-      // Materiale colorato per le nazioni
-      const material = new THREE.MeshPhongMaterial({
+      const material = new THREE.MeshLambertMaterial({
         color: color,
-        emissive: color,
-        emissiveIntensity: 0.3,
-        shininess: 100,
-        wireframe: false,
-        side: THREE.DoubleSide
+        side: THREE.FrontSide,
+        transparent: false,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1
       });
 
       const mesh = new THREE.Mesh(geom, material);
-      mesh.userData = { country: countryName, continent: continent };
+      mesh.userData = {
+        country: countryName,
+        continent: continent,
+        normal: centroid,
+        currentOffset: 0,
+        targetOffset: 0,
+        selected: false,
+        originalColor: color,
+        originalOpacity: 1.0
+      };
+      mesh.userData.originalEmissive = new THREE.Color(0x000000);
+      mesh.userData.originalEmissiveIntensity = 0;
 
-      // Aggiungi un outline/bordo scuro
-      const edges = new THREE.EdgesGeometry(geom);
-      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ 
-        color: 0x222222, 
-        linewidth: 1,
-        fog: false
-      }));
-      mesh.add(line);
+      // Bordi sopra il fill
+      const allRings = [outerDens, ...holesUnwrapped];
+      for (const ring of allRings) {
+        const ringVerts = new Float32Array(ring.vecs.length * 3);
+        ring.vecs.forEach((p, i) => {
+          ringVerts[i * 3]     = p.x * BORDER_RADIUS;
+          ringVerts[i * 3 + 1] = p.y * BORDER_RADIUS;
+          ringVerts[i * 3 + 2] = p.z * BORDER_RADIUS;
+        });
+        const borderGeom = new THREE.BufferGeometry();
+        borderGeom.setAttribute('position', new THREE.BufferAttribute(ringVerts, 3));
+        mesh.add(new THREE.LineLoop(borderGeom, new THREE.LineBasicMaterial({
+          color: 0x1a1a2e,
+          linewidth: 1
+        })));
+      }
 
       group.add(mesh);
       return mesh;
     }
 
-    // Crea il globo (sfondo oceani)
-    const globeGeometry = new THREE.SphereGeometry(0.999, 64, 64);
-    const globeMaterial = new THREE.MeshPhongMaterial({ color: 0x0a4a6b });
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    const globeGeometry = new THREE.SphereGeometry(0.9985, 128, 128);
+    const globeMaterial = new THREE.MeshLambertMaterial({ color: 0x1a6b9a });
     const globeMesh = new THREE.Mesh(globeGeometry, globeMaterial);
-    scene.add(globeMesh);
+    worldGroup.add(globeMesh);
+
+    // Atmosfera sottile
+    const atmosGeom = new THREE.SphereGeometry(1.015, 64, 64);
+    const atmosMat = new THREE.MeshLambertMaterial({
+      color: 0x4fc3f7,
+      transparent: true,
+      opacity: 0.07,
+      side: THREE.BackSide
+    });
+    worldGroup.add(new THREE.Mesh(atmosGeom, atmosMat));
 
     // Luci
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0xffffff, 1.0);
-    pointLight.position.set(5, 3, 5);
-    scene.add(pointLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 3, 5);
+    scene.add(dirLight);
 
     // Raycaster per click
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+
+    const countryData = {
+      'Antarctica': { area: '14.000M km²', population: '0-0.01M', description: 'Antartide: continente ghiacciato senza popolazione permanente, utilizzato per ricerca scientifica.' , borders: 'Nessun confine terrestre.'},
+      'Afghanistan': { area: '652.230 km²', population: '41.2M', description: 'Afghanistan: paese montuoso dell\'Asia centrale con storia antica e paesaggi montani.' , borders: 'Cina, Iran, Pakistan, Tagikistan, Turkmenistan, Uzbekistan'},
+      'Albania': { area: '28.748 km²', population: '2.9M', description: 'Albania: coste adriatiche e ioniche con tradizioni balcaniche.' , borders: 'Grecia, Kosovo, Macedonia del Nord, Montenegro'},
+      'Algeria': { area: '2.382M km²', population: '43.0M', description: 'Algeria: vasto paese nordafricano del Sahara con coste mediterranee.' , borders: 'Libia, Mali, Marocco, Mauritania, Niger, Sahara Occidentale, Tunisia'},
+      'Andorra': { area: '468 km²', population: '0.08M', description: 'Andorra: microscopico stato pirenaico tra Francia e Spagna.' , borders: 'Francia, Spagna'},
+      'Angola': { area: '1.246M km²', population: '36.0M', description: 'Angola: grande nazione dell\'Africa sudoccidentale con risorse naturali.' , borders: 'Congo, Congo (Rep. Dem.), Namibia, Zambia'},
+      'Antigua e Barbuda': { area: '442 km²', population: '0.1M', description: 'Antigua e Barbuda: isole caraibiche con spiagge tropicali.' , borders: 'Nessun confine terrestre.'},
+      'Arabia Saudita': { area: '2.150M km²', population: '35.0M', description: 'Arabia Saudita: deserto arabico con città sacre e industria petrolifera.' , borders: 'Emirati Arabi Uniti, Giordania, Iraq, Kuwait, Qatar, Yemen, oman'},
+      'Argentina': { area: '2.780M km²', population: '46.0M', description: 'Argentina: grande nazione sudamericana con Buenos Aires e le pampas.' , borders: 'Bolivia, Brasile, Cile, Paraguay, Uruguay'},
+      'Armenia': { area: '29.743 km²', population: '2.8M', description: 'Armenia: paese caucasico con montagne e ricca eredità cristiana.' , borders: 'Azerbaijan, Georgia, Iran, Turchia'},
+      'Australia': { area: '7.692M km²', population: '26.0M', description: 'Australia: continente con barriera corallina, deserti e fauna unica.' , borders: 'Nessun confine terrestre.'},
+      'Austria': { area: '83.879 km²', population: '9.0M', description: 'Austria: paese alpino noto per Vienna, musica e architettura.' , borders: 'Cechia, Germania, Italia, Liechtenstein, Slovacchia, Slovenia, Svizzera, Ungheria'},
+      'Azerbaigian': { area: '86.600 km²', population: '10.1M', description: 'Azerbaigian: nazione caucasica tra Europa e Asia con petrolio.' , borders: 'Armenia, Georgia, Iran, Russia, Turchia'},
+      'Bahamas': { area: '13.940 km²', population: '0.4M', description: 'Bahamas: arcipelago caraibico con acque turchesi e turismo.' , borders: 'Nessun confine terrestre.'},
+      'Bahrein': { area: '765 km²', population: '1.8M', description: 'Bahrein: arcipelago nel Golfo Persico con finanza e commercio.' , borders: 'Nessun confine terrestre.'},
+      'Bangladesh': { area: '147.570 km²', population: '170.0M', description: 'Bangladesh: delta del Gange molto popolato con risaie e fiumi.' , borders: 'Birmania, India'},
+      'Barbados': { area: '430 km²', population: '0.3M', description: 'Barbados: isola caraibica con spiagge sabbiose e rum.' , borders: 'Nessun confine terrestre.'},
+      'Belgio': { area: '30.528 km²', population: '11.5M', description: 'Belgio: cuore dell\'Europa con Bruxelles e cioccolato famoso.' , borders: 'Francia, Germania, Lussemburgo, Paesi Bassi'},
+      'Belize': { area: '22.966 km²', population: '0.4M', description: 'Belize: piccola nazione centroamericana con foreste tropicali.' , borders: 'Guatemala, Messico'},
+      'Benin': { area: '114.763 km²', population: '12.3M', description: 'Benin: paese dell\'Africa occidentale con coste atlantiche.' , borders: 'Burkina Faso, Niger, Nigeria, Togo'},
+      'Bhutan': { area: '38.394 km²', population: '0.8M', description: 'Bhutan: regno himalayano focalizzato sulla felicità nazionale.' , borders: 'Cina, India'},
+      'Bielorussia': { area: '207.600 km²', population: '9.4M', description: 'Bielorussia: paese dell\'Europa orientale con foreste e tradizioni slave.' , borders: 'Lettonia, Lituania, Polonia, Russia, Ucraina'},
+      'Birmania': { area: '676.578 km²', population: '54.8M', description: 'Birmania: terra di templi dorati e culture tradizionali del Sudest asiatico.' , borders: 'Bangladesh, Cina, India, Laos, Tailandia'},
+      'Bolivia': { area: '1.099M km²', population: '12.0M', description: 'Bolivia: altopiani andini con il famoso Salar de Uyuni.' , borders: 'Argentina, Brasile, Cile, Paraguay, Perù'},
+      'Bosnia ed Erzegovina': { area: '51.209 km²', population: '3.3M', description: 'Bosnia ed Erzegovina: terra balcanica di montagne e storia.' , borders: 'Croazia, Montenegro, Serbia'},
+      'Botswana': { area: '581.730 km²', population: '2.4M', description: 'Botswana: paese dell\'Africa meridionale con il Delta dell\'Okavango.' , borders: 'Namibia, Sud Africa, Zambia, Zimbabwe'},
+      'Brasile': { area: '8.515M km²', population: '216.0M', description: 'Brasile: la più grande nazione sudamericana con l\'Amazzonia.' , borders: 'Argentina, Bolivia, Colombia, Guyana, Guyana francese, Paraguay, Perù, Suriname, Uruguay, Venezuela'},
+      'Brunei': { area: '5.765 km²', population: '0.4M', description: 'Brunei: piccolo emirato ricco di petrolio nel Borneo.' , borders: 'Malesia'},
+      'Bulgaria': { area: '110.994 km²', population: '6.9M', description: 'Bulgaria: regione balcanica con coste sul Mar Nero.' , borders: 'Grecia, Macedonia del Nord, Romania, Serbia, Turchia'},
+      'Burkina Faso': { area: '274.200 km²', population: '21.5M', description: 'Burkina Faso: paese del Sahel africano con tradizioni forti.' , borders: 'Benin, Costa d\'Avorio, Ghana, Mali, Niger, Togo'},
+      'Burundi': { area: '27.834 km²', population: '13.6M', description: 'Burundi: piccolo paese dell\'Africa centrale con montagne e laghi.' , borders: 'Congo (Rep. Dem.), Ruanda, Tanzania'},
+      'Cambogia': { area: '181.035 km²', population: '17.4M', description: 'Cambogia: celebre per il tempio di Angkor Wat e il Mekong.' , borders: 'Laos, Tailandia, Vietnam'},
+      'Camerun': { area: '475.442 km²', population: '27.9M', description: 'Camerun: paese africano con straordinaria biodiversità geografica.' , borders: 'Ciad, Congo, Gabon, Guinea Equatoriale, Nigeria, Repubblica Centrafricana'},
+      'Canada': { area: '9.985M km²', population: '39.6M', description: 'Canada: grande nazione nordamericana con foreste, laghi e montagne.' , borders: 'Stati Uniti d\'America'},
+      'Capo Verde': { area: '4.033 km²', population: '0.6M', description: 'Capo Verde: arcipelago atlantico con sole e tradizioni creole.' , borders: 'Nessun confine terrestre.'},
+      'Ciad': { area: '1.284M km²', population: '18.0M', description: 'Ciad: vasto paese del Sahel africano con il lago Ciad.' , borders: 'Camerun, Libia, Niger, Nigeria, Repubblica Centrafricana, Sudan'},
+      'Cile': { area: '756.096 km²', population: '19.8M', description: 'Cile: lungo paese andino dalle Ande alla Patagonia.' , borders: 'Argentina, Bolivia, Perù'},
+      'Cina': { area: '9.597M km²', population: '1.425B', description: 'Cina: civiltà antica con la Grande Muraglia e una popolazione enorme.' , borders: 'Afghanistan, Bhutan, Birmania, Corea del Nord, Hong Kong, India, Kazakistan, Kirghizistan, Laos, Macao, Mongolia, Nepal, Pakistan, Russia, Tagikistan, Vietnam'},
+      'Cipro': { area: '9.251 km²', population: '1.2M', description: 'Cipro: isola mediterranea ricca di storia greca e turca.' , borders: 'Nessun confine terrestre.'},
+      'Colombia': { area: '1.142M km²', population: '52.5M', description: 'Colombia: paese sudamericano con foreste tropicali e caffè.' , borders: 'Brasile, Ecuador, Panama, Perù, Venezuela'},
+      'Comore': { area: '1.861 km²', population: '0.8M', description: 'Comore: piccolo arcipelago nell\'Oceano Indiano.' , borders: 'Nessun confine terrestre.'},
+      'Corea del Nord': { area: '120.540 km²', population: '25.5M', description: 'Corea del Nord: stato asiatico isolato con storia unica.' , borders: 'Cina, Corea del Sud, Russia'},
+      'Corea del Sud': { area: '100.210 km²', population: '51.8M', description: 'Corea del Sud: nazione tecnologica con cultura pop influente.' , borders: 'Corea del Nord'},
+      'Costa d\'Avorio': { area: '322.463 km²', population: '27.5M', description: 'Costa d\'Avorio: paese dell\'Africa occidentale con piantagioni di cacao.' , borders: 'Burkina Faso, Ghana, Guinea, Liberia, Mali'},
+      'Costa Rica': { area: '51.100 km²', population: '5.2M', description: 'Costa Rica: paradiso ecoturistico centroamericano con foreste.' , borders: 'Nicaragua, Panama'},
+      'Croazia': { area: '56.594 km²', population: '4.0M', description: 'Croazia: costa adriatica con isole e città medievali come Dubrovnik.' , borders: 'Bosnia ed Erzegovina, Montenegro, Serbia, Slovenia, Ungheria'},
+      'Cuba': { area: '109.884 km²', population: '11.2M', description: 'Cuba: isola caraibica con storia rivoluzionaria e musica vibrante.' , borders: 'Nessun confine terrestre.'},
+      'Danimarca': { area: '42.933 km²', population: '5.9M', description: 'Danimarca: regno nordico con design scandinavo e concetto di hygge.' , borders: 'Germania'},
+      'Dominica': { area: '754 km²', population: '0.07M', description: 'Dominica: isola caraibica vulcanica con natura selvaggia.' , borders: 'Nessun confine terrestre.'},
+      'Ecuador': { area: '283.561 km²', population: '18.8M', description: 'Ecuador: dall\'Amazzonia alle isole Galápagos in Sud America.' , borders: 'Colombia, Perù'},
+      'Egitto': { area: '1.010M km²', population: '111.0M', description: 'Egitto: culla della civiltà antica con le piramidi e il Nilo.' , borders: 'Israele, Libia, Palestina, Sudan'},
+      'El Salvador': { area: '21.041 km²', population: '6.5M', description: 'El Salvador: il più piccolo stato centroamericano.' , borders: 'Guatemala, Honduras'},
+      'Emirati Arabi Uniti': { area: '83.600 km²', population: '10.1M', description: 'Emirati Arabi Uniti: grattacieli moderni, deserti e lusso.' , borders: 'Arabia Saudita, oman'},
+      'Eritrea': { area: '121.144 km²', population: '6.3M', description: 'Eritrea: paese del Corno d\'Africa con coste sul Mar Rosso.' , borders: 'Etiopia, Gibuti, Sudan'},
+      'Estonia': { area: '45.227 km²', population: '1.3M', description: 'Estonia: stato baltico digitale con storia medievale.' , borders: 'Lettonia, Russia'},
+      'Eswatini': { area: '17.364 km²', population: '1.2M', description: 'Eswatini: piccolo paese dell\'Africa meridionale con tradizioni.' , borders: 'Mozambico, Sud Africa'},
+      'Etiopia': { area: '1.104M km²', population: '126.5M', description: 'Etiopia: antica civiltà africana con montagne e storia religiosa.' , borders: 'Eritrea, Gibuti, Kenya, Somalia, Sudan, Sudan del sud'},
+      'Figi': { area: '18.274 km²', population: '0.9M', description: 'Figi: arcipelago pacifico con spiagge tropicali e immersioni.' , borders: 'Nessun confine terrestre.'},
+      'Filippine': { area: '300.000 km²', population: '113.5M', description: 'Filippine: arcipelago asiatico con spiagge, vulcani e cultura.' , borders: 'Nessun confine terrestre.'},
+      'Finlandia': { area: '338.424 km²', population: '5.6M', description: 'Finlandia: terra di migliaia di laghi, foreste e aurora boreale.' , borders: 'Norvegia, Russia, Svezia'},
+      'Francia': { area: '551.695 km²', population: '67.5M', description: 'Francia: patria dell\'arte, della moda e della cucina stellata.' , borders: 'Andorra, Belgio, Germania, Italia, Lussemburgo, Principato di Monaco, Spagna, Svizzera'},
+      'Gabon': { area: '267.667 km²', population: '2.3M', description: 'Gabon: foreste pluviali dell\'Africa centrale e parchi naturali.' , borders: 'Camerun, Congo, Guinea Equatoriale'},
+      'Gambia': { area: '11.295 km²', population: '2.4M', description: 'Gambia: piccolo paese africano lungo il fiume Gambia.' , borders: 'Senegal'},
+      'Georgia': { area: '69.700 km²', population: '3.9M', description: 'Georgia: paese caucasico tra Europa e Asia con montagne e vino.' , borders: 'Armenia, Azerbaijan, Russia, Turchia'},
+      'Germania': { area: '357.386 km²', population: '83.2M', description: 'Germania: grande economia europea con storia, castelli e birra.' , borders: 'Austria, Belgio, Cechia, Danimarca, Francia, Lussemburgo, Paesi Bassi, Polonia, Svizzera'},
+      'Ghana': { area: '238.533 km²', population: '33.4M', description: 'Ghana: nazione dell\'Africa occidentale con cultura ricca.' , borders: 'Burkina Faso, Costa d\'Avorio, Togo'},
+      'Giamaica': { area: '10.991 km²', population: '2.9M', description: 'Giamaica: isola caraibica famosa per reggae, rum e spiagge.' , borders: 'Nessun confine terrestre.'},
+      'Giappone': { area: '377.975 km²', population: '124.8M', description: 'Giappone: nazione tecnologica con antiche tradizioni e templi.' , borders: 'Nessun confine terrestre.'},
+      'Gibuti': { area: '23.200 km²', population: '1.1M', description: 'Gibuti: piccolo paese del Corno d\'Africa sul Mar Rosso.' , borders: 'Eritrea, Etiopia, Somalia'},
+      'Giordania': { area: '89.342 km²', population: '11.0M', description: 'Giordania: terra di Petra, deserti e antiche rovine.' , borders: 'Arabia Saudita, Iraq, Israele, Palestina, Siria'},
+      'Grecia': { area: '131.957 km²', population: '10.7M', description: 'Grecia: culla della civiltà antica con isole mediterranee.' , borders: 'Albania, Bulgaria, Macedonia del Nord, Turchia'},
+      'Grenada': { area: '344 km²', population: '0.1M', description: 'Grenada: isola caraibica ricca di spezie e spiagge.' , borders: 'Nessun confine terrestre.'},
+      'Guatemala': { area: '108.889 km²', population: '18.2M', description: 'Guatemala: culla della civiltà maya con vulcani e foreste.' , borders: 'Belize, El Salvador, Honduras, Messico'},
+      'Guinea': { area: '245.857 km²', population: '13.1M', description: 'Guinea: paese dell\'Africa occidentale ricco di risorse minerali.' , borders: 'Costa d\'Avorio, Guinea-Bissau, Liberia, Mali, Senegal, Sierra Leone'},
+      'Guinea-Bissau': { area: '36.125 km²', population: '2.0M', description: 'Guinea-Bissau: piccolo paese africano con arcipelaghi costieri.' , borders: 'Guinea, Senegal'},
+      'Guinea Equatoriale': { area: '28.051 km²', population: '1.7M', description: 'Guinea Equatoriale: nazione africana ricca di petrolio.' , borders: 'Camerun, Gabon'},
+      'Guyana': { area: '214.969 km²', population: '0.8M', description: 'Guyana: foreste pluviali sudamericane con fiumi amazzonici.' , borders: 'Brasile, Suriname, Venezuela'},
+      'Haiti': { area: '27.750 km²', population: '11.4M', description: 'Haiti: isola caraibica con storia coloniale e resilienza.' , borders: 'Repubblica Dominicana'},
+      'Honduras': { area: '112.492 km²', population: '10.6M', description: 'Honduras: coste caraibiche e siti archeologici maya.' , borders: 'El Salvador, Guatemala, Nicaragua'},
+      'India': { area: '3.287M km²', population: '1.428B', description: 'India: paese estremamente popoloso con ricche tradizioni culturali.' , borders: 'Bangladesh, Bhutan, Birmania, Cina, Nepal, Pakistan'},
+      'Indonesia': { area: '1.904M km²', population: '279.0M', description: 'Indonesia: arcipelago di migliaia di isole con biodiversità unica.' , borders: 'Malesia, Papua Nuova Guinea, Timor Est'},
+      'Iran': { area: '1.648M km²', population: '88.0M', description: 'Iran: nazione persiana con antiche città e deserti vasti.' , borders: 'Afghanistan, Armenia, Azerbaijan, Iraq, Pakistan, Turchia, Turkmenistan'},
+      'Iraq': { area: '437.072 km²', population: '45.0M', description: 'Iraq: culla della civiltà mesopotamica tra Tigri e Eufrate.' , borders: 'Arabia Saudita, Giordania, Iran, Kuwait, Siria, Turchia'},
+      'Irlanda': { area: '70.273 km²', population: '5.2M', description: 'Irlanda: isola verde con tradizioni celtiche e coste frastagliate.' , borders: 'Regno Unito'},
+      'Islanda': { area: '103.000 km²', population: '0.4M', description: 'Islanda: terre di ghiaccio e fuoco con geyser e cascate.' , borders: 'Nessun confine terrestre.'},
+      'Israele': { area: '20.770 km²', population: '9.5M', description: 'Israele: piccolo stato mediorientale ricco di storia religiosa.' , borders: 'Egitto, Giordania, Libano, Palestina, Siria'},
+      'Italia': { area: '301.340 km²', population: '59.6M', description: 'Italia: paese europeo famoso per cibo, arte, moda e storia.' , borders: 'Austria, Città del Vaticano, Francia, San Marino, Slovenia, Svizzera'},
+      'Kazakistan': { area: '2.725M km²', population: '19.4M', description: 'Kazakistan: grande stato dell\'Asia centrale con steppe.' , borders: 'Cina, Kirghizistan, Russia, Turkmenistan, Uzbekistan'},
+      'Kenya': { area: '580.367 km²', population: '54.0M', description: 'Kenya: patria di safari, savane e grandi parchi nazionali.' , borders: 'Etiopia, Somalia, Sudan del sud, Tanzania, Uganda'},
+      'Kirghizistan': { area: '199.951 km²', population: '7.1M', description: 'Kirghizistan: monti Tien Shan e tradizioni nomadi.' , borders: 'Cina, Kazakistan, Tagikistan, Uzbekistan'},
+      'Kiribati': { area: '811 km²', population: '0.1M', description: 'Kiribati: nazione insulare del Pacifico a rischio climatico.' , borders: 'Nessun confine terrestre.'},
+      'Kuwait': { area: '17.818 km²', population: '4.5M', description: 'Kuwait: stato del Golfo ricco di petrolio e finanza.' , borders: 'Arabia Saudita, Iraq'},
+      'Laos': { area: '236.800 km²', population: '7.6M', description: 'Laos: stato senza sbocco al mare con fiumi e foreste.' , borders: 'Birmania, Cambogia, Cina, Tailandia, Vietnam'},
+      'Lesotho': { area: '30.355 km²', population: '2.2M', description: 'Lesotho: piccolo paese montuoso circonato dal Sudafrica.' , borders: 'Sud Africa'},
+      'Lettonia': { area: '64.589 km²', population: '1.9M', description: 'Lettonia: paese baltico con foreste e costa sabbiosa.' , borders: 'Bielorussia, Estonia, Lituania, Russia'},
+      'Libano': { area: '10.452 km²', population: '6.3M', description: 'Libano: costa mediterranea con influenze culturali varie.' , borders: 'Israele, Siria'},
+      'Liberia': { area: '111.369 km²', population: '5.3M', description: 'Liberia: paese dell\'Africa occidentale con storia unica.' , borders: 'Costa d\'Avorio, Guinea, Sierra Leone'},
+      'Libia': { area: '1.759M km²', population: '7.0M', description: 'Libia: vasto paese nordafricano con deserti e coste.' , borders: 'Algeria, Ciad, Egitto, Niger, Sudan, Tunisia'},
+      'Liechtenstein': { area: '160 km²', population: '0.04M', description: 'Liechtenstein: microscopico stato alpino fra Svizzera e Austria.' , borders: 'Austria, Svizzera'},
+      'Lituania': { area: '65.300 km²', population: '2.8M', description: 'Lituania: stato baltico con città barocche e patrimonio.' , borders: 'Bielorussia, Lettonia, Polonia, Russia'},
+      'Lussemburgo': { area: '2.586 km²', population: '0.6M', description: 'Lussemburgo: piccolo stato europeo con finanza e castelli.' , borders: 'Belgio, Francia, Germania'},
+      'Macedonia del Nord': { area: '25.713 km²', population: '2.1M', description: 'Macedonia del Nord: regione balcanica con montagne e laghi.' , borders: 'Albania, Bulgaria, Grecia, Kosovo, Serbia'},
+      'Madagascar': { area: '587.041 km²', population: '29.5M', description: 'Madagascar: isola con fauna e flora endemiche uniche.' , borders: 'Nessun confine terrestre.'},
+      'Malawi': { area: '118.484 km²', population: '20.1M', description: 'Malawi: paese dell\'Africa meridionale con il grande lago.' , borders: 'Mozambico, Tanzania, Zambia'},
+      'Malaysia': { area: '330.803 km²', population: '33.8M', description: 'Malaysia: terra di isole, foreste pluviali e multietnicità.' , borders: 'Brunei, Indonesia, Tailandia'},
+      'Maldive': { area: '300 km²', population: '0.5M', description: 'Maldive: arcipelago dell\'Oceano Indiano con resort di lusso.' , borders: 'Nessun confine terrestre.'},
+      'Mali': { area: '1.240M km²', population: '20.5M', description: 'Mali: paese del Sahel con città storiche della Via della Seta.' , borders: 'Algeria, Burkina Faso, Costa d\'Avorio, Guinea, Mauritania, Niger, Senegal'},
+      'Malta': { area: '316 km²', population: '0.5M', description: 'Malta: isola mediterranea ricca di storia antica e spiagge.' , borders: 'Nessun confine terrestre.'},
+      'Marocco': { area: '446.550 km²', population: '38.0M', description: 'Marocco: paese nordafricano con deserto, medine e montagne.' , borders: 'Algeria, Sahara Occidentale, Spagna'},
+      'Isole Marshall': { area: '181 km²', population: '0.04M', description: 'Isole Marshall: piccolo arcipelago del Pacifico.' , borders: 'Nessun confine terrestre.'},
+      'Mauritania': { area: '1.030M km²', population: '4.9M', description: 'Mauritania: vasto paese sahariano dell\'Africa occidentale.' , borders: 'Algeria, Mali, Sahara Occidentale, Senegal'},
+      'Mauritius': { area: '2.040 km²', population: '1.3M', description: 'Mauritius: isola tropicale con spiagge bianche e turismo.' , borders: 'Nessun confine terrestre.'},
+      'Messico': { area: '1.964M km²', population: '128.6M', description: 'Messico: ricco di cultura, cucina e antiche civiltà.' , borders: 'Belize, Guatemala, Stati Uniti d\'America'},
+      'Micronesia': { area: '702 km²', population: '0.1M', description: 'Micronesia: arcipelago del Pacifico occidentale.' , borders: 'Nessun confine terrestre.'},
+      'Moldavia': { area: '33.846 km²', population: '2.6M', description: 'Moldavia: terra vinicola dell\'Europa orientale.' , borders: 'Romania, Ucraina'},
+      'Monaco': { area: '2 km²', population: '0.04M', description: 'Monaco: microscopico principato sulla Costa Azzurra.' , borders: 'Francia'},
+      'Mongolia': { area: '1.564M km²', population: '3.4M', description: 'Mongolia: terra di steppe, nomadi e antiche tradizioni.' , borders: 'Cina, Russia'},
+      'Montenegro': { area: '13.812 km²', population: '0.6M', description: 'Montenegro: piccoli fiordi adriatici e parchi naturali.' , borders: 'Albania, Bosnia ed Erzegovina, Croazia, Kosovo, Serbia'},
+      'Mozambico': { area: '801.590 km²', population: '33.5M', description: 'Mozambico: coste dell\'Oceano Indiano e tradizioni swahili.' , borders: 'ESwatini, Malawi, Sud Africa, Tanzania, Zambia, Zimbabwe'},
+      'Namibia': { area: '824.292 km²', population: '2.7M', description: 'Namibia: deserti dell\'Africa meridionale con nature selvaggia.' , borders: 'Angola, Botswana, Sud Africa, Zambia'},
+      'Nauru': { area: '21 km²', population: '0.01M', description: 'Nauru: piccola isola del Pacifico ricca di fosfato.' , borders: 'Nessun confine terrestre.'},
+      'Nepal': { area: '147.516 km²', population: '30.0M', description: 'Nepal: patria dell\'Everest e della spiritualità himalayana.' , borders: 'Cina, India'},
+      'Nicaragua': { area: '130.373 km²', population: '7.2M', description: 'Nicaragua: grandi laghi e vulcani centroamericani.' , borders: 'Costa Rica, Honduras'},
+      'Niger': { area: '1.267M km²', population: '25.1M', description: 'Niger: vasto paese sahariano dell\'Africa occidentale.' , borders: 'Algeria, Benin, Burkina Faso, Ciad, Libia, Mali, Nigeria'},
+      'Nigeria': { area: '923.768 km²', population: '223.8M', description: 'Nigeria: paese africano molto popoloso con Nollywood.' , borders: 'Benin, Camerun, Ciad, Niger'},
+      'Norvegia': { area: '385.207 km²', population: '5.5M', description: 'Norvegia: paesaggi artici, fiordi e avventure all\'aperto.' , borders: 'Finlandia, Russia, Svezia'},
+      'Nuova Zelanda': { area: '268.021 km²', population: '5.1M', description: 'Nuova Zelanda: isole del Pacifico con paesaggi cinematografici.' , borders: 'Nessun confine terrestre.'},
+      'Oman': { area: '309.500 km²', population: '5.6M', description: 'Oman: terre desertiche, montagne e coste sull\'Oceano Indiano.' , borders: 'Arabia Saudita, Emirati Arabi Uniti, Yemen'},
+      'Paesi Bassi': { area: '41.543 km²', population: '17.8M', description: 'Paesi Bassi: canali, biciclette e campi di tulipani.' , borders: 'Belgio, Germania'},
+      'Pakistan': { area: '881.913 km²', population: '238.0M', description: 'Pakistan: varia geografia tra montagne, deserti e pianure.' , borders: 'Afghanistan, Cina, India, Iran'},
+      'Palau': { area: '459 km²', population: '0.02M', description: 'Palau: arcipelago del Pacifico con acque cristalline.' , borders: 'Nessun confine terrestre.'},
+      'Palestina': { area: '6.020 km²', population: '5.2M', description: 'Palestina: territorio mediorientale con storia complessa.' , borders: 'Egitto, Giordania, Israele'},
+      'Panama': { area: '75.417 km²', population: '4.4M', description: 'Panama: canale che collega oceani e ricca di storia.' , borders: 'Colombia, Costa Rica'},
+      'Papua Nuova Guinea': { area: '462.840 km²', population: '9.1M', description: 'Papua Nuova Guinea: isola pacifica con culture indigene.' , borders: 'Indonesia'},
+      'Paraguay': { area: '406.752 km²', population: '7.5M', description: 'Paraguay: cuore del Sud America con ampie pianure.' , borders: 'Argentina, Bolivia, Brasile'},
+      'Perù': { area: '1.285M km²', population: '34.9M', description: 'Perù: patria dell\'antico impero Inca e Machu Picchu.' , borders: 'Bolivia, Brasile, Cile, Colombia, Ecuador'},
+      'Polonia': { area: '312.679 km²', population: '37.7M', description: 'Polonia: paese dell\'Europa centrale con città medievali.' , borders: 'Bielorussia, Cechia, Germania, Lituania, Russia, Slovacchia, Ucraina'},
+      'Portogallo': { area: '92.090 km²', population: '10.3M', description: 'Portogallo: costa atlantica, vino Porto e azulejos.' , borders: 'Spagna'},
+      'Qatar': { area: '11.586 km²', population: '2.9M', description: 'Qatar: piccolo stato del Golfo ricco di petrolio.' , borders: 'Arabia Saudita'},
+      'Regno Unito': { area: '243.610 km²', population: '67.3M', description: 'Regno Unito: ricco di storia reale, musei e paesaggi.' , borders: 'Irlanda'},
+      'Repubblica Centrafricana': { area: '622.984 km²', population: '5.8M', description: 'Repubblica Centrafricana: vasta e poco popolata con foreste.' , borders: 'Camerun, Ciad, Congo, Congo (Rep. Dem.), Sudan, Sudan del sud'},
+      'Repubblica Ceca': { area: '78.866 km²', population: '10.5M', description: 'Repubblica Ceca: città storiche, birra e architettura gotica.' , borders: 'Austria, Germania, Polonia, Slovacchia'},
+      'Repubblica Democratica del Congo': { area: '2.345M km²', population: '99.0M', description: 'Repubblica Democratica del Congo: vasto paese africano con fiumi.' , borders: 'Angola, Burundi, Congo, Repubblica Centrafricana, Ruanda, Sudan del sud, Tanzania, Uganda, Zambia'},
+      'Repubblica del Congo': { area: '342.000 km²', population: '5.5M', description: 'Repubblica del Congo: foreste e fiumi nel cuore africano.' , borders: 'Angola, Camerun, Congo (Rep. Dem.), Gabon, Repubblica Centrafricana'},
+      'Repubblica Dominicana': { area: '48.671 km²', population: '11.0M', description: 'Repubblica Dominicana: noto per resort caraibici tropicali.' , borders: 'Haiti'},
+      'Romania': { area: '238.397 km²', population: '19.5M', description: 'Romania: castelli, montagne dei Carpazi e tradizioni folkloristiche.' , borders: 'Bulgaria, Moldavia, Serbia, Ucraina, Ungheria'},
+      'Ruanda': { area: '26.338 km²', population: '13.9M', description: 'Ruanda: paese dell\'Africa centrale con montagne e laghi.' , borders: 'Burundi, Congo (Rep. Dem.), Tanzania, Uganda'},
+      'Russia': { area: '17.098M km²', population: '146.0M', description: 'Russia: il paese più grande che attraversa Europa e Asia.' , borders: 'Azerbaijan, Bielorussia, Cina, Corea del Nord, Estonia, Finlandia, Georgia, Kazakistan, Lettonia, Lituania, Mongolia, Norvegia, Polonia, Ucraina'},
+      'Saint Kitts e Nevis': { area: '261 km²', population: '0.05M', description: 'Saint Kitts e Nevis: isole caraibiche gemelle.' , borders: 'Nessun confine terrestre.'},
+      'Saint Lucia': { area: '616 km²', population: '0.2M', description: 'Saint Lucia: isola caraibica con vulcani e spiagge.' , borders: 'Nessun confine terrestre.'},
+      'Saint Vincent e Grenadine': { area: '389 km²', population: '0.1M', description: 'Saint Vincent e Grenadine: arcipelago caraibico.' , borders: 'Nessun confine terrestre.'},
+      'Isole Salomone': { area: '28.896 km²', population: '0.7M', description: 'Isole Salomone: arcipelago pacifico con barriere coralline.' , borders: 'Nessun confine terrestre.'},
+      'Samoa': { area: '2.935 km²', population: '0.2M', description: 'Samoa: isole del Pacifico con tradizione polinesiana.' , borders: 'Nessun confine terrestre.'},
+      'San Marino': { area: '61 km²', population: '0.04M', description: 'San Marino: microscopico stato indipendente sulla Appennini.' , borders: 'Italia'},
+      'Santa Sede': { area: '0.44 km²', population: '0.001M', description: 'Santa Sede: il più piccolo stato indipendente del mondo.' , borders: 'Italia'},
+      'São Tomé e Príncipe': { area: '964 km²', population: '0.2M', description: 'São Tomé e Príncipe: isole golfo di Guinea con cacao.' , borders: 'Nessun confine terrestre.'},
+      'Senegal': { area: '196.722 km²', population: '18.9M', description: 'Senegal: costa atlantica con Dakar e ricca musica locale.' , borders: 'Gambia, Guinea, Guinea-Bissau, Mali, Mauritania'},
+      'Serbia': { area: '77.474 km²', population: '6.9M', description: 'Serbia: cuore dei Balcani con musica, cucina e ospitalità.' , borders: 'Bosnia ed Erzegovina, Bulgaria, Croazia, Kosovo, Macedonia del Nord, Montenegro, Romania, Ungheria'},
+      'Seychelles': { area: '455 km²', population: '0.1M', description: 'Seychelles: arcipelago dell\'Oceano Indiano con spiagge.' , borders: 'Nessun confine terrestre.'},
+      'Sierra Leone': { area: '71.740 km²', population: '8.7M', description: 'Sierra Leone: paese dell\'Africa occidentale con coste.' , borders: 'Guinea, Liberia'},
+      'Singapore': { area: '728 km²', population: '5.8M', description: 'Singapore: città-stato di finanza e tecnologia asiatica.' , borders: 'Nessun confine terrestre.'},
+      'Siria': { area: '185.180 km²', population: '18.0M', description: 'Siria: regione antica con siti storici e ricca eredità.' , borders: 'Giordania, Iraq, Israele, Libano, Turchia'},
+      'Slovacchia': { area: '49.035 km²', population: '5.4M', description: 'Slovacchia: montagne Tatra e castelli medievali.' , borders: 'Austria, Cechia, Polonia, Ucraina, Ungheria'},
+      'Slovenia': { area: '20.273 km²', population: '2.1M', description: 'Slovenia: panorami alpini, laghi e natura incontaminata.' , borders: 'Austria, Croazia, Italia, Ungheria'},
+      'Somalia': { area: '637.657 km²', population: '18.5M', description: 'Somalia: regione del Corno d\'Africa con lunghe coste.' , borders: 'Etiopia, Gibuti, Kenya'},
+      'Spagna': { area: '505.990 km²', population: '47.6M', description: 'Spagna: nota per spiagge, tapas, flamenco e patrimoni.', borders: 'Nord: Francia e Andorra\nEst: Portogallo\nSud: Gibilterra' },
+      'Sri Lanka': { area: '65.610 km²', population: '22.4M', description: 'Sri Lanka: isola tropicale con tè, spiagge e templi.' , borders: 'India'},
+      'Stati Uniti': { area: '9.834M km²', population: '332.0M', description: 'Stati Uniti: nazione vasta con metropoli e parchi nazionali.' , borders: 'Canada, Messico'},
+      'Sudafrica': { area: '1.221M km²', population: '61.1M', description: 'Sudafrica: ricco di fauna selvatica, città e safari.' , borders: 'Botswana, Eswatini, Lesotho, Mozambico, Namibia, Zimbabwe'},
+      'Sudan': { area: '1.886M km²', population: '48.0M', description: 'Sudan: regione nordafricana con il Nilo e siti antichi.' , borders: 'Ciad, Egitto, Eritrea, Etiopia, Libia, Repubblica Centrafricana, Sudan del sud'},
+      'Sudan del Sud': { area: '644.329 km²', population: '11.4M', description: 'Sudan del Sud: giovane nazione africana con fiumi e savane.' , borders: 'Congo (Rep. Dem.), Etiopia, Kenya, Repubblica Centrafricana, Sudan, Uganda'},
+      'Suriname': { area: '163.821 km²', population: '0.6M', description: 'Suriname: paese multiculturale con foreste amazzoniche.' , borders: 'Brasile, Guyana, Guyana francese'},
+      'Svezia': { area: '450.295 km²', population: '10.5M', description: 'Svezia: foreste, laghi e città come Stoccolma e Göteborg.' , borders: 'Finlandia, Norvegia'},
+      'Svizzera': { area: '41.285 km²', population: '8.7M', description: 'Svizzera: laghi alpini, cioccolato e precisione orologiera.' , borders: 'Austria, Francia, Germania, Italia, Liechtenstein'},
+      'Tagikistan': { area: '143.100 km²', population: '10.1M', description: 'Tagikistan: montagne dell\'Asia centrale e paesaggi alpini.' , borders: 'Afghanistan, Cina, Kirghizistan, Uzbekistan'},
+      'Tanzania': { area: '947.303 km²', population: '63.0M', description: 'Tanzania: famosa per Kilimangiaro e parchi Serengeti.' , borders: 'Burundi, Congo (Rep. Dem.), Kenya, Malawi, Mozambico, Ruanda, Uganda, Zambia'},
+      'Thailandia': { area: '513.120 km²', population: '71.6M', description: 'Thailandia: destinazione asiatica con templi e isole.' , borders: 'Birmania, Cambogia, Laos, Malesia'},
+      'Timor Est': { area: '14.874 km²', population: '1.3M', description: 'Timor Est: isola del Sudest asiatico con spiagge.' , borders: 'Indonesia'},
+      'Togo': { area: '56.785 km²', population: '8.8M', description: 'Togo: paese dell\'Africa occidentale con coste atlantiche.' , borders: 'Benin, Burkina Faso, Ghana'},
+      'Tonga': { area: '748 km²', population: '0.1M', description: 'Tonga: arcipelago pacifico con tradizioni polinesiane.' , borders: 'Nessun confine terrestre.'},
+      'Trinidad e Tobago': { area: '5.130 km²', population: '1.4M', description: 'Trinidad e Tobago: isole caraibiche con cultura musicale.' , borders: 'Nessun confine terrestre.'},
+      'Tunisia': { area: '163.610 km²', population: '12.0M', description: 'Tunisia: costa mediterranea con storia fenicia e rovine.' , borders: 'Algeria, Libia'},
+      'Turchia': { area: '783.562 km²', population: '85.0M', description: 'Turchia: ponte tra Europa e Asia con storia e paesaggi.' , borders: 'Armenia, Azerbaijan, Bulgaria, Georgia, Grecia, Iran, Iraq, Siria'},
+      'Turkmenistan': { area: '488.100 km²', population: '7.4M', description: 'Turkmenistan: paese deserto con siti storici e gas.' , borders: 'Afghanistan, Iran, Kazakistan, Uzbekistan'},
+      'Tuvalu': { area: '26 km²', population: '0.01M', description: 'Tuvalu: microstato del Pacifico con atolli e comunità.' , borders: 'Nessun confine terrestre.'},
+      'Ucraina': { area: '603.550 km²', population: '43.0M', description: 'Ucraina: terra agricola con grande patrimonio culturale.' , borders: 'Bielorussia, Moldavia, Polonia, Romania, Russia, Slovacchia, Ungheria'},
+      'Uganda': { area: '241.038 km²', population: '47.0M', description: 'Uganda: paese africano con laghi e gorilla di montagna.' , borders: 'Congo (Rep. Dem.), Kenya, Ruanda, Sudan del sud, Tanzania'},
+      'Ungheria': { area: '93.030 km²', population: '9.6M', description: 'Ungheria: nota per Budapest, terme e cultura musicale.' , borders: 'Austria, Croazia, Romania, Serbia, Slovacchia, Slovenia, Ucraina'},
+      'Uruguay': { area: '176.215 km²', population: '3.6M', description: 'Uruguay: coste atlantiche e città tranquille sudamericane.' , borders: 'Argentina, Brasile'},
+      'Uzbekistan': { area: '447.400 km²', population: '36.0M', description: 'Uzbekistan: antica terra della Via della Seta asiatica.' , borders: 'Afghanistan, Kazakistan, Kirghizistan, Tagikistan, Turkmenistan'},
+      'Vanuatu': { area: '12.189 km²', population: '0.3M', description: 'Vanuatu: arcipelago pacifico vulcanico con biodiversità.' , borders: 'Nessun confine terrestre.'},
+      'Venezuela': { area: '916.445 km²', population: '28.5M', description: 'Venezuela: foreste amazzoniche e picchi montani.' , borders: 'Brasile, Colombia, Guyana'},
+      'Vietnam': { area: '331.212 km²', population: '99.0M', description: 'Vietnam: paesaggi rurali, risaie e ricca storia.' , borders: 'Cambogia, Cina, Laos'},
+      'Yemen': { area: '527.968 km²', population: '33.7M', description: 'Yemen: antica penisola arabica con forte storia.' , borders: 'Arabia Saudita, oman'},
+      'Zambia': { area: '752.618 km²', population: '20.4M', description: 'Zambia: notevole per le cascate Vittoria e parchi.' , borders: 'Angola, Botswana, Congo (Rep. Dem.), Malawi, Mozambico, Namibia, Tanzania, Zimbabwe'},
+      'Zimbabwe': { area: '390.757 km²', population: '16.5M', description: 'Zimbabwe: ricco di riserve naturali e cascate Vittoria.' , borders: 'Botswana, Mozambico, Sud Africa, Zambia'},
+      'Greenland': { area: '2.166M km²', population: '0.06M', description: 'Greenland: grande isola artica con spettacolari paesaggi di ghiaccio.' , borders: 'Nessun confine terrestre.'},
+      'Kosovo': { area: '10.908 km²', population: '1.8M', description: 'Kosovo: giovane nazione balcanica con una storia recente complessa.' , borders: 'Albania, Macedonia del Nord, Montenegro, Serbia'},
+      'New Caledonia': { area: '18.576 km²', population: '0.3M', description: 'New Caledonia: territorio francese del Pacifico con barriere coralline.' , borders: 'Nessun confine terrestre.'},
+      'Northern Cyprus': { area: '3.355 km²', population: '0.4M', description: 'Northern Cyprus: regione nel Mediterraneo orientale con forte identità turca.' , borders: 'Cipro'},
+      'Puerto Rico': { area: '9.104 km²', population: '3.2M', description: 'Puerto Rico: territorio dei Caraibi con cultura ispanica e influenze USA.' , borders: 'Nessun confine terrestre.'},
+      'Taiwan': { area: '36.197 km²', population: '23.5M', description: 'Taiwan: isola asiatica con industria tecnologica e montagne verdeggianti.' , borders: 'Nessun confine terrestre.'},
+      'Falkland Islands': { area: '12.173 km²', population: '0.003M', description: 'Falkland Islands: arcipelago del Sud Atlantico con fauna marina e pascoli.' , borders: 'Nessun confine terrestre.'},
+      'French Southern and Antarctic Lands': { area: '7.200.000 km²', population: '0.0M', description: 'French Southern and Antarctic Lands: distretti remoti francesi nell\'Oceano Indiano e Antartico.' , borders: 'Nessun confine terrestre.'},
+      'Somaliland': { area: '176.120 km²', population: '5.9M', description: 'Somaliland: regione autoproclamata nel Corno d\'Africa.' , borders: 'Etiopia, Gibuti, Somalia'},
+      'Western Sahara': { area: '266.000 km²', population: '0.6M', description: 'Western Sahara: vasta regione desertica nel Nord Africa con status contestato.' , borders: 'Algeria, Marocco, Mauritania'}
+    };
+
+    const countryFlagCodes = {
+      'Italy': 'it', 'France': 'fr', 'Germany': 'de', 'Spain': 'es', 'Portugal': 'pt', 'United Kingdom': 'gb', 'Ireland': 'ie', 'Poland': 'pl', 'Ukraine': 'ua', 'Greece': 'gr', 'Romania': 'ro', 'Bulgaria': 'bg', 'Croatia': 'hr', 'Slovenia': 'si', 'Serbia': 'rs', 'Bosnia': 'ba', 'Montenegro': 'me', 'Albania': 'al', 'Macedonia': 'mk', 'Hungary': 'hu', 'Slovakia': 'sk', 'Czech Republic': 'cz', 'Austria': 'at', 'Switzerland': 'ch', 'Belgium': 'be', 'Netherlands': 'nl', 'Denmark': 'dk', 'Sweden': 'se', 'Finland': 'fi', 'Norway': 'no', 'Iceland': 'is', 'Luxembourg': 'lu', 'Malta': 'mt', 'Cyprus': 'cy', 'Belarus': 'by', 'Moldova': 'md', 'Lithuania': 'lt', 'Latvia': 'lv', 'Estonia': 'ee',
+      'Egypt': 'eg', 'South Africa': 'za', 'Nigeria': 'ng', 'Kenya': 'ke', 'Ethiopia': 'et', 'Ghana': 'gh', 'Morocco': 'ma', 'Tunisia': 'tn', 'Algeria': 'dz', 'Sudan': 'sd', 'Tanzania': 'tz', 'Uganda': 'ug', 'Cameroon': 'cm', 'Zambia': 'zm', 'Zimbabwe': 'zw', 'Mali': 'ml', 'Senegal': 'sn', 'Angola': 'ao', 'Mozambique': 'mz', 'Madagascar': 'mg', 'Mauritius': 'mu', 'Somalia': 'so', 'Gabon': 'ga', 'Congo': 'cg', 'Central African Republic': 'cf',
+      'Russia': 'ru', 'China': 'cn', 'India': 'in', 'Japan': 'jp', 'Thailand': 'th', 'Vietnam': 'vn', 'Malaysia': 'my', 'Indonesia': 'id', 'Philippines': 'ph', 'Bangladesh': 'bd', 'Pakistan': 'pk', 'Iran': 'ir', 'Iraq': 'iq', 'Saudi Arabia': 'sa', 'Israel': 'il', 'Jordan': 'jo', 'Lebanon': 'lb', 'Syria': 'sy', 'Turkey': 'tr', 'United Arab Emirates': 'ae', 'Qatar': 'qa', 'Bahrain': 'bh', 'Kuwait': 'kw', 'Oman': 'om', 'Yemen': 'ye', 'South Korea': 'kr', 'North Korea': 'kp', 'Mongolia': 'mn', 'Kazakhstan': 'kz', 'Uzbekistan': 'uz', 'Turkmenistan': 'tm', 'Tajikistan': 'tj', 'Kyrgyzstan': 'kg', 'Afghanistan': 'af', 'Nepal': 'np', 'Bhutan': 'bt', 'Sri Lanka': 'lk', 'Myanmar': 'mm', 'Laos': 'la', 'Cambodia': 'kh', 'Brunei': 'bn', 'Singapore': 'sg', 'Timor-Leste': 'tl', 'Maldives': 'mv', 'Hong Kong': 'hk', 'Taiwan': 'tw',
+      'Brazil': 'br', 'Argentina': 'ar', 'Colombia': 'co', 'Peru': 'pe', 'Venezuela': 've', 'Chile': 'cl', 'Ecuador': 'ec', 'Bolivia': 'bo', 'Paraguay': 'py', 'Uruguay': 'uy', 'Guyana': 'gy', 'Suriname': 'sr', 'French Guiana': 'gf',
+      'Canada': 'ca', 'United States': 'us', 'Mexico': 'mx', 'Guatemala': 'gt', 'Honduras': 'hn', 'El Salvador': 'sv', 'Nicaragua': 'ni', 'Costa Rica': 'cr', 'Panama': 'pa', 'Belize': 'bz', 'Jamaica': 'jm', 'Trinidad and Tobago': 'tt', 'Bahamas': 'bs', 'Cuba': 'cu', 'Dominican Republic': 'do', 'Haiti': 'ht', 'Puerto Rico': 'pr',
+      'Australia': 'au', 'New Zealand': 'nz', 'Fiji': 'fj', 'Papua New Guinea': 'pg', 'Solomon Islands': 'sb', 'Samoa': 'ws', 'Kiribati': 'ki', 'Nauru': 'nr', 'Tuvalu': 'tv', 'Palau': 'pw',
+      'Afghanistan': 'af', 'Albania': 'al', 'Algeria': 'dz', 'Andorra': 'ad', 'Angola': 'ao', 'Antigua e Barbuda': 'ag', 'Arabia Saudita': 'sa', 'Argentina': 'ar', 'Armenia': 'am', 'Australia': 'au', 'Austria': 'at', 'Azerbaigian': 'az', 'Bahamas': 'bs', 'Bahrein': 'bh', 'Bangladesh': 'bd', 'Barbados': 'bb', 'Belgio': 'be', 'Belize': 'bz', 'Benin': 'bj', 'Bhutan': 'bt', 'Bielorussia': 'by', 'Birmania': 'mm', 'Bolivia': 'bo', 'Bosnia ed Erzegovina': 'ba', 'Botswana': 'bw', 'Brasile': 'br', 'Brunei': 'bn', 'Bulgaria': 'bg', 'Burkina Faso': 'bf', 'Burundi': 'bi', 'Cambogia': 'kh', 'Camerun': 'cm', 'Canada': 'ca', 'Capo Verde': 'cv', 'Ciad': 'td', 'Cile': 'cl', 'Cina': 'cn', 'Cipro': 'cy', 'Colombia': 'co', 'Comore': 'km', 'Corea del Nord': 'kp', 'Corea del Sud': 'kr', 'Costa d\'Avorio': 'ci', 'Costa Rica': 'cr', 'Croazia': 'hr', 'Cuba': 'cu', 'Danimarca': 'dk', 'Dominica': 'dm', 'Ecuador': 'ec', 'Egitto': 'eg', 'El Salvador': 'sv', 'Emirati Arabi Uniti': 'ae', 'Eritrea': 'er', 'Estonia': 'ee', 'Eswatini': 'sz', 'Etiopia': 'et', 'Figi': 'fj', 'Filippine': 'ph', 'Finlandia': 'fi', 'Francia': 'fr', 'Gabon': 'ga', 'Gambia': 'gm', 'Georgia': 'ge', 'Germania': 'de', 'Ghana': 'gh', 'Giamaica': 'jm', 'Giappone': 'jp', 'Gibuti': 'dj', 'Giordania': 'jo', 'Grecia': 'gr', 'Grenada': 'gd', 'Guatemala': 'gt', 'Guinea': 'gn', 'Guinea-Bissau': 'gw', 'Guinea Equatoriale': 'gq', 'Guyana': 'gy', 'Haiti': 'ht', 'Honduras': 'hn', 'India': 'in', 'Indonesia': 'id', 'Iran': 'ir', 'Iraq': 'iq', 'Irlanda': 'ie', 'Islanda': 'is', 'Israele': 'il', 'Italia': 'it', 'Kazakistan': 'kz', 'Kenya': 'ke', 'Kirghizistan': 'kg', 'Kiribati': 'ki', 'Kuwait': 'kw', 'Laos': 'la', 'Lesotho': 'ls', 'Lettonia': 'lv', 'Libano': 'lb', 'Liberia': 'lr', 'Libia': 'ly', 'Liechtenstein': 'li', 'Lituania': 'lt', 'Lussemburgo': 'lu', 'Macedonia del Nord': 'mk', 'Madagascar': 'mg', 'Malawi': 'mw', 'Malaysia': 'my', 'Maldive': 'mv', 'Mali': 'ml', 'Malta': 'mt', 'Marocco': 'ma', 'Isole Marshall': 'mh', 'Mauritania': 'mr', 'Mauritius': 'mu', 'Messico': 'mx', 'Micronesia': 'fm', 'Moldavia': 'md', 'Monaco': 'mc', 'Mongolia': 'mn', 'Montenegro': 'me', 'Mozambico': 'mz', 'Namibia': 'na', 'Nauru': 'nr', 'Nepal': 'np', 'Nicaragua': 'ni', 'Niger': 'ne', 'Nigeria': 'ng', 'Norvegia': 'no', 'Nuova Zelanda': 'nz', 'Oman': 'om', 'Paesi Bassi': 'nl', 'Pakistan': 'pk', 'Palau': 'pw', 'Palestina': 'ps', 'Panama': 'pa', 'Papua Nuova Guinea': 'pg', 'Paraguay': 'py', 'Perù': 'pe', 'Polonia': 'pl', 'Portogallo': 'pt', 'Qatar': 'qa', 'Regno Unito': 'gb', 'Repubblica Centrafricana': 'cf', 'Repubblica Ceca': 'cz', 'Repubblica Democratica del Congo': 'cd', 'Repubblica del Congo': 'cg', 'Repubblica Dominicana': 'do', 'Romania': 'ro', 'Ruanda': 'rw', 'Russia': 'ru', 'Saint Kitts e Nevis': 'kn', 'Saint Lucia': 'lc', 'Saint Vincent e Grenadine': 'vc', 'Isole Salomone': 'sb', 'Samoa': 'ws', 'San Marino': 'sm', 'Santa Sede': 'va', 'São Tomé e Príncipe': 'st', 'Senegal': 'sn', 'Serbia': 'rs', 'Seychelles': 'sc', 'Sierra Leone': 'sl', 'Singapore': 'sg', 'Siria': 'sy', 'Slovacchia': 'sk', 'Slovenia': 'si', 'Somalia': 'so', 'Spagna': 'es', 'Sri Lanka': 'lk', 'Stati Uniti': 'us', 'Sudafrica': 'za', 'Sudan': 'sd', 'Sudan del Sud': 'ss', 'Suriname': 'sr', 'Svezia': 'se', 'Svizzera': 'ch', 'Tagikistan': 'tj', 'Tanzania': 'tz', 'Thailandia': 'th', 'Timor Est': 'tl', 'Togo': 'tg', 'Tonga': 'to', 'Trinidad e Tobago': 'tt', 'Tunisia': 'tn', 'Turchia': 'tr', 'Turkmenistan': 'tm', 'Tuvalu': 'tv', 'Ucraina': 'ua', 'Uganda': 'ug', 'Ungheria': 'hu', 'Uruguay': 'uy', 'Uzbekistan': 'uz', 'Vanuatu': 'vu', 'Venezuela': 've', 'Vietnam': 'vn', 'Yemen': 'ye', 'Zambia': 'zm', 'Zimbabwe': 'zw',
+      'Antarctica': 'aq'
+    };
+
+    const countryAliases = {
+      'Italy': 'Italia',
+      'France': 'Francia',
+      'Germany': 'Germania',
+      'Spain': 'Spagna',
+      'Portugal': 'Portogallo',
+      'United Kingdom': 'Regno Unito',
+      'United Kingdom of Great Britain and Northern Ireland': 'Regno Unito',
+      'Ireland': 'Irlanda',
+      'Poland': 'Polonia',
+      'Ukraine': 'Ucraina',
+      'Greece': 'Grecia',
+      'Croatia': 'Croazia',
+      'Bosnia and Herzegovina': 'Bosnia ed Erzegovina',
+      'Bosnia': 'Bosnia ed Erzegovina',
+      'Macedonia': 'Macedonia del Nord',
+      'North Macedonia': 'Macedonia del Nord',
+      'Hungary': 'Ungheria',
+      'Slovakia': 'Slovacchia',
+      'Czech Republic': 'Repubblica Ceca',
+      'Czechia': 'Repubblica Ceca',
+      'Switzerland': 'Svizzera',
+      'Belgium': 'Belgio',
+      'Netherlands': 'Paesi Bassi',
+      'Denmark': 'Danimarca',
+      'Sweden': 'Svezia',
+      'Finland': 'Finlandia',
+      'Norway': 'Norvegia',
+      'Iceland': 'Islanda',
+      'Luxembourg': 'Lussemburgo',
+      'Cyprus': 'Cipro',
+      'Belarus': 'Bielorussia',
+      'Moldova': 'Moldavia',
+      'Lithuania': 'Lituania',
+      'Latvia': 'Lettonia',
+      'Egypt': 'Egitto',
+      'South Africa': 'Sudafrica',
+      'Ethiopia': 'Etiopia',
+      'Morocco': 'Marocco',
+      'Cameroon': 'Camerun',
+      'Mozambique': 'Mozambico',
+      'Burma': 'Birmania',
+      'Myanmar': 'Birmania',
+      'Timor-Leste': 'Timor Est',
+      'East Timor': 'Timor Est',
+      'Saudi Arabia': 'Arabia Saudita',
+      'Bahrain': 'Bahrein',
+      'United Arab Emirates': 'Emirati Arabi Uniti',
+      'Palestine': 'Palestina',
+      'United States': 'Stati Uniti',
+      'United States of America': 'Stati Uniti',
+      'Mexico': 'Messico',
+      'Philippines': 'Filippine',
+      'Brazil': 'Brasile',
+      'Chile': 'Cile',
+      'Cabo Verde': 'Capo Verde',
+      'Cape Verde': 'Capo Verde',
+      'Ivory Coast': 'Costa d\'Avorio',
+      'Republic of the Congo': 'Repubblica del Congo',
+      'Democratic Republic of the Congo': 'Repubblica Democratica del Congo',
+      'Central African Republic': 'Repubblica Centrafricana',
+      'Russian Federation': 'Russia',
+      'Republic of Serbia': 'Serbia',
+      'Republic of Korea': 'Corea del Sud',
+      'Korea, South': 'Corea del Sud',
+      'Korea, North': 'Corea del Nord',
+      'North Korea': 'Corea del Nord',
+      'South Korea': 'Corea del Sud',
+      'Viet Nam': 'Vietnam',
+      'Syrian Arab Republic': 'Siria',
+      'Iran (Islamic Republic of)': 'Iran',
+      'Bolivia (Plurinational State of)': 'Bolivia',
+      'Venezuela (Bolivarian Republic of)': 'Venezuela',
+      'Tanzania, United Republic of': 'Tanzania',
+      'United Republic of Tanzania': 'Tanzania',
+      'Libyan Arab Jamahiriya': 'Libia',
+      'Cambodia': 'Cambogia',
+      'Equatorial Guinea': 'Guinea Equatoriale',
+      'Jamaica': 'Giamaica',
+      'Lebanon': 'Libano',
+      'Libya': 'Libia',
+      'New Zealand': 'Nuova Zelanda',
+      'Papua New Guinea': 'Papua Nuova Guinea',
+      'Peru': 'Perù',
+      'Syria': 'Siria',
+      'Thailand': 'Thailandia',
+      'eSwatini': 'Eswatini',
+      'Antigua and Barbuda': 'Antigua e Barbuda',
+      'Trinidad and Tobago': 'Trinidad e Tobago',
+      'South Sudan': 'Sudan del Sud',
+      'Western Sahara': 'Western Sahara',
+      'Azerbaijan': 'Azerbaigian',
+      'Chad': 'Ciad',
+      'China': 'Cina',
+      'Djibouti': 'Gibuti',
+      'Dominican Republic': 'Repubblica Dominicana',
+      'Fiji': 'Figi',
+      'Israel': 'Israele',
+      'Japan': 'Giappone',
+      'Jordan': 'Giordania',
+      'Kazakhstan': 'Kazakistan',
+      'Kyrgyzstan': 'Kirghizistan',
+      'Rwanda': 'Ruanda',
+      'Solomon Islands': 'Isole Salomone',
+      'Tajikistan': 'Tagikistan',
+      'Turkey': 'Turchia',
+      'The Bahamas': 'Bahamas'
+    };
+
+    function normalizeCountryName(name) {
+      return name
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[‘’'`]/g, '')
+        .replace(/[,\.\(\)\-\/]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    const countryDataKeyMap = {};
+    const countryFlagCodeMap = {};
+
+    Object.keys(countryData).forEach(key => {
+      countryDataKeyMap[normalizeCountryName(key)] = key;
+    });
+
+    Object.keys(countryFlagCodes).forEach(key => {
+      countryFlagCodeMap[normalizeCountryName(key)] = countryFlagCodes[key];
+    });
+
+    function resolveCountryKey(countryName) {
+      if (countryData[countryName]) return countryName;
+      const alias = countryAliases[countryName];
+      if (alias && countryData[alias]) return alias;
+      const normalized = normalizeCountryName(countryName);
+      if (countryDataKeyMap[normalized]) return countryDataKeyMap[normalized];
+      return countryName;
+    }
+
+    function getCountryFlagUrl(countryName) {
+      const normalized = resolveCountryKey(countryName);
+      let code = countryFlagCodes[normalized] || countryFlagCodes[countryName];
+      if (!code) {
+        code = countryFlagCodeMap[normalizeCountryName(normalized)] || countryFlagCodeMap[normalizeCountryName(countryName)];
+      }
+      if (!code && countryAliases[countryName]) {
+        code = countryFlagCodeMap[normalizeCountryName(countryAliases[countryName])];
+      }
+      if (!code) return '';
+      return `https://flagcdn.com/w80/${code}.png`;
+    }
+
+    const countryCard = document.getElementById('countryCard');
+    const countryFlag = document.getElementById('countryFlag');
+    const countryTitle = document.getElementById('countryTitle');
+    const countrySubtitle = document.getElementById('countrySubtitle');
+    const countryClose = document.getElementById('countryClose');
+    const countryDescription = document.getElementById('countryDescription');
+    const countryArea = document.getElementById('countryArea');
+    const countryPopulation = document.getElementById('countryPopulation');
+    const countryBordersInfo = document.getElementById('countryBordersText');
+    function formatStat(value) {
+      return value || 'Dati non disponibili';
+    }
+
+    let selectedMesh = null;
+    const SELECTED_OFFSET = 0.07;
+    const WORLD_RECESS_OFFSET = 0.08;
+    const WORLD_RECESS_Z = -0.12;
+    let worldTargetRecess = 0;
+    let worldCurrentRecess = 0;
+
+    function selectCountryMesh(mesh) {
+      selectedMesh = mesh;
+      const countryName = mesh && mesh.userData && mesh.userData.country;
+      allCountryMeshes.forEach(({ mesh: other }) => {
+        if (!other.userData) return;
+        const sameCountry = countryName && other.userData.country === countryName;
+        if (sameCountry) {
+          other.userData.selected = true;
+          other.userData.targetOffset = SELECTED_OFFSET;
+          // Brighten the selected country
+          other.material.color.setHex(HIGHLIGHT_COLOR);
+        } else {
+          other.userData.selected = false;
+          other.userData.targetOffset = 0;
+          other.material.color.setHex(other.userData.originalColor);
+          other.material.emissive && other.material.emissive.setHex(0x000000);
+        }
+      });
+      worldTargetRecess = 0;
+    }
+
+    function restoreCountryMesh() {
+      allCountryMeshes.forEach(({ mesh }) => {
+        if (!mesh.userData) return;
+        mesh.userData.selected = false;
+        mesh.userData.targetOffset = 0;
+        mesh.material.color.setHex(mesh.userData.originalColor);
+        mesh.material.emissive && mesh.material.emissive.setHex(0x000000);
+      });
+      worldTargetRecess = 0;
+      selectedMesh = null;
+    }
+
+    function showCountryCard(countryName, mesh) {
+      const normalized = resolveCountryKey(countryName);
+      countryTitle.textContent = normalized;
+      const flagUrl = getCountryFlagUrl(countryName);
+      if (flagUrl) {
+        countryFlag.src = flagUrl;
+        countryFlag.alt = `Bandiera di ${normalized}`;
+        countryFlag.style.display = 'block';
+      } else {
+        countryFlag.style.display = 'none';
+      }
+
+      const data = countryData[normalized] || {};
+      countryArea.textContent = formatStat(data.area);
+      countryPopulation.textContent = formatStat(data.population);
+      countryBordersInfo.textContent = data.borders || 'Informazioni sui confini non disponibili.';
+      countryDescription.textContent = data.description || 'Descrizione non disponibile per questa nazione.';
+      countrySubtitle.textContent = 'Hai selezionato questa nazione. Premi × per chiudere.';
+      countryCard.classList.add('show');
+
+      if (mesh) {
+        selectCountryMesh(mesh);
+      }
+    }
+
+    function hideCountryCard() {
+      countryCard.classList.remove('show');
+      restoreCountryMesh();
+    }
+
+    countryClose.addEventListener('click', hideCountryCard);
+
+    function zoomToCountry(mesh) {
+      if (mesh && mesh.userData) {
+        currentView = mesh.userData.country;
+        const normal = mesh.userData.normal;
+        
+        const distance = 1.6;
+        const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        const endPos = { x: normal.x * distance, y: normal.y * distance, z: normal.z * distance };
+        const duration = 1000;
+        const startTime = Date.now();
+
+        const animateZoom = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          camera.position.x = startPos.x + (endPos.x - startPos.x) * progress;
+          camera.position.y = startPos.y + (endPos.y - startPos.y) * progress;
+          camera.position.z = startPos.z + (endPos.z - startPos.z) * progress;
+          camera.lookAt(normal.x, normal.y, normal.z);
+
+          if (progress < 1) {
+            requestAnimationFrame(animateZoom);
+          } else {
+            autoRotate = false;
+            document.getElementById('backButton').style.display = 'block';
+          }
+        };
+
+        animateZoom();
+      }
+    }
 
     function zoomToContinent(continent) {
       if (continents[continent]) {
@@ -447,7 +1248,9 @@
 
         // Anima la camera verso il continente
         const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-        const endPos = { x: x * targetZoom, y: y * targetZoom, z: z * targetZoom };
+        // Avvicina la camera verso il continente: usa una distanza fissa più vicina al globo
+        const distance = 1.6; // distanza dalla superficie/globo quando zoomato
+        const endPos = { x: x * distance, y: y * distance, z: z * distance };
         const duration = 1000; // ms
         const startTime = Date.now();
 
@@ -501,21 +1304,26 @@
     }
 
     canvas.addEventListener('click', (e) => {
-      if (currentView !== 'globe') return; // Non permette click se in vista continente
-
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
 
       const meshesToCheck = allCountryMeshes.map(m => m.mesh);
-      const intersects = raycaster.intersectObjects(meshesToCheck);
+      const intersects = raycaster.intersectObjects(meshesToCheck, false);
 
       if (intersects.length > 0) {
-        const clickedMesh = intersects[0].object;
-        const country = clickedMesh.userData.country;
-        
-        document.getElementById('countryName').textContent = '🎯 ' + country;
+        let clickedObject = intersects[0].object;
+        while (clickedObject && !clickedObject.userData?.country) {
+          clickedObject = clickedObject.parent;
+        }
+        if (clickedObject && clickedObject.userData?.country) {
+          const country = clickedObject.userData.country;
+          const normalizedCountry = resolveCountryKey(country);
+          document.getElementById('countryName').textContent = '🎯 ' + normalizedCountry;
+          showCountryCard(country, clickedObject);
+          zoomToCountry(clickedObject);
+        }
       }
     });
 
@@ -629,11 +1437,39 @@
         scene.rotation.y += 0.0002;
       }
 
+      allCountryMeshes.forEach(({ mesh }) => {
+        if (!mesh.userData) return;
+        const currentOffset = mesh.userData.currentOffset || 0;
+        const targetOffset = mesh.userData.targetOffset || 0;
+        if (Math.abs(currentOffset - targetOffset) > 0.0001) {
+          const direction = targetOffset > currentOffset ? 1 : -1;
+          const nextOffset = currentOffset + direction * 0.006;
+          const clampedOffset = direction > 0 ? Math.min(nextOffset, targetOffset) : Math.max(nextOffset, targetOffset);
+          mesh.userData.currentOffset = clampedOffset;
+          mesh.position.copy(mesh.userData.normal.clone().multiplyScalar(clampedOffset));
+        }
+      });
+
+      if (Math.abs(worldCurrentRecess - worldTargetRecess) > 0.0001) {
+        const direction = worldTargetRecess > worldCurrentRecess ? 1 : -1;
+        worldCurrentRecess += direction * 0.004;
+        if ((direction > 0 && worldCurrentRecess > worldTargetRecess) || (direction < 0 && worldCurrentRecess < worldTargetRecess)) {
+          worldCurrentRecess = worldTargetRecess;
+        }
+        worldGroup.position.z = worldCurrentRecess;
+      }
+
       renderer.render(scene, camera);
     };
 
     renderer.setAnimationLoop(animate);
-    loadWorldMap();
+    console.log('Animation loop started');
+    try {
+      loadWorldMap();
+    } catch (error) {
+      console.error('Error loading world map:', error);
+      document.getElementById('countryName').textContent = '❌ Errore nel caricamento della mappa';
+    }
   </script>
 </body>
 </html>
