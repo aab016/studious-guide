@@ -1,0 +1,9 @@
+I have packaged a Trusted Web Application (TWA) into an apk as described by the meta developer docs (https://developers.meta.com/horizon/documentation/web/pwa-packaging/#sideload-your-pwa-to-test).
+
+The TWA open as default the docs/index.html in immersive mode.
+
+After sideload the apk and logcat to the specific PID I got the logs in app/logcat/io.github.aab016.twa.pid-25905.log.txt.
+
+I suppose the docs/index.html doesn't have the code, as other docs/**/index.html page has, that load three.js and WebXR support.
+
+Analyze the issue and if is what I suppose modify docs/index.js to support WebXR (using same libraries and approach other docs/**/*.html pages are using). WebXR support for docs/index.html should not change the actual behavior for non-XR browsers.

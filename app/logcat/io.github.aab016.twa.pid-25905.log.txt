@@ -1,0 +1,27 @@
+06-11 12:24:51.520 25905 25905 D VrosSpatialAudio: Immersive activity detected, skip VrosSpatialAudio init
+06-11 12:24:51.530 25905 25905 D TWALauncherActivity: Using URL from Manifest (https://aab016.github.io/studious-guide/index.html).
+06-11 12:24:51.530 25905 25905 D TWALauncherActivity: Creating TwaLauncher for com.oculus.browser
+06-11 12:24:51.530 25905 25905 D TWALauncherActivity: Creating HorizonOSQualityEnforcer.
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: QUALCOMM build                   : 274d25476a, Iae7cef94b0
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: Build Date                       : 04/19/25
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.50.02.00
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: Local Branch                     :
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.UM.9.12.1.11.00.00.890.145
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: Remote Branch                    : NONE
+06-11 12:24:51.606 25905 25939 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+06-11 12:24:51.607 25905 25939 I AdrenoGLES-0: Build Config                     : S P 10.0.7 AArch64
+06-11 12:24:51.607 25905 25939 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+06-11 12:24:51.607 25905 25939 I AdrenoGLES-0: Driver Version                   : 0819.0
+06-11 12:24:51.607 25905 25939 I AdrenoGLES-0: Process Name                     : io.github.aab016.twa
+06-11 12:24:51.610 25905 25905 I OpenGLRenderer: setStopped(0)
+06-11 12:24:51.634 25905 25939 I AdrenoGLES-0: PFP: 0x016dd114, ME: 0x00000000
+06-11 12:24:51.642 25905 25939 E OpenGLRenderer: Unable to match the desired swap behavior.
+06-11 12:24:51.642 25905 25905 I OpenGLRenderer: setStopped(0): complete
+06-11 12:24:51.642 25905 25905 I OpenGLRenderer: setStopped(0)
+06-11 12:24:51.642 25905 25905 I OpenGLRenderer: setStopped(0): complete
+06-11 12:24:51.657 25905 25905 D TwaLauncher: Launching Trusted Web Activity.
+06-11 12:24:51.658 25905 25905 D TwaLauncher: Setting Oculus Browser launch mode to immersive
+06-11 12:24:52.236 25905 25928 D HzOSTwaQualityEnforcer: Received finishAndRemoveTask command from browser.
+06-11 12:24:52.863 25905 25905 I OpenGLRenderer: setStopped(1)
+06-11 12:24:52.864 25905 25905 I OpenGLRenderer: setStopped(1): complete
+06-11 12:24:52.925 25905 25905 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda18@dcb6b08
