@@ -252,7 +252,7 @@
             scene.background = new THREE.Color(0x0b1220);
 
             const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 200);
-            camera.position.set(0, 1.6, 3);
+            camera.position.set(0, 1.6, 0);
             scene.add(camera);
 
             const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.1);
@@ -264,20 +264,109 @@
             scene.add(sun);
 
             const floor = new THREE.Mesh(
-              new THREE.PlaneGeometry(12, 12),
+              new THREE.PlaneGeometry(20, 20),
               new THREE.MeshStandardMaterial({ color: 0x222630, roughness: 0.8, metalness: 0.2 })
             );
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            const box = new THREE.Mesh(
-              new THREE.BoxGeometry(0.35, 0.35, 0.35),
-              new THREE.MeshStandardMaterial({ color: 0x6b46c1, roughness: 0.25, metalness: 0.7 })
-            );
-            box.position.set(0, 1.1, -1);
-            scene.add(box);
+            // Subject cards data
+            const subjects = [
+              { label: 'Educazione Civica', emoji: '⚖️', link: 'citizenship/index.html' },
+              { label: 'Matematica', emoji: '➗', link: 'math/index.html' },
+              { label: 'Chimica', emoji: '⚗️', link: 'chemistry/index.html' },
+              { label: 'Fisica', emoji: '🧲', link: 'physics/index.html' },
+              { label: 'Letteratura', emoji: '📚', link: 'literature/index.html' },
+              { label: 'Storia', emoji: '🏺', link: 'history/index.html' },
+              { label: 'Arte', emoji: '🎨', link: 'art/index.html' },
+              { label: 'Biologia', emoji: '🧬', link: 'biology/index.html' },
+              { label: 'Geografia', emoji: '🌍', link: 'geography/index.html' },
+              { label: 'Inglese', emoji: '📖', link: 'english/index.html' }
+            ];
+
+            // Create card meshes
+            const cards = [];
+            const cardSize = 0.8;
+            const cardDepth = 0.1;
+            const spacing = 1.2;
+            const cols = 5;
+            const rows = 2;
+            const startX = -(cols - 1) * spacing / 2;
+            const startZ = -3;
+
+            subjects.forEach((subject, index) => {
+              const row = Math.floor(index / cols);
+              const col = index % cols;
+              const x = startX + col * spacing;
+              const z = startZ + row * spacing;
+
+              // Card background
+              const cardGeometry = new THREE.BoxGeometry(cardSize, cardSize, cardDepth);
+              const cardMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                roughness: 0.3,
+                metalness: 0.1
+              });
+              const cardMesh = new THREE.Mesh(cardGeometry, cardMaterial);
+              cardMesh.position.set(x, 1.4, z);
+              cardMesh.userData = { link: subject.link, isCard: true };
+              cards.push(cardMesh);
+              scene.add(cardMesh);
+
+              // Card label (text using canvas texture)
+              const canvas = document.createElement('canvas');
+              canvas.width = 256;
+              canvas.height = 256;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#6b46c1';
+              ctx.fillRect(0, 0, 256, 256);
+              ctx.fillStyle = '#000000';
+              ctx.font = 'bold 24px Arial';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(subject.label, 128, 120);
+              ctx.font = '80px Arial';
+              ctx.fillText(subject.emoji, 128, 200);
+
+              const texture = new THREE.CanvasTexture(canvas);
+              const labelGeometry = new THREE.PlaneGeometry(cardSize * 0.95, cardSize * 0.95);
+              const labelMaterial = new THREE.MeshBasicMaterial({ map: texture });
+              const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
+              labelMesh.position.copy(cardMesh.position);
+              labelMesh.position.z -= cardDepth / 2 + 0.01;
+              scene.add(labelMesh);
+            });
 
             const clock = new THREE.Clock();
+            const raycaster = new THREE.Raycaster();
+            const controller0 = renderer.xr.getController(0);
+            const controller1 = renderer.xr.getController(1);
+            scene.add(controller0);
+            scene.add(controller1);
+
+            let selectedCard = null;
+
+            function setRaycasterFromController(controller) {
+              const temp = new THREE.Vector3(0, 0, -1);
+              temp.applyQuaternion(controller.quaternion);
+              raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+              raycaster.ray.direction.copy(temp).normalize();
+            }
+
+            function onSelect(event) {
+              setRaycasterFromController(event.controller);
+              const intersects = raycaster.intersectObjects(cards);
+              
+              if (intersects.length > 0) {
+                const hit = intersects[0].object;
+                if (hit.userData.link) {
+                  window.location.href = hit.userData.link;
+                }
+              }
+            }
+
+            controller0.addEventListener('select', onSelect);
+            controller1.addEventListener('select', onSelect);
 
             function onWindowResize() {
               camera.aspect = window.innerWidth / window.innerHeight;
@@ -297,7 +386,27 @@
             });
 
             renderer.setAnimationLoop(() => {
-              box.rotation.y += clock.getDelta() * 0.5;
+              setRaycasterFromController(controller0);
+              let intersects = raycaster.intersectObjects(cards);
+              
+              if (intersects.length === 0) {
+                setRaycasterFromController(controller1);
+                intersects = raycaster.intersectObjects(cards);
+              }
+
+              // Reset all cards
+              cards.forEach(card => {
+                card.scale.set(1, 1, 1);
+                card.material.color.setHex(0xffffff);
+              });
+
+              // Highlight hovered card
+              if (intersects.length > 0) {
+                const hoveredCard = intersects[0].object;
+                hoveredCard.scale.set(1.1, 1.1, 1.1);
+                hoveredCard.material.color.setHex(0x6b46c1);
+              }
+
               renderer.render(scene, camera);
             });
             console.log('docs/index.html ###L303 WebXR fully initialized');
