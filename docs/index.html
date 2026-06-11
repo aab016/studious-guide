@@ -204,6 +204,7 @@
 
         async function initWebXR() {
           if (!navigator.xr || typeof navigator.xr.isSessionSupported !== 'function') {
+            console.log('docs/index.html ###L207 WebXR not available');
             return;
           }
 
@@ -211,85 +212,100 @@
           try {
             hasXR = await navigator.xr.isSessionSupported('immersive-vr');
           } catch (error) {
-            console.warn('WebXR support check failed:', error);
+            console.warn('docs/index.html ###L215 WebXR support check failed:', error);
+            return;
           }
           if (!hasXR) {
+            console.log('docs/index.html ###L219 immersive-vr session not supported');
             return;
           }
 
-          const renderer = new THREE.WebGLRenderer({ antialias: true });
-          renderer.setPixelRatio(window.devicePixelRatio);
-          renderer.setSize(window.innerWidth, window.innerHeight);
-          renderer.xr.enabled = true;
-          renderer.xr.setReferenceSpaceType('local');
-          renderer.domElement.style.position = 'fixed';
-          renderer.domElement.style.top = '0';
-          renderer.domElement.style.left = '0';
-          renderer.domElement.style.width = '100%';
-          renderer.domElement.style.height = '100%';
-          renderer.domElement.style.display = 'none';
-          renderer.domElement.style.zIndex = '9999';
-          document.body.appendChild(renderer.domElement);
-
-          const button = VRButton.createButton(renderer);
-          button.style.position = 'fixed';
-          button.style.top = '16px';
-          button.style.right = '16px';
-          button.style.zIndex = '10000';
-          document.body.appendChild(button);
-
-          const scene = new THREE.Scene();
-          scene.background = new THREE.Color(0x0b1220);
-
-          const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 200);
-          camera.position.set(0, 1.6, 3);
-          scene.add(camera);
-
-          const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.1);
-          light.position.set(0, 1, 0);
-          scene.add(light);
-
-          const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-          sun.position.set(5, 10, 5);
-          scene.add(sun);
-
-          const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(12, 12),
-            new THREE.MeshStandardMaterial({ color: 0x222630, roughness: 0.8, metalness: 0.2 })
-          );
-          floor.rotation.x = -Math.PI / 2;
-          scene.add(floor);
-
-          const box = new THREE.Mesh(
-            new THREE.BoxGeometry(0.35, 0.35, 0.35),
-            new THREE.MeshStandardMaterial({ color: 0x6b46c1, roughness: 0.25, metalness: 0.7 })
-          );
-          box.position.set(0, 1.1, -1);
-          scene.add(box);
-
-          const clock = new THREE.Clock();
-
-          function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+          try {
+            const renderer = new THREE.WebGLRenderer({ 
+              antialias: false,
+              alpha: false,
+              preserveDrawingBuffer: false,
+              powerPreference: 'high-performance'
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true;
+            renderer.xr.setReferenceSpaceType('local');
+            renderer.domElement.style.position = 'fixed';
+            renderer.domElement.style.top = '0';
+            renderer.domElement.style.left = '0';
+            renderer.domElement.style.width = '100%';
+            renderer.domElement.style.height = '100%';
+            renderer.domElement.style.display = 'none';
+            renderer.domElement.style.zIndex = '9999';
+            document.body.appendChild(renderer.domElement);
+            console.log('docs/index.html ###L242 WebXR renderer initialized successfully');
+
+            const button = VRButton.createButton(renderer);
+            button.style.position = 'fixed';
+            button.style.top = '16px';
+            button.style.right = '16px';
+            button.style.zIndex = '10000';
+            document.body.appendChild(button);
+
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0b1220);
+
+            const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 200);
+            camera.position.set(0, 1.6, 3);
+            scene.add(camera);
+
+            const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.1);
+            light.position.set(0, 1, 0);
+            scene.add(light);
+
+            const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+            sun.position.set(5, 10, 5);
+            scene.add(sun);
+
+            const floor = new THREE.Mesh(
+              new THREE.PlaneGeometry(12, 12),
+              new THREE.MeshStandardMaterial({ color: 0x222630, roughness: 0.8, metalness: 0.2 })
+            );
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            const box = new THREE.Mesh(
+              new THREE.BoxGeometry(0.35, 0.35, 0.35),
+              new THREE.MeshStandardMaterial({ color: 0x6b46c1, roughness: 0.25, metalness: 0.7 })
+            );
+            box.position.set(0, 1.1, -1);
+            scene.add(box);
+
+            const clock = new THREE.Clock();
+
+            function onWindowResize() {
+              camera.aspect = window.innerWidth / window.innerHeight;
+              camera.updateProjectionMatrix();
+              renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            window.addEventListener('resize', onWindowResize);
+
+            renderer.xr.addEventListener('sessionstart', () => {
+              console.log('docs/index.html ###L291 XR session started');
+              renderer.domElement.style.display = '';
+            });
+            renderer.xr.addEventListener('sessionend', () => {
+              console.log('docs/index.html ###L295 XR session ended');
+              renderer.domElement.style.display = 'none';
+            });
+
+            renderer.setAnimationLoop(() => {
+              box.rotation.y += clock.getDelta() * 0.5;
+              renderer.render(scene, camera);
+            });
+            console.log('docs/index.html ###L303 WebXR fully initialized');
+          } catch (error) {
+            console.error('docs/index.html ###L305 WebXR initialization error:', error);
           }
 
-          window.addEventListener('resize', onWindowResize);
-
-          renderer.xr.addEventListener('sessionstart', () => {
-            renderer.domElement.style.display = '';
-          });
-          renderer.xr.addEventListener('sessionend', () => {
-            renderer.domElement.style.display = 'none';
-          });
-
-          renderer.setAnimationLoop(() => {
-            box.rotation.y += clock.getDelta() * 0.5;
-            renderer.render(scene, camera);
-          });
         }
-
         initWebXR();
       </script>
       
