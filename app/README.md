@@ -37,7 +37,8 @@ Installare Android SDK API level 23
 
 `bubblewrap init --manifest=https://aab016.github.io/manifest.json --metaquest`
 - JDK path: /usr/local/sdkman/candidates/java/current
-- Android SDK path: /workspaces/studious-guide/app/android_sdk/cmdline-tools/latest
+- Android SDK path: /workspaces/studious-guide/app/android_sdk
+- Android SDK path: /workspaces/studious-guide/app/android_sdk/cmdline-tools/latest (OLD seems bugged because it's create a build-tools folder for v34)
 - Splash screen color: #6b46c1
 - Maskable icon URL: https://aab016.github.io/studious-guide/assets/metaverso-a-scuola.black.square.512x512.png
 - Monochrome icon URL: vuoto

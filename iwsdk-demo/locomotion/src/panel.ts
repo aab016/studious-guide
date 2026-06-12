@@ -41,6 +41,8 @@ export class SettingsSystem extends createSystem({
   private vec3!: Vector3;
 
   init() {
+    console.log("init", {_: new Date()});
+
     this.queries.settingsPanel.subscribe('qualify', (entity) => {
       if (entity.getValue(PanelUI, 'config') === './ui/settings.json') {
         this.setupUIInteractions(entity);
@@ -66,6 +68,13 @@ export class SettingsSystem extends createSystem({
       xrButton.addEventListener('click', () => {
         this.world.launchXR();
       });
+
+      try {
+        this.world.launchXR();
+        console.log("this.world.launchXR() success");
+      } catch (error) {
+        console.error('this.world.launchXR():', error);
+      }
 
       const exitButton = document.getElementById('exit-button');
       exitButton.addEventListener('click', () => {

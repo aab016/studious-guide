@@ -24,7 +24,7 @@ plugins {
 def twaManifest = [
     applicationId: 'io.github.aab016.twa',
     hostName: 'aab016.github.io', // The domain being opened in the TWA.
-    launchUrl: '/studious-guide/index.html', // The start path for the TWA. Must be relative to the domain.
+    launchUrl: '/studious-guide/demo/iwsdk-locomotion/index.html', // The start path for the TWA. Must be relative to the domain.
     name: 'Metaverso a Scuola', // The application name.
     launcherName: 'MetaSchool', // The name shown on the Android Launcher.
     themeColor: '#6B46C1', // The color used for the status bar.
@@ -62,8 +62,8 @@ android {
         
             targetSdkVersion 32
         
-        versionCode 1
-        versionName "1"
+        versionCode 2
+        versionName "2"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name

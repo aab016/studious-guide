@@ -44,6 +44,7 @@ World.create(document.getElementById('scene-container') as HTMLDivElement, {
   },
   xr: {
     sessionMode: SessionMode.ImmersiveVR,
+    offer: "always",
     features: {
       handTracking: { required: true },
     },

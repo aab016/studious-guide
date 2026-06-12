@@ -15,7 +15,7 @@
   "enableNotifications": true,
   "enableMicrophone": false,
   "enableXRScene": true,
-  "startUrl": "/studious-guide/index.html",
+  "startUrl": "/studious-guide/demo/iwsdk-locomotion/index.html",
   "iconUrl": "https://aab016.github.io/studious-guide/assets/metaverso-a-scuola.black.square.512x512.png",
   "maskableIconUrl": "https://aab016.github.io/studious-guide/assets/metaverso-a-scuola.black.square.512x512.png",
   "splashScreenFadeOutDuration": 300,
@@ -23,8 +23,8 @@
     "path": "/workspaces/studious-guide/app/my-pwa/android.keystore",
     "alias": "android"
   },
-  "appVersionName": "1",
-  "appVersionCode": 1,
+  "appVersionName": "2",
+  "appVersionCode": 2,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://aab016.github.io/manifest.json",
@@ -55,5 +55,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "1"
+  "appVersion": "3"
 }
