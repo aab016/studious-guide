@@ -14,6 +14,7 @@ import mkcert from 'vite-plugin-mkcert';
 export default defineConfig({
   plugins: [
     mkcert(),
+    /** this will try to launch chromium
     iwsdkDev({
       emulator: {
         device: 'metaQuest3',
@@ -23,6 +24,7 @@ export default defineConfig({
       ai: { mode: 'agent', screenshotSize: { width: 500, height: 500 } },
       verbose: true,
     }),
+     */
     compileUIKit({ sourceDir: 'ui', outputDir: 'public/ui', verbose: true }),
     optimizeGLTF({
       level: 'medium',
