@@ -25,6 +25,17 @@ jobs:
       - name: Build vendored Three.js assets
         run: npm run vendor
 
+      - name: IWSDK locomotion install
+        run: npm install
+        working-directory: iwsdk-demo/locomotion
+
+      - name: IWSDK locomotion build
+        run: npm run build
+        working-directory: iwsdk-demo/locomotion
+
+      - name: IWSDK locomotion copy
+        run: cp -R iwsdk-demo/locomotion/dist/. docs/demo/iwsdk-locomotion
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
