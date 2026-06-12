@@ -57,6 +57,14 @@ World.create(document.getElementById('scene-container') as HTMLDivElement, {
     },
   },
 }).then((world) => {
+
+  try {
+    world.launchXR();
+    console.log("world.launchXR()");
+  } catch (error) {
+    console.error("world.launchXR()", error);
+  }
+
   const { camera } = world;
   camera.position.set(-4, 1.5, -6);
   camera.rotateY(-Math.PI * 0.75);
