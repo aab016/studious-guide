@@ -30,7 +30,13 @@ export default defineConfig({
       level: 'medium',
     }),
   ],
-  server: { host: '0.0.0.0' },
+  server: {
+    host: true,
+    allowedHosts: true,
+    port: 5173,
+    strictPort: true,
+    cors: true,
+  },
   build: {
     outDir: 'dist',
     sourcemap: process.env.NODE_ENV !== 'production',

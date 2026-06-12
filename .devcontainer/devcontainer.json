@@ -19,7 +19,8 @@
 	"postCreateCommand": ".devcontainer/post-create-command.sh",
 	"forwardPorts": [
 		5500,
-		3000
+		3000,
+		5731
 	],
 	// Configure port-specific properties.
 	"portsAttributes": {
@@ -31,6 +32,12 @@
 		"3000": {
 			"label": "Node.js WebSocket Server",
 			"onAutoForward": "notify",
+			"visibility": "public"
+		},
+		"5173": {
+			"label": "Vite",
+			"onAutoForward": "notify",
+			"protocol": "https",
 			"visibility": "public"
 		}
 	}
