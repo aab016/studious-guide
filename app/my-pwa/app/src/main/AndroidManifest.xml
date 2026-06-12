@@ -24,7 +24,6 @@
     package="io.github.aab016.twa">
 
     
-        <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     
 
     
