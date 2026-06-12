@@ -21,6 +21,10 @@
     "three": "npm:super-three@0.181.0"
   },
   "devDependencies": {
+    "@iwsdk/cli": "^0.4.2",
+    "@iwsdk/vite-plugin-dev": "^0.4.2",
+    "@iwsdk/vite-plugin-gltf-optimizer": "^0.4.2",
+    "@iwsdk/vite-plugin-uikitml": "^0.4.2",
     "@types/three": "^0.178.1",
     "typescript": "^5.5.0",
     "vite": "^7.1.4",
