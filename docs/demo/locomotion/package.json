@@ -16,6 +16,7 @@
     "fresh:build": "npm run fresh:install && npm run build"
   },
   "dependencies": {
+    "@iwsdk/core": "^0.4.2",
     "@pmndrs/uikit-horizon": "^1.0.60",
     "@pmndrs/uikit-lucide": "^1.0.60",
     "three": "npm:super-three@0.181.0"
