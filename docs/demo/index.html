@@ -1,25 +1,115 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Demo - Metaverso a Scuola</title>
-  </head>
-  <body>
-    <h1>Demo - Metaverso a Scuola</h1>
-    <p>Benvenuto nella sezione Demo della nostra esperienza Metaverso a Scuola!</p>
-    <h2>Demo VR disponibili</h2>
-    <ul>
-      <li><a href="template.html">Template</a> — punto di partenza WebXR con navigazione camera tramite joystick.</li>
-      <li><a href="https://github.com/aab016/studious-guide/blob/main/CONTRIBUTING.md">Contributing</a> linee guida per contribuire tramite GitHub.</li>
-      <li><a href="imwer.html">credits >></a> https://github.com/meta-quest/immersive-web-emulation-runtime/tree/main/examples/basic - https://meta-quest.github.io/immersive-web-emulation-runtime/action.html#live-webxr-demo</li>
-      <li><a href="imwer-claude.html">fail credits >></a> claude.com</li>
-      <li><a href="sketchfab.html">Template Sketchfab</a> — utilizza modello 3D https://sketchfab.com/3d-models/2024-ducati-streetfighter-v4-s-c501252f8af64c559bf91dc306c3a550</li>
-      <li><a href="focus.html">test messa a fuoco delle lenti (WIP)</a> — prompt Claude: demo/focus.txt</li>
-      <li><a href="introspection.html">multi player VR room</a> — require <i>npm run wss:server</i></li>
-      <li><a href="classroom.html">classroom presence</a> — require to be logged in with oculus</li>
-      <li><a href="iwsdk-locomotion/index.html">IWSDK Locomotion</a> — <i>to edit you should read iwsdk-demo/locomotion/README.md</i></li>
-    </ul>
-    <p style="text-align:center;margin-top:12px;font-size:0.95rem;color:#475569">Contributors: <a href="../contributors">wall of fame</a></p>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Demo — Metaverso a Scuola</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1f2937,#111827);margin:0;color:#e5e7eb}
+    .card{max-width:720px;background:#1f2937;padding:40px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:left;border:1px solid #374151}
+    h1{margin:0 0 8px 0;color:#fff;font-size:2rem}
+    .subtitle{color:#9ca3af;margin:0 0 24px 0;font-size:0.95rem;font-style:italic}
+    .quote{background:#111827;padding:16px;border-left:3px solid #8b5cf6;margin:24px 0;border-radius:4px;color:#d1d5db;font-size:0.95rem}
+    .quote-author{color:#9ca3af;font-size:0.85rem;margin-top:8px}
+    hr{margin:32px 0;border:none;border-top:1px solid #374151}
+    .demo-item{margin-bottom:28px}
+    .demo-title{font-weight:700;font-size:1.1rem;color:#fff;margin:0 0 8px 0}
+    .demo-desc{color:#d1d5db;margin:0 0 10px 0;line-height:1.5}
+    .demo-link{display:inline-block;color:#8b5cf6;text-decoration:none;font-weight:600;margin-top:6px}
+    .demo-link:hover{text-decoration:underline}
+    .demo-note{color:#9ca3af;font-size:0.9rem;margin-top:8px;font-style:italic}
+    .section-title{font-size:1.3rem;font-weight:700;color:#fff;margin:24px 0 16px 0;margin-top:28px}
+    .contributing-box{background:#374151;padding:20px;border-radius:8px;margin:24px 0;border:1px solid #4b5563}
+    .contributing-box h3{margin:0 0 12px 0;color:#fff}
+    .contributing-box p{margin:8px 0;color:#d1d5db;font-size:0.95rem}
+    .cta-box{background:#8b5cf6;padding:20px;border-radius:8px;margin:28px 0;color:#fff;text-align:center}
+    .cta-box h3{margin:0 0 12px 0;color:#fff}
+    .cta-box p{margin:8px 0;line-height:1.6}
+    .cta-link{display:inline-block;margin-top:12px;padding:10px 20px;border-radius:6px;background:#fff;color:#8b5cf6;text-decoration:none;font-weight:700}
+    .cta-link:hover{background:#f3f4f6}
+    .wall-of-fame{background:#374151;border:2px solid #8b5cf6;padding:20px;border-radius:8px;margin-top:28px;text-align:center;font-size:1.05rem}
+    .wall-of-fame-title{color:#fff;font-weight:700;font-size:1.1rem;margin-bottom:12px}
+    .wall-of-fame a{display:inline-block;color:#fff;background:#8b5cf6;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:6px;margin-top:8px}
+    .wall-of-fame a:hover{background:#a78bfa;transform:translateY(-2px)}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Demo WebXR</h1>
+    <p class="subtitle">Per sviluppatori e appassionati di tecnologie immersive</p>
+
+    <div class="quote">
+      "The best way to predict the future is to invent it." — Alan Kay<br>
+      <div class="quote-author">THE DEMO SCENE: where passion meets creation</div>
+    </div>
+
+    <p style="color:#d1d5db">Questa sezione è dedicata a chi vuole <strong>esplorare, creare e innovare</strong> nel mondo delle esperienze VR immersive.<br />Se sei qui, probabilmente ami il coding, sperimenti con tecnologie cutting-edge e non hai paura di fare qualcosa di nuovo! 🚀</p>
+
+    <hr>
+
+    <div class="section-title">🎮 Demo Disponibili</div>
+
+    <div class="demo-item">
+      <div class="demo-title">1. Template WebXR</div>
+      <div class="demo-desc">Punto di partenza essenziale per sviluppare esperienze VR. Include navigazione della camera tramite joystick e struttura base pronta all'estensione.</div>
+      <a href="template.html" class="demo-link">→ Accedi al Template</a>
+    </div>
+
+    <div class="demo-item">
+      <div class="demo-title">2. IWSDK Locomotion</div>
+      <div class="demo-desc">Implementazione avanzata di sistemi di movimento e locomotion per esperienze immersive. Perfetto per capire come far muovere l'utente nello spazio virtuale.</div>
+      <a href="iwsdk-locomotion/index.html" class="demo-link">→ Prova la Locomotion</a>
+      <div class="demo-note">📖 Per approfondire: leggi il <a href="../../iwsdk-demo/README.md" style="color:#8b5cf6">README del progetto IWSDK</a></div>
+    </div>
+
+    <div class="demo-item">
+      <div class="demo-title">3. Immersive Web Emulation Runtime (IWER)</div>
+      <div class="demo-desc">Sperimentazione con il runtime di emulazione WebXR. Inclusi esempi pratici e approfondimenti sugli standard web per la realtà virtuale.</div>
+      <a href="imwer.html" class="demo-link">→ Esplora IWER</a>
+      <div class="demo-note">📚 Basato su: <a href="https://github.com/meta-quest/immersive-web-emulation-runtime" style="color:#8b5cf6">Meta Quest - IWER</a></div>
+    </div>
+
+    <div class="demo-item">
+      <div class="demo-title">4. Template con Modelli 3D (Sketchfab)</div>
+      <div class="demo-desc">Integrazione di modelli 3D professionali da Sketchfab dentro esperienze VR WebXR. Vedi come portare asset di qualità nelle tue scene immersive.</div>
+      <a href="sketchfab.html" class="demo-link">→ Vedi il Template Sketchfab</a>
+    </div>
+
+    <div class="demo-item">
+      <div class="demo-title">5. Multiplayer VR Room</div>
+      <div class="demo-desc">Esperienza collaborativa in realtà virtuale. Multiple utenti possono condividere lo stesso spazio virtuale in tempo reale.</div>
+      <a href="introspection.html" class="demo-link">→ Accedi alla Room</a>
+      <div class="demo-note">⚙️ Prerequisito: esegui <code style="background:#111827;padding:2px 6px;border-radius:3px">npm run wss:server</code> prima di accedere</div>
+    </div>
+
+    <div class="demo-item">
+      <div class="demo-title">6. Classroom Presence</div>
+      <div class="demo-desc">Prototipo di aula virtuale dove studenti e insegnanti possono interagire in VR. Sperimenta con sistemi di presence e avatar sociali.</div>
+      <a href="classroom.html" class="demo-link">→ Entra in Aula</a>
+      <div class="demo-note">🔐 Richiede: login con account Oculus/Meta</div>
+    </div>
+
+    <hr>
+
+    <div class="contributing-box">
+      <h3>🛠️ Vuoi Contribuire?</h3>
+      <p>Se hai idee per nuove esperienze o vuoi migliorare quelle esistenti, siamo alla ricerca di sviluppatori, creativi e innovatori!</p>
+      <p><strong>👉 <a href="https://github.com/aab016/studious-guide/blob/main/CONTRIBUTING.md" style="color:#8b5cf6">Leggi le Linee Guida per Contribuire</a></strong></p>
+      <p style="color:#9ca3af;font-size:0.9rem;margin-top:12px">Ricordati: quando contribuisci con una feature, una fix o una demo interessante, <a href="../contributors" style="color:#8b5cf6"><strong>aggiungi il tuo nome al Wall of Fame</strong></a> 🌟</p>
+    </div>
+
+    <div class="cta-box">
+      <h3>💬 Partecipa alla Comunità</h3>
+      <p>Condividi idee, fai domande, proponi nuove esperienze e discuti di tecnologie immersive con altri appassionati del progetto!</p>
+      <p style="margin:0;color:#f3f4f6">Tutte le discussioni avvengono su:</p>
+      <a href="https://www.reddit.com/r/ItalyLabInfo/" class="cta-link">Visita il Subreddit r/ItalyLabInfo</a>
+    </div>
+
+    <div class="wall-of-fame">
+      <div class="wall-of-fame-title">👥 Aggiungi il tuo nome al Wall of Fame!</div>
+      <p style="color:#d1d5db;margin:8px 0">Hai creato una demo o migliorato il progetto? Non dimenticare di registrarti nella nostra gallery dei contributori.</p>
+      <a href="../contributors">Wall of Fame</a>
+    </div>
+  </div>
+</body>
 </html>
