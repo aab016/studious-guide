@@ -11,3 +11,17 @@ https://www.youtube.com/watch?v=4ioRoWZR0AM @ 15:40 explain the world.launchXR()
 IWSDK TWA demo: https://github.com/felixtrz/iwsdk-app
 
 Disable Chrome WebXR Layers... https://github.com/meta-quest/immersive-web-emulator/issues/80#issuecomment-4277367779
+
+# How To
+
+## dev
+
+npm install
+
+npm run dev
+
+then open the 5173 port
+
+## publish
+
+cd iwsdk-demo/locomotion && npm run build && cd ../.. && cp -R iwsdk-demo/locomotion/dist/. docs/demo/iwsdk-locomotion
