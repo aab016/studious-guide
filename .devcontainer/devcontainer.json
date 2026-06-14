@@ -26,7 +26,7 @@
 	"portsAttributes": {
 		"5500": {
 			"label": "Go Live",
-			"onAutoForward": "openPreview",
+			"onAutoForward": "notify",
 			"visibility": "public"
 		},
 		"3000": {
