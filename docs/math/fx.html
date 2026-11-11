@@ -4,103 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>f(x) XR</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
-
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-      body, html {
-        width: 100%; height: 100%;
-        overflow: hidden;
-        background: #02050a;
-        color: #c8dff8;
-        font-family: 'JetBrains Mono', monospace;
-      }
-
-      /* ══════════════════════════════════════════
-         PANEL INTERFACCIA SCREEN (2D)
-      ══════════════════════════════════════════ */
-      #panel {
-        position: absolute;
-        left: 1.2rem; top: 1.2rem;
-        width: 340px;
-        z-index: 10;
-        border-radius: 12px;
-        overflow-y: auto;
-        max-height: calc(100vh - 2.4rem);
-        background: rgba(4, 8, 18, 0.95);
-        border: 1px solid rgba(80, 180, 255, 0.3);
-        backdrop-filter: blur(20px);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-      }
-
-      #panel::before {
-        content: ''; display: block; height: 2px;
-        background: linear-gradient(90deg, #00aaff, #0055ff, #00ffff);
-      }
-
-      .panel-inner { padding: 1.2rem; }
-      .ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
-      .ph-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem; color: #7dd6ff; letter-spacing: 0.04em; text-transform: uppercase; }
-      .ph-sub { font-size: 0.65rem; color: rgba(140,190,240,0.5); }
-      
-      .sec-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(100,170,245,0.6); margin-bottom: 0.6rem; margin-top: 1rem; border-left: 2px solid #00aaff; padding-left: 6px; }
-
-      .fx-row { display: flex; align-items: center; gap: 0.4rem; }
-      .fx-lbl { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.85rem; color: #5ae4ff; }
-      #fxInput {
-        flex: 1; min-width: 0; background: rgba(50,130,240,0.08);
-        border: 1px solid rgba(80,170,255,0.25); border-radius: 4px; padding: 0.4rem 0.6rem;
-        font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #e8f4ff; outline: none;
-      }
-      
-      .btn-group { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
-      #applyBtn {
-        flex: 2; background: #0088ff; color: #ffffff;
-        border: none; border-radius: 4px; padding: 0.5rem;
-        font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.75rem; cursor: pointer;
-        text-transform: uppercase; transition: background 0.2s;
-      }
-      #applyBtn:hover { background: #00aaff; }
-
-      #resetBtn {
-        flex: 1; background: rgba(255, 255, 255, 0.05); color: #7dd6ff;
-        border: 1px solid rgba(80, 170, 255, 0.3); border-radius: 4px; padding: 0.5rem;
-        font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.75rem; cursor: pointer;
-        text-transform: uppercase; transition: all 0.2s;
-      }
-      #resetBtn:hover { background: rgba(0, 170, 255, 0.15); }
-
-      #fxError { font-size: 0.65rem; color: #ff7aac; min-height: 0.85rem; margin-top: 0.3rem; }
-
-      .sr { display: grid; grid-template-columns: 24px 1fr 46px; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
-      .sn { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.8rem; text-align: center; }
-      .sn.a  { color: #5ae4ff; } .sn.b  { color: #ff7aac; }
-      .sv { font-size: 0.72rem; text-align: right; color: rgba(180,220,255,0.8); }
-
-      input[type='range'] {
-        -webkit-appearance: none; width: 100%; height: 3px; border-radius: 2px; background: rgba(30,70,140,0.6); outline: none;
-      }
-      #aSlider { background: linear-gradient(90deg, rgba(90,228,255,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
-      #bSlider { background: linear-gradient(90deg, rgba(255,122,172,0.4) var(--pct,50%), rgba(30,70,140,0.5) var(--pct,50%)); }
-      input[type='range']::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#7dd6ff; cursor:pointer; }
-
-      .div { height: 1px; background: linear-gradient(90deg, transparent, rgba(80,170,255,0.2), transparent); margin: 1rem 0; }
-      .examples { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
-      .ex-chip {
-        font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.5rem;
-        background: rgba(50,130,240,0.1); border: 1px solid rgba(80,170,255,0.2); border-radius: 4px; color: rgba(170,215,255,0.8); cursor: pointer;
-      }
-      .ex-chip:hover { background: rgba(50,130,240,0.2); border-color: rgba(80,170,255,0.4); }
-
-      .info-vr {
-        background: rgba(0, 170, 255, 0.05); border: 1px dashed rgba(0, 170, 255, 0.25);
-        padding: 0.6rem; border-radius: 4px; font-size: 0.68rem; line-height: 1.4; color: #a2cfff;
-      }
-
-      canvas { display: block; }
-    </style>
-  </head>
+    <link rel="stylesheet" href="/assets/xr-hud.css">
+</head>
   <body>
 
     <div id="panel">
@@ -142,8 +47,8 @@
     </div>
 
     <script type="module">
-      import * as THREE from '../vendor/three/build/three.module.js';
-      import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+      import * as THREE from '/vendor/three/build/three.module.js';
+      import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js';
 
       /* ══ DEFAULT POSITIONS FOR RESET ══════════════════════ */
       const DEFAULT_AXES_POS = new THREE.Vector3(0, 1.25, -0.5);

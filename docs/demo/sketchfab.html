@@ -120,14 +120,14 @@
     <script type="importmap">
     {
       "imports": {
-        "three": "../vendor/three/build/three.module.js"
+        "three": "/vendor/three/build/three.module.js"
       }
     }
     </script>
     <script type="module">
-      import * as THREE from '../vendor/three/build/three.module.js';
-      import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
-      import { GLTFLoader } from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
+      import * as THREE from '/vendor/three/build/three.module.js';
+      import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js';
+      import { GLTFLoader } from '/vendor/three/examples/jsm/loaders/GLTFLoader.js';
 
       // ─── Renderer ────────────────────────────────────────────────────────────
       const renderer = new THREE.WebGLRenderer({ antialias: true });

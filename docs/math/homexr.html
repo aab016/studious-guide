@@ -4,48 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HomeXR</title>
-    <style>
-      body,
-      html {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: #040615;
-        color: #f2f7ff;
-        font-family: system-ui, sans-serif;
-      }
-
-      #info {
-        position: absolute;
-        left: 1rem;
-        right: 1rem;
-        top: 1rem;
-        z-index: 10;
-        padding: 0.85rem 1rem;
-        background: rgba(1, 4, 16, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 0.75rem;
-        line-height: 1.5;
-        font-size: 0.95rem;
-      }
-
-      #info strong {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-size: 1.05rem;
-      }
-
-      a {
-        color: #88c8ff;
-      }
-
-      canvas {
-        display: block;
-      }
-    </style>
-  </head>
+    <link rel="stylesheet" href="/assets/xr-hud.css">
+</head>
   <body>
     <div id="info">
       <strong>HomeXR</strong>
@@ -53,8 +13,8 @@
       Each connected VR controller shows its own pointer and can trigger the press animation.
     </div>
     <script type="module">
-      import * as THREE from '../vendor/three/build/three.module.js';
-      import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+      import * as THREE from '/vendor/three/build/three.module.js';
+      import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js';
 
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(window.devicePixelRatio);

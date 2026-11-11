@@ -4,83 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cos Plot XR</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
-
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-      body, html {
-        width: 100%; height: 100%;
-        overflow: hidden;
-        background: #0a0e18;
-        color: #e8f4ff;
-        font-family: 'JetBrains Mono', monospace;
-      }
-
-      #screenPanel {
-        position: absolute;
-        left: 1.2rem; top: 1.2rem;
-        width: 340px;
-        z-index: 10;
-        border-radius: 16px;
-        overflow-y: auto;
-        max-height: calc(100vh - 2.4rem);
-        background: rgba(10, 14, 24, 0.93);
-        border: 1px solid rgba(147, 112, 219, 0.3);
-        backdrop-filter: blur(30px) saturate(1.8);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      }
-
-      #screenPanel::before {
-        content: ''; display: block; height: 3px;
-        background: #8b5cf6;
-      }
-
-      .panel-inner { padding: 1rem; }
-      .ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
-      .ph-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.95rem; color: #a78bfa; letter-spacing: 0.04em; text-transform: uppercase; }
-      .ph-sub { font-size: 0.65rem; color: rgba(167, 139, 250, 0.45); }
-      
-      .sec-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(34, 197, 94, 0.6); margin-bottom: 0.5rem; margin-top: 0.8rem; }
-
-      .sr { display: grid; grid-template-columns: 24px 1fr 46px; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
-      .sn { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.8rem; text-align: center; }
-      .sn.a  { color: #c084fc; }
-      .sn.b  { color: #22c55e; }
-      .sv { font-size: 0.72rem; text-align: right; color: rgba(180, 220, 255, 0.6); }
-
-      input[type='range'] {
-        -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: rgba(30, 40, 70, 0.8); outline: none;
-      }
-      #aSlider { background: linear-gradient(90deg, rgba(139, 92, 246, 0.5) var(--pct,50%), rgba(30, 40, 70, 0.8) var(--pct,50%)); }
-      #bSlider { background: linear-gradient(90deg, rgba(34, 197, 94, 0.5) var(--pct,50%), rgba(30, 40, 70, 0.8) var(--pct,50%)); }
-      input[type='range']::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#a78bfa; cursor:pointer; box-shadow: 0 0 6px rgba(167, 139, 250, 0.5); }
-      input[type='range']::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#a78bfa; cursor:pointer; border: none; box-shadow: 0 0 6px rgba(167, 139, 250, 0.5); }
-
-      .div { height: 1px; background: rgba(147, 112, 219, 0.2); margin: 0.8rem 0; }
-
-      .cam-pad { display: flex; align-items: center; justify-content: center; margin: 0.5rem auto 0; width: 110px; height: 110px; position: relative; }
-      .cam-btn {
-        position: absolute; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35);
-        color: #60a5fa; font-size: 0.85rem; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-      }
-      .cam-up { top: 0; left: 41px; } .cam-down { bottom: 0; left: 41px; }
-      .cam-left { left: 0; top: 41px; } .cam-right { right: 0; top: 41px; }
-      .cam-z-in { right: 0; top: 0; font-weight: bold; } .cam-z-out { left: 0; top: 0; font-weight: bold; }
-      .cam-center { position: absolute; top: 38px; left: 38px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 50%; color: #22c55e; }
-
-      .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.6rem; }
-      .act-btn {
-        background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 6px;
-        padding: 0.45rem; color: #60a5fa; font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; font-weight: bold;
-        text-align: center; cursor: pointer; text-transform: uppercase;
-      }
-      .act-btn.active { background: rgba(139, 92, 246, 0.25); border-color: #a78bfa; color: #fff; box-shadow: 0 0 10px rgba(167, 139, 250, 0.3); }
-
-      canvas { display: block; }
-    </style>
-  </head>
+    <link rel="stylesheet" href="/assets/xr-hud.css">
+</head>
   <body>
 
     <div id="screenPanel">
@@ -122,8 +47,8 @@
       </div>
     </div>
     <script type="module">
-      import * as THREE from '../vendor/three/build/three.module.js';
-      import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+      import * as THREE from '/vendor/three/build/three.module.js';
+      import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js';
 
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(window.devicePixelRatio);

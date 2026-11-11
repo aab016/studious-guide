@@ -360,7 +360,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/src/earcut.js"></script>
-  <script src="../vendor/three/build/three.module.js" type="module"></script>
+  <script src="/vendor/three/build/three.module.js" type="module"></script>
   <script type="module">
     // Global error handler for debugging
     window.addEventListener('error', (event) => {
@@ -368,8 +368,8 @@
       document.getElementById('countryName').textContent = '❌ Errore: ' + (event.error?.message || 'Errore sconosciuto');
     });
 
-    import * as THREE from '../vendor/three/build/three.module.js';
-    import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+    import * as THREE from '/vendor/three/build/three.module.js';
+    import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js';
 
     console.log('THREE loaded:', !!THREE);
     console.log('VRButton loaded:', !!VRButton);

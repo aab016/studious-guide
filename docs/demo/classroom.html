@@ -120,7 +120,7 @@
     <script type="importmap">
     {
       "imports": {
-        "three": "../vendor/three/build/three.module.js"
+        "three": "/vendor/three/build/three.module.js"
       }
     }
     </script>
@@ -198,8 +198,8 @@
     wsConnect();
     </script>
     <script type="module">
-      import * as THREE from '../vendor/three/build/three.module.js';
-      import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+      import * as THREE from '/vendor/three/build/three.module.js';
+      import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js';
 
       // ─── Renderer ────────────────────────────────────────────────────────────
       const renderer = new THREE.WebGLRenderer({ antialias: true });

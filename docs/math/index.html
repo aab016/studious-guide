@@ -1,84 +1,92 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Matematica — Metaverso a Scuola</title>
-  <style>
-    body {
-      font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #f0fff7, #e8fff0);
-      margin: 0
-    }
-
-    .card {
-      max-width: 720px;
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
-      text-align: center
-    }
-
-    a.cta {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      background: #10b981;
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600
-    }
-  </style>
+  <meta name="theme-color" content="#161616">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/menu.css">
 </head>
+<body class="menu-page">
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand-lockup" href="../index.html" aria-label="Metaverso a Scuola">
+        <img src="/assets/metaverso-a-scuola.png" alt="">
+        <div>
+          <p class="brand-kicker">IIS G.L. Lagrange</p>
+          <p class="brand-name">Metaverso a Scuola</p>
+        </div>
+      </a>
+    </header>
 
-<body>
-  <div class="card">
-    <h1>Matematica</h1>
-    <p style="text-align: left;">Esperienze realizzate da studenti del Dipartimento di Informatica</p>
-    <ul style="text-align: left;">
-      <li>
-        2025-26 IV C INF: <a href="sphere.html">sphere.html</a>
-      </li>
-      <li>
-        2025-26 IV C INF: <a href="fx.html">fx.html</a>
-      </li>
-      <li>
-        2025-26 IV C INF: <a href="cos.html">cos.html</a>
-      </li>
-    </ul>
-    <hr style="margin:40px 0;border:none;border-top:1px solid #e5e7eb">
+    <header class="page-head">
+      <a class="back-link" href="../index.html">Torna alle materie</a>
+      <h1>Matematica</h1>
+      <p>Grafici e oggetti 3D interattivi in WebXR, realizzati dagli studenti.</p>
+    </header>
 
-
-    <h2 style="text-align:left">Esperienze di terze parti consigliate</h2>
-    <div style="text-align:left">
-      <div style="margin-bottom:24px">
-        <h3 style="margin-top:0">1. Equation Escape</h3>
-        <p style="margin:8px 0;color:#666">The goal is simple: use the available numbers to reach the target number
-          shown in the game.</p>
-        <a href="https://www.meta.com/it-it/experiences/equation-escape/9636937103037492/"
-          style="color:#ec4899;text-decoration:none;font-weight:600">https://www.meta.com/it-it/experiences/equation-escape/9636937103037492/</a>
+    <section class="panel" aria-labelledby="student-exp">
+      <h2 id="student-exp">Esperienze studentesche</h2>
+      <div class="experience-list">
+        <a class="experience has-thumb" href="sphere.html">`n          <img class="experience-thumb" src="/assets/screenshoot_sfera.png" alt="">
+          <span class="experience-tag">2025-26 IV C INF</span>
+          <span class="experience-title">Sfera</span>
+          <p class="experience-desc">Sfera 3D con raggio e centro regolabili.</p>
+        </a>
+        <a class="experience has-thumb" href="fx.html">`n          <img class="experience-thumb" src="/assets/screenshoot_fx.png" alt="">
+          <span class="experience-tag">2025-26 IV C INF</span>
+          <span class="experience-title">f(x) Explorer</span>
+          <p class="experience-desc">Curva personalizzata con formula editabile in VR.</p>
+        </a>
+        <a class="experience has-thumb" href="cos.html">`n          <img class="experience-thumb" src="/assets/screenshoot_cos.png" alt="">
+          <span class="experience-tag">2025-26 IV C INF</span>
+          <span class="experience-title">Coseno</span>
+          <p class="experience-desc">y = A · cos(B · x) con controlli VR.</p>
+        </a>
+        <a class="experience" href="sin.html">
+          <span class="experience-tag">Laboratorio</span>
+          <span class="experience-title">Seno</span>
+          <p class="experience-desc">Grafico seno 3D interattivo.</p>
+        </a>
+        <a class="experience" href="tan.html">
+          <span class="experience-tag">Laboratorio</span>
+          <span class="experience-title">Tangente</span>
+          <p class="experience-desc">Grafico tangente 3D interattivo.</p>
+        </a>
+        <a class="experience" href="atan.html">
+          <span class="experience-tag">Laboratorio</span>
+          <span class="experience-title">Arcotangente</span>
+          <p class="experience-desc">Grafico arcotangente 3D interattivo.</p>
+        </a>
+        <a class="experience" href="a_x_minus_b_over_x.html">
+          <span class="experience-tag">Laboratorio</span>
+          <span class="experience-title">a·x − b/x</span>
+          <p class="experience-desc">Funzione razionale con coefficienti regolabili.</p>
+        </a>
+        <a class="experience" href="homexr.html">
+          <span class="experience-tag">Hub</span>
+          <span class="experience-title">HomeXR</span>
+          <p class="experience-desc">Punto di partenza per navigare tra i grafici VR.</p>
+        </a>
       </div>
-    </div>
+    </section>
 
-    <div style="text-align:left">
-      <div style="margin-bottom:24px">
-        <h3 style="margin-top:0">2. Mathotev</h3>
-        <p style="margin:8px 0;color:#666">Build your arithmetic skills in a whimsical VR adventure with Mathotev, the
-          clever and mischievous forest cat! In this playful educational experience, Mathotev gives you a series of
-          scavenger-style challenges using addition, subtraction, multiplication, and division.</p>
-        <a href="https://www.meta.com/it-it/experiences/mathotev/10053002978161772/"
-          style="color:#ec4899;text-decoration:none;font-weight:600">https://www.meta.com/it-it/experiences/mathotev/10053002978161772/</a>
+    <section class="panel" aria-labelledby="third-party">
+      <h2 id="third-party">Esperienze di terze parti consigliate</h2>
+      <div class="experience-list">
+        <a class="experience" href="https://www.meta.com/it-it/experiences/equation-escape/9636937103037492/">
+          <span class="experience-title">Equation Escape</span>
+          <p class="experience-desc">Usa i numeri disponibili per raggiungere il target.</p>
+        </a>
+        <a class="experience" href="https://www.meta.com/it-it/experiences/mathotev/10053002978161772/">
+          <span class="experience-title">Mathotev</span>
+          <p class="experience-desc">Sfide aritmetiche in un'avventura VR.</p>
+        </a>
       </div>
-    </div>
-  </div>
+    </section>
   </div>
 </body>
-
 </html>

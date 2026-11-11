@@ -1,626 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sphere Plot XR</title>
+    <title>Sfera XR — Metaverso a Scuola</title>
+    <link rel="stylesheet" href="/assets/xr-hud.css">
     <style>
-      body,
-      html {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: #050a18;
-        color: #f4f8ff;
-        font-family: system-ui, sans-serif;
-      }
-
-      #info {
-        position: absolute;
-        left: 1rem;
-        right: 1rem;
-        top: 4.5rem;
-        z-index: 10;
-        padding: 0.9rem 1rem;
-        background: rgba(2, 8, 25, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 0.85rem;
-        line-height: 1.55;
-        font-size: 0.95rem;
-      }
-
-      #info strong {
-        display: block;
-        margin-bottom: 0.4rem;
-        font-size: 1.05rem;
-      }
-
-      .sliderRow {
-        margin-top: 0.65rem;
-        display: flex;
-        gap: 0.6rem;
-        align-items: center;
-      }
-
-      .sliderRow span {
-        min-width: 60px;
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-
-      input[type='range'] {
-        flex: 1;
-        height: 6px;
-        border-radius: 3px;
-        background: #1a3a5c;
-        outline: none;
-        -webkit-appearance: none;
-        appearance: none;
-      }
-
-      input[type='range']::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #88c8ff;
-        cursor: pointer;
-        box-shadow: 0 0 8px rgba(136, 200, 255, 0.6);
-      }
-
-      input[type='range']::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #88c8ff;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 0 8px rgba(136, 200, 255, 0.6);
-      }
-
-      .valueLabel {
-        min-width: 50px;
-        text-align: right;
-        font-family: monospace;
-        font-size: 0.9rem;
-        color: #ffd568;
-      }
-
-      #formulaBox {
-        margin-top: 0.8rem;
-        padding: 0.75rem 0.9rem;
-        border: 1px solid rgba(136, 200, 255, 0.24);
-        border-radius: 0.75rem;
-        background: rgba(8, 16, 36, 0.78);
-        color: #dbe8ff;
-        font-family: monospace;
-        font-size: 0.95rem;
-        white-space: pre-wrap;
-      }
-
       #backButton {
-        position: absolute;
+        position: fixed;
         left: 1rem;
-        top: 1rem;
-        z-index: 20;
-        padding: 0.6rem 1.2rem;
-        background: #1a3a5c;
-        border: 1px solid #88c8ff;
-        color: #f4f8ff;
-        border-radius: 0.5rem;
+        bottom: 1rem;
+        z-index: 12;
+        min-height: 36px;
+        padding: 0.45rem 0.8rem;
+        border: 1px solid var(--xr-line);
+        background: var(--xr-panel);
+        color: var(--xr-text);
+        font: 600 0.8rem var(--xr-font);
+        text-decoration: none;
         cursor: pointer;
-        font-weight: bold;
-        transition: background 0.2s;
       }
-
-      #backButton:hover {
-        background: #255485;
-      }
-
-      canvas {
-        display: block;
+      #backButton:hover,
+      #backButton:focus-visible {
+        border-color: var(--xr-accent);
+        outline: none;
       }
     </style>
   </head>
   <body>
-    <button id="backButton" onclick="history.back()">← Back</button>
+    <a id="backButton" href="index.html">Torna a Matematica</a>
 
-    <div id="info">
-      <strong>Sphere Plot XR</strong>
-      <div class="sliderRow">
-        <span>radius:</span>
-        <input type="range" id="radiusSlider" min="0.5" max="5" step="0.1" value="1" />
-        <span id="radiusValue" class="valueLabel">1.0</span>
+    <div id="panel">
+      <div class="panel-inner">
+        <div class="ph">
+          <div>
+            <div class="ph-title">Sfera XR</div>
+            <div class="ph-sub">2025-26 IV C INF</div>
+          </div>
+        </div>
+
+        <div class="sec-label">Parametri</div>
+        <div class="sr">
+          <span class="sn">R</span>
+          <input type="range" id="radiusSlider" min="0.5" max="5" step="0.1" value="1" />
+          <span id="radiusValue" class="sv">1.0</span>
+        </div>
+        <div class="sr">
+          <span class="sn">X</span>
+          <input type="range" id="centerSlider" min="-2" max="2" step="0.1" value="0" />
+          <span id="centerValue" class="sv">0.0</span>
+        </div>
+        <div class="sr">
+          <span class="sn">Y</span>
+          <input type="range" id="centerYSlider" min="-2" max="2" step="0.1" value="0" />
+          <span id="centerYValue" class="sv">0.0</span>
+        </div>
+        <div class="sr">
+          <span class="sn">Z</span>
+          <input type="range" id="centerZSlider" min="-2" max="2" step="0.1" value="0" />
+          <span id="centerZValue" class="sv">0.0</span>
+        </div>
+
+        <div id="formulaBox" class="formula">r = 1.0 · centro (0.0, 0.0, 0.0)</div>
+
+        <div class="div"></div>
+        <div class="info-vr">
+          In VR: punta gli assi e tieni premuto il grilletto per ruotare o spostare il gruppo.
+          I parametri restano su questo pannello 2D o sullo stesso layout sul controller desktop.
+        </div>
       </div>
-      <div class="sliderRow">
-        <span>x:</span>
-        <input type="range" id="centerSlider" min="-2" max="2" step="0.1" value="0" />
-        <span id="centerValue" class="valueLabel">0.0</span>
-      </div>
-      <div class="sliderRow">
-        <span>y:</span>
-        <input type="range" id="centerYSlider" min="-2" max="2" step="0.1" value="0" />
-        <span id="centerYValue" class="valueLabel">0.0</span>
-      </div>
-      <div class="sliderRow">
-        <span>z:</span>
-        <input type="range" id="centerZSlider" min="-2" max="2" step="0.1" value="0" />
-        <span id="centerZValue" class="valueLabel">0.0</span>
-      </div>
-      <div id="formulaBox">radius = 1.0, x = 0.0, y = 0.0, z = 0.0</div>
-      <p style="margin-top: 0.7rem; margin-bottom: 0;">A 3D sphere is displayed with adjustable radius and positions. Grab a connected VR controller and use the select trigger to rotate and translate the axis group, or use the VR sliders to change the sphere radius and position.</p>
     </div>
+
     <script type="module">
-      import * as THREE from '../vendor/three/build/three.module.js';
-      import { VRButton } from '../vendor/three/examples/jsm/webxr/VRButton.js';
+      import * as THREE from '/vendor/three/build/three.module.js'
+      import { VRButton } from '/vendor/three/examples/jsm/webxr/VRButton.js'
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.xr.enabled = true;
-      renderer.xr.setReferenceSpaceType('local');
-      document.body.appendChild(renderer.domElement);
-      document.body.appendChild(VRButton.createButton(renderer));
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      renderer.xr.enabled = true
+      renderer.xr.setReferenceSpaceType('local')
+      document.body.appendChild(renderer.domElement)
+      document.body.appendChild(VRButton.createButton(renderer))
 
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x050a18);
+      const scene = new THREE.Scene()
+      scene.background = new THREE.Color(0x0e1114)
 
-      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100);
-      camera.position.set(0, 1.6, 4);
+      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 100)
+      camera.position.set(0, 1.6, 4)
 
-      const ambientLight = new THREE.HemisphereLight(0xffffff, 0x202035, 0.9);
-      scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(5, 7, 5);
-      scene.add(directionalLight);
+      scene.add(new THREE.HemisphereLight(0xdde8e4, 0x1a1f24, 0.95))
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75)
+      directionalLight.position.set(4, 7, 3)
+      scene.add(directionalLight)
 
       const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(20, 20),
-        new THREE.MeshStandardMaterial({ color: 0x081025, roughness: 0.95, metalness: 0.05 })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = 0;
-      scene.add(floor);
+        new THREE.MeshStandardMaterial({ color: 0x14181c, roughness: 0.95, metalness: 0.05 })
+      )
+      floor.rotation.x = -Math.PI / 2
+      scene.add(floor)
 
-      const grid = new THREE.GridHelper(20, 40, 0x204b8a, 0x10203a);
-      grid.position.y = 0.01;
-      scene.add(grid);
+      const grid = new THREE.GridHelper(20, 40, 0x2a343c, 0x1a2026)
+      grid.position.y = 0.01
+      scene.add(grid)
 
-      const axesGroup = new THREE.Group();
-      axesGroup.position.set(0, 1.25, -4);
-      scene.add(axesGroup);
+      const axesGroup = new THREE.Group()
+      axesGroup.position.set(0, 1.25, -1.2)
+      scene.add(axesGroup)
 
-      let sphereMesh = null;
-      let radius = 1.0;
-      let centerX = 0;
-      let centerY = 0;
-      let centerZ = 0;
-      let formulaMesh = null;
+      let radius = 1
+      let centerX = 0
+      let centerY = 0
+      let centerZ = 0
+      let sphereMesh = null
 
-      createAxes();
-      sphereMesh = createSphere(radius, centerX, centerY, centerZ);
-      formulaMesh = createFormulaLabel(radius, centerX, centerY, centerZ);
+      createAxes()
+      sphereMesh = createSphere()
 
-      const radiusSliderGroup = createVRSlider('radius');
-      radiusSliderGroup.position.set(0, 1.5, -2.5);
-      scene.add(radiusSliderGroup);
+      const radiusSlider = document.getElementById('radiusSlider')
+      const centerSlider = document.getElementById('centerSlider')
+      const centerYSlider = document.getElementById('centerYSlider')
+      const centerZSlider = document.getElementById('centerZSlider')
+      const formulaBox = document.getElementById('formulaBox')
+      const radiusValue = document.getElementById('radiusValue')
+      const centerValue = document.getElementById('centerValue')
+      const centerYValue = document.getElementById('centerYValue')
+      const centerZValue = document.getElementById('centerZValue')
+      const backButton = document.getElementById('backButton')
 
-      const centerSliderGroup = createVRSlider('center');
-      centerSliderGroup.position.set(0, 1.2, -2.5);
-      scene.add(centerSliderGroup);
+      const onParameterChange = () => {
+        radius = parseFloat(radiusSlider.value)
+        centerX = parseFloat(centerSlider.value)
+        centerY = parseFloat(centerYSlider.value)
+        centerZ = parseFloat(centerZSlider.value)
+        radiusValue.textContent = radius.toFixed(1)
+        centerValue.textContent = centerX.toFixed(1)
+        centerYValue.textContent = centerY.toFixed(1)
+        centerZValue.textContent = centerZ.toFixed(1)
+        updateSphere()
+        formulaBox.textContent = `r = ${radius.toFixed(1)} · centro (${centerX.toFixed(1)}, ${centerY.toFixed(1)}, ${centerZ.toFixed(1)})`
+      }
 
-      const centerYSliderGroup = createVRSlider('centerY');
-      centerYSliderGroup.position.set(0, 0.9, -2.5);
-      scene.add(centerYSliderGroup);
+      radiusSlider.addEventListener('input', onParameterChange)
+      centerSlider.addEventListener('input', onParameterChange)
+      centerYSlider.addEventListener('input', onParameterChange)
+      centerZSlider.addEventListener('input', onParameterChange)
 
-      const centerZSliderGroup = createVRSlider('centerZ');
-      centerZSliderGroup.position.set(0, 0.6, -2.5);
-      scene.add(centerZSliderGroup);
+      const controllers = [createController(0), createController(1)]
+      controllers.forEach((controller) => scene.add(controller))
 
-      updateSliderThumb('radius', radius);
-      updateSliderThumb('center', centerX);
-      updateSliderThumb('centerY', centerY);
-      updateSliderThumb('centerZ', centerZ);
+      const raycaster = new THREE.Raycaster()
+      const tempMatrix = new THREE.Matrix4()
+      let selectedController = null
+      const controllerStartQuat = new THREE.Quaternion()
+      const axesStartQuat = new THREE.Quaternion()
+      const controllerStartPos = new THREE.Vector3()
+      const axesStartPos = new THREE.Vector3()
 
-      const controllers = [createController(0), createController(1)];
-      controllers.forEach((controller) => scene.add(controller));
-
-      const raycaster = new THREE.Raycaster();
-      const tempMatrix = new THREE.Matrix4();
-      let selectedController = null;
-      let selectedMode = null;
-      const controllerStartQuat = new THREE.Quaternion();
-      const axesStartQuat = new THREE.Quaternion();
-      const controllerStartPos = new THREE.Vector3();
-      const axesStartPos = new THREE.Vector3();
-      let sliderStartX = 0;
-      let sliderStartValue = 0;
-
-      const radiusSlider = document.getElementById('radiusSlider');
-      const centerSlider = document.getElementById('centerSlider');
-      const centerYSlider = document.getElementById('centerYSlider');
-      const centerZSlider = document.getElementById('centerZSlider');
-      const formulaBox = document.getElementById('formulaBox');
-      const radiusValue = document.getElementById('radiusValue');
-      const centerValue = document.getElementById('centerValue');
-      const centerYValue = document.getElementById('centerYValue');
-      const centerZValue = document.getElementById('centerZValue');
-
-      radiusSlider.addEventListener('input', onParameterChange);
-      centerSlider.addEventListener('input', onParameterChange);
-      centerYSlider.addEventListener('input', onParameterChange);
-      centerZSlider.addEventListener('input', onParameterChange);
-
-      window.addEventListener('resize', onWindowResize);
-      renderer.setAnimationLoop(render);
+      window.addEventListener('resize', onWindowResize)
+      renderer.setAnimationLoop(render)
 
       renderer.xr.addEventListener('sessionstart', () => {
-        document.getElementById('backButton').style.display = 'none';
-      });
+        backButton.style.display = 'none'
+        document.getElementById('panel').style.display = 'none'
+      })
       renderer.xr.addEventListener('sessionend', () => {
-        document.getElementById('backButton').style.display = 'block';
-      });
+        backButton.style.display = 'block'
+        document.getElementById('panel').style.display = 'block'
+      })
 
-      function onParameterChange() {
-        radius = parseFloat(radiusSlider.value);
-        centerX = parseFloat(centerSlider.value);
-        centerY = parseFloat(centerYSlider.value);
-        centerZ = parseFloat(centerZSlider.value);
-        radiusValue.textContent = radius.toFixed(1);
-        centerValue.textContent = centerX.toFixed(1);
-        centerYValue.textContent = centerY.toFixed(1);
-        centerZValue.textContent = centerZ.toFixed(1);
-        updateSphere();
-        updateFormulaBox();
-        updateSliderThumb('radius', radius);
-        updateSliderThumb('center', centerX);
-        updateSliderThumb('centerY', centerY);
-        updateSliderThumb('centerZ', centerZ);
+      const updateSphere = () => {
+        if (!sphereMesh) return
+        sphereMesh.scale.setScalar(radius)
+        sphereMesh.position.set(centerX, radius + centerY, centerZ)
       }
 
-      // Aggiorna la sfera nel mondo 3D
-      function updateSphere() {
-        if (sphereMesh) {
-          sphereMesh.scale.setScalar(radius);
-          sphereMesh.position.set(centerX, radius + centerY, centerZ);
-        }
+      const createAxes = () => {
+        const material = new THREE.MeshStandardMaterial({ color: 0x9fd0c0, roughness: 0.35, metalness: 0.15 })
+        const length = 2.4
+        const thickness = 0.025
+
+        const xAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material)
+        xAxis.rotation.z = -Math.PI / 2
+        xAxis.position.x = length / 2
+        axesGroup.add(xAxis)
+
+        const yAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material)
+        yAxis.position.y = length / 2
+        axesGroup.add(yAxis)
+
+        const zAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material)
+        zAxis.rotation.x = Math.PI / 2
+        zAxis.position.z = length / 2
+        axesGroup.add(zAxis)
+
+        const arrow = new THREE.ConeGeometry(0.07, 0.2, 16)
+        const xArrow = new THREE.Mesh(arrow, material)
+        xArrow.rotation.z = -Math.PI / 2
+        xArrow.position.set(length, 0, 0)
+        axesGroup.add(xArrow)
+
+        const yArrow = new THREE.Mesh(arrow, material)
+        yArrow.position.set(0, length, 0)
+        axesGroup.add(yArrow)
+
+        const zArrow = new THREE.Mesh(arrow, material)
+        zArrow.rotation.x = Math.PI / 2
+        zArrow.position.set(0, 0, length)
+        axesGroup.add(zArrow)
+
+        axesGroup.add(createLabel('X', length + 0.18, 0, 0))
+        axesGroup.add(createLabel('Y', 0, length + 0.18, 0))
+        axesGroup.add(createLabel('Z', 0, 0, length + 0.18))
       }
 
-      function updateSliderThumb(name, value) {
-        const thumbMesh = scene.getObjectByName(name + '_thumb');
-        if (thumbMesh) {
-          const minX = -3.14;
-          const maxX = 3.14;
-          const trackLength = maxX - minX;
-          let minVal, maxVal;
-          if (name === 'radius') {
-            minVal = 0.5;
-            maxVal = 5;
-          } else {
-            minVal = -2;
-            maxVal = 2;
-          }
-          const normalizedValue = (value - minVal) / (maxVal - minVal);
-          thumbMesh.position.x = minX + normalizedValue * trackLength;
-        }
-      }
+      const createLabel = (text, x, y, z) => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 128
+        canvas.height = 128
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.font = '700 64px IBM Plex Sans, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = '#e8ebe8'
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2)
 
-      // Gestione del pannello stringa info (Rimosso 'center' da z)
-      function updateFormulaBox() {
-        const text = `radius = ${radius.toFixed(1)}, x = ${centerX.toFixed(1)}, y = ${centerY.toFixed(1)}, z = ${centerZ.toFixed(1)}`;
-        formulaBox.textContent = text;
-
-        if (formulaMesh) {
-          const canvas = formulaMesh.material.map.image;
-          const ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = 'rgba(5, 9, 24, 0.0)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.font = 'bold 45px system-ui, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#dbe8ff';
-          ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-          formulaMesh.material.map.needsUpdate = true;
-        }
-      }
-
-      function createAxes() {
-        const material = new THREE.MeshStandardMaterial({ color: 0x88c8ff, roughness: 0.3, metalness: 0.2 });
-        const length = 3.0;
-        const thickness = 0.03;
-
-        const xAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material);
-        xAxis.rotation.z = -Math.PI / 2;
-        xAxis.position.x = length / 2;
-        axesGroup.add(xAxis);
-
-        const yAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material);
-        yAxis.position.y = length / 2;
-        axesGroup.add(yAxis);
-
-        const zAxis = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 12), material);
-        zAxis.rotation.x = Math.PI / 2;
-        zAxis.position.z = length / 2;
-        axesGroup.add(zAxis);
-
-        const arrow = new THREE.ConeGeometry(0.08, 0.26, 16);
-        const xArrow = new THREE.Mesh(arrow, material);
-        xArrow.rotation.z = -Math.PI / 2;
-        xArrow.position.set(length, 0, 0);
-        axesGroup.add(xArrow);
-
-        const yArrow = new THREE.Mesh(arrow, material);
-        yArrow.position.set(0, length, 0);
-        axesGroup.add(yArrow);
-
-        const zArrow = new THREE.Mesh(arrow, material);
-        zArrow.rotation.x = Math.PI / 2;
-        zArrow.position.set(0, 0, length);
-        axesGroup.add(zArrow);
-
-        axesGroup.add(createLabel('X', length + 0.2, 0, 0));
-        axesGroup.add(createLabel('Y', 0, length + 0.2, 0));
-        axesGroup.add(createLabel('Z', 0, 0, length + 0.2));
-      }
-
-      function createLabel(text, x, y, z) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 128;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(5, 9, 24, 0.0)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = 'bold 70px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ccf6ff';
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
-
+        const texture = new THREE.CanvasTexture(canvas)
         const label = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.4, 0.2),
+          new THREE.PlaneGeometry(0.28, 0.28),
           new THREE.MeshBasicMaterial({ map: texture, transparent: true })
-        );
-        label.position.set(x, y, z);
-        label.lookAt(camera.position);
-        return label;
+        )
+        label.position.set(x, y, z)
+        return label
       }
 
-      function createFormulaLabel(radius, centerX, centerY, centerZ) {
-        const text = `radius = ${radius.toFixed(1)}, x = ${centerX.toFixed(1)}, y = ${centerY.toFixed(1)}, z = ${centerZ.toFixed(1)}`;
-        const canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(5, 9, 24, 0.0)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = 'bold 45px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#dbe8ff';
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
-
-        const label = new THREE.Mesh(
-          new THREE.PlaneGeometry(3.5, 0.8),
-          new THREE.MeshBasicMaterial({ map: texture, transparent: true })
-        );
-        
-        label.position.set(0, 0.2, -2.5);
-        scene.add(label); 
-        return label;
-      }
-
-      function createVRSlider(name) {
-        const group = new THREE.Group();
-
-        const trackGeometry = new THREE.BoxGeometry(6.28, 0.06, 0.06);
-        const trackMaterial = new THREE.MeshStandardMaterial({ color: 0x1a3a5c, roughness: 0.8, metalness: 0.2 });
-        const track = new THREE.Mesh(trackGeometry, trackMaterial);
-        track.name = name + '_track';
-        group.add(track);
-
-        const thumbGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.15);
-        const thumbMaterial = new THREE.MeshStandardMaterial({ color: 0x88c8ff, roughness: 0.3, metalness: 0.6, emissive: 0x44a0ff, emissiveIntensity: 0.3 });
-        const thumb = new THREE.Mesh(thumbGeometry, thumbMaterial);
-        thumb.name = name + '_thumb';
-        thumb.position.x = 0;
-        group.add(thumb);
-
-        return group;
-      }
-
-      function createSphere(radius, centerX, centerY, centerZ) {
+      const createSphere = () => {
         const material = new THREE.MeshStandardMaterial({
-          color: 0xff9f3d,
-          roughness: 0.4,
-          metalness: 0.2,
-          emissive: 0x220000,
-          emissiveIntensity: 0.05,
-          transparent: false,
-        });
-        const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), material);
-        sphere.position.set(centerX, radius + centerY, centerZ);
-        sphere.castShadow = true;
-        axesGroup.add(sphere);
-        return sphere;
+          color: 0xd4a574,
+          roughness: 0.45,
+          metalness: 0.12
+        })
+        const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), material)
+        sphere.position.set(0, 1, 0)
+        axesGroup.add(sphere)
+        return sphere
       }
 
-      function createController(index) {
-        const controller = renderer.xr.getController(index);
-        controller.addEventListener('selectstart', onSelectStart);
-        controller.addEventListener('selectend', onSelectEnd);
+      const createController = (index) => {
+        const controller = renderer.xr.getController(index)
+        controller.addEventListener('selectstart', onSelectStart)
+        controller.addEventListener('selectend', onSelectEnd)
 
         const ray = new THREE.Line(
           new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]),
-          new THREE.LineBasicMaterial({ color: 0x88c8ff })
-        );
-        ray.name = 'ray';
-        ray.scale.z = 6;
-        controller.add(ray);
-
-        const pointer = new THREE.Mesh(
-          new THREE.SphereGeometry(0.015, 16, 12),
-          new THREE.MeshBasicMaterial({ color: 0x88c8ff, opacity: 0.9, transparent: true })
-        );
-        pointer.position.set(0, 0, -1);
-        controller.add(pointer);
-
-        return controller;
+          new THREE.LineBasicMaterial({ color: 0x9fd0c0 })
+        )
+        ray.name = 'ray'
+        ray.scale.z = 6
+        controller.add(ray)
+        return controller
       }
 
-      function onSelectStart(event) {
-        const controller = event.target;
-        const intersections = getControllerIntersections(controller);
-        if (intersections.length) {
-          const hitObject = intersections[0].object;
-
-          if (hitObject.name === 'radius_thumb' || hitObject.name === 'radius_track') {
-            selectedMode = 'slider_radius';
-            selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartValue = radius;
-          } else if (hitObject.name === 'center_thumb' || hitObject.name === 'center_track') {
-            selectedMode = 'slider_center';
-            selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartValue = centerX;
-          } else if (hitObject.name === 'centerY_thumb' || hitObject.name === 'centerY_track') {
-            selectedMode = 'slider_centerY';
-            selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartValue = centerY;
-          } else if (hitObject.name === 'centerZ_thumb' || hitObject.name === 'centerZ_track') {
-            selectedMode = 'slider_centerZ';
-            selectedController = controller;
-            sliderStartX = intersections[0].point.x;
-            sliderStartValue = centerZ;
-          } else {
-            selectedMode = 'transform';
-            selectedController = controller;
-            controllerStartQuat.copy(controller.quaternion);
-            axesStartQuat.copy(axesGroup.quaternion);
-            controllerStartPos.setFromMatrixPosition(controller.matrixWorld);
-            axesStartPos.copy(axesGroup.position);
-          }
-        }
+      const onSelectStart = (event) => {
+        const controller = event.target
+        const intersections = getControllerIntersections(controller)
+        if (!intersections.length) return
+        selectedController = controller
+        controllerStartQuat.copy(controller.quaternion)
+        axesStartQuat.copy(axesGroup.quaternion)
+        controllerStartPos.setFromMatrixPosition(controller.matrixWorld)
+        axesStartPos.copy(axesGroup.position)
       }
 
-      // Rilascia la selezione
-      function onSelectEnd() {
-        selectedController = null;
-        selectedMode = null;
+      const onSelectEnd = () => {
+        selectedController = null
       }
 
-      function getControllerIntersections(controller) {
-        tempMatrix.identity().extractRotation(controller.matrixWorld);
-        raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-        raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-        return raycaster.intersectObjects(radiusSliderGroup.children, true).concat(
-          raycaster.intersectObjects(centerSliderGroup.children, true),
-          raycaster.intersectObjects(centerYSliderGroup.children, true),
-          raycaster.intersectObjects(centerZSliderGroup.children, true),
-          raycaster.intersectObjects(axesGroup.children, true)
-        );
+      const getControllerIntersections = (controller) => {
+        tempMatrix.identity().extractRotation(controller.matrixWorld)
+        raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
+        raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
+        return raycaster.intersectObjects(axesGroup.children, true)
       }
 
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+      const onWindowResize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(window.innerWidth, window.innerHeight)
       }
 
-      function render() {
-        if (selectedController && selectedMode === 'transform') {
-          const currentQuat = selectedController.quaternion.clone();
-          const deltaQuat = currentQuat.multiply(controllerStartQuat.clone().invert());
-          axesGroup.quaternion.copy(axesStartQuat).premultiply(deltaQuat);
+      const render = () => {
+        if (selectedController) {
+          const currentQuat = selectedController.quaternion.clone()
+          const deltaQuat = currentQuat.multiply(controllerStartQuat.clone().invert())
+          axesGroup.quaternion.copy(axesStartQuat).premultiply(deltaQuat)
 
-          const currentPos = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld);
-          const deltaPos = currentPos.clone().sub(controllerStartPos);
-          axesGroup.position.copy(axesStartPos).add(deltaPos);
-        } else if (selectedController && (selectedMode === 'slider_radius' || selectedMode === 'slider_center' || selectedMode === 'slider_centerY' || selectedMode === 'slider_centerZ')) {
-          tempMatrix.identity().extractRotation(selectedController.matrixWorld);
-          raycaster.ray.origin.setFromMatrixPosition(selectedController.matrixWorld);
-          raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-          
-          let currentSliderObjects;
-          if (selectedMode === 'slider_radius') currentSliderObjects = radiusSliderGroup.children;
-          else if (selectedMode === 'slider_center') currentSliderObjects = centerSliderGroup.children;
-          else if (selectedMode === 'slider_centerY') currentSliderObjects = centerYSliderGroup.children;
-          else currentSliderObjects = centerZSliderGroup.children;
-
-          const sliderIntersections = raycaster.intersectObjects(currentSliderObjects, true);
-          if (sliderIntersections.length) {
-            const currentX = sliderIntersections[0].point.x;
-            const deltaX = currentX - sliderStartX;
-            const minX = -3.14;
-            const maxX = 3.14;
-            const trackLength = maxX - minX;
-            const normalizedDelta = deltaX / trackLength;
-            let minVal, maxVal, value;
-            
-            if (selectedMode === 'slider_radius') {
-              minVal = 0.5;
-              maxVal = 5;
-              value = sliderStartValue + normalizedDelta * (maxVal - minVal);
-              value = Math.max(minVal, Math.min(maxVal, value));
-              radius = value;
-              radiusSlider.value = radius;
-              radiusValue.textContent = radius.toFixed(1);
-              updateSliderThumb('radius', value);
-            } else if (selectedMode === 'slider_center') {
-              minVal = -2;
-              maxVal = 2;
-              value = sliderStartValue + normalizedDelta * (maxVal - minVal);
-              value = Math.max(minVal, Math.min(maxVal, value));
-              centerX = value;
-              centerSlider.value = centerX;
-              centerValue.textContent = centerX.toFixed(1);
-              updateSliderThumb('center', value);
-            } else if (selectedMode === 'slider_centerY') {
-              minVal = -2;
-              maxVal = 2;
-              value = sliderStartValue + normalizedDelta * (maxVal - minVal);
-              value = Math.max(minVal, Math.min(maxVal, value));
-              centerY = value;
-              centerYSlider.value = centerY;
-              centerYValue.textContent = centerY.toFixed(1);
-              updateSliderThumb('centerY', value);
-            } else {
-              minVal = -2;
-              maxVal = 2;
-              value = sliderStartValue + normalizedDelta * (maxVal - minVal);
-              value = Math.max(minVal, Math.min(maxVal, value));
-              centerZ = value;
-              centerZSlider.value = centerZ;
-              centerZValue.textContent = centerZ.toFixed(1);
-              updateSliderThumb('centerZ', value);
-            }
-            updateSphere();
-            updateFormulaBox();
-
-            sliderStartX = currentX;
-            if (selectedMode === 'slider_radius') sliderStartValue = radius;
-            else if (selectedMode === 'slider_center') sliderStartValue = centerX;
-            else if (selectedMode === 'slider_centerY') sliderStartValue = centerY;
-            else if (selectedMode === 'slider_centerZ') sliderStartValue = centerZ;
-          }
+          const currentPos = new THREE.Vector3().setFromMatrixPosition(selectedController.matrixWorld)
+          const deltaPos = currentPos.clone().sub(controllerStartPos)
+          axesGroup.position.copy(axesStartPos).add(deltaPos)
         }
 
-        if (formulaMesh) {
-          formulaMesh.lookAt(camera.position);
-        }
-
-        renderer.render(scene, camera);
+        renderer.render(scene, camera)
       }
     </script>
   </body>
