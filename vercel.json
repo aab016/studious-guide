@@ -1,6 +1,58 @@
 {
   "buildCommand": "npm run vendor",
   "installCommand": "npm install",
-  "outputDirectory": "docs"
+  "outputDirectory": "docs",
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/vendor/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, must-revalidate"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/math", "destination": "/math/index.html" },
+    { "source": "/art", "destination": "/art/index.html" },
+    { "source": "/biology", "destination": "/biology/index.html" },
+    { "source": "/chemistry", "destination": "/chemistry/index.html" },
+    { "source": "/citizenship", "destination": "/citizenship/index.html" },
+    { "source": "/english", "destination": "/english/index.html" },
+    { "source": "/geography", "destination": "/geography/index.html" },
+    { "source": "/history", "destination": "/history/index.html" },
+    { "source": "/literature", "destination": "/literature/index.html" },
+    { "source": "/physics", "destination": "/physics/index.html" },
+    { "source": "/demo", "destination": "/demo/index.html" },
+    { "source": "/contributors", "destination": "/contributors/index.html" }
+  ]
 }
-

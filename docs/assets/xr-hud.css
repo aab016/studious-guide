@@ -1,0 +1,351 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@500;600;700&display=swap");
+
+:root {
+  --xr-bg: #0e1114;
+  --xr-panel: rgba(18, 22, 26, 0.94);
+  --xr-line: rgba(255, 255, 255, 0.14);
+  --xr-text: #e8ebe8;
+  --xr-muted: rgba(232, 235, 232, 0.58);
+  --xr-accent: #9fd0c0;
+  --xr-warn: #e2a38a;
+  --xr-font: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --xr-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--xr-bg);
+  color: var(--xr-text);
+  font-family: var(--xr-font);
+}
+
+#panel,
+#screenPanel,
+#info {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: min(340px, calc(100vw - 2rem));
+  z-index: 10;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background: var(--xr-panel);
+  border: 1px solid var(--xr-line);
+  color: var(--xr-text);
+}
+
+#info {
+  right: auto;
+  top: 4.5rem;
+  padding: 0.95rem 1rem;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+#info strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+}
+
+.panel-inner {
+  padding: 1rem;
+}
+
+.ph {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.ph-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ph-sub {
+  font-size: 0.68rem;
+  color: var(--xr-muted);
+}
+
+.sec-label {
+  margin: 0.85rem 0 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--xr-muted);
+  font-weight: 600;
+}
+
+.fx-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fx-lbl {
+  font-family: var(--xr-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--xr-accent);
+}
+
+#fxInput {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--xr-line);
+  padding: 0.4rem 0.55rem;
+  font-family: var(--xr-mono);
+  font-size: 0.8rem;
+  color: var(--xr-text);
+  outline: none;
+}
+
+#fxInput:focus {
+  border-color: var(--xr-accent);
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+#applyBtn,
+#resetBtn,
+.act-btn,
+.cam-btn {
+  font-family: var(--xr-font);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#applyBtn {
+  flex: 2;
+  background: var(--xr-text);
+  color: var(--xr-bg);
+  border: 1px solid var(--xr-text);
+  padding: 0.5rem;
+}
+
+#applyBtn:hover {
+  background: #fff;
+}
+
+#resetBtn {
+  flex: 1;
+  background: transparent;
+  color: var(--xr-text);
+  border: 1px solid var(--xr-line);
+  padding: 0.5rem;
+}
+
+#resetBtn:hover {
+  border-color: var(--xr-text);
+}
+
+#fxError {
+  font-size: 0.68rem;
+  color: var(--xr-warn);
+  min-height: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+.sr,
+.sliderRow {
+  display: grid;
+  grid-template-columns: 24px 1fr 46px;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sliderRow {
+  margin-top: 0.65rem;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.sliderRow span {
+  min-width: 60px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.sn {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--xr-accent);
+}
+
+.sv,
+.valueLabel {
+  font-family: var(--xr-mono);
+  font-size: 0.72rem;
+  text-align: right;
+  color: var(--xr-muted);
+}
+
+.valueLabel {
+  min-width: 50px;
+  color: var(--xr-accent);
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.14);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--xr-accent);
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--xr-accent);
+  cursor: pointer;
+  border: none;
+}
+
+.div {
+  height: 1px;
+  background: var(--xr-line);
+  margin: 0.85rem 0;
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.ex-chip {
+  font-family: var(--xr-mono);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--xr-line);
+  color: var(--xr-muted);
+  cursor: pointer;
+}
+
+.ex-chip:hover {
+  border-color: var(--xr-accent);
+  color: var(--xr-text);
+}
+
+.info-vr {
+  border: 1px solid var(--xr-line);
+  padding: 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--xr-muted);
+}
+
+#formulaBox,
+.formula {
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--xr-line);
+  background: rgba(255, 255, 255, 0.03);
+  font-family: var(--xr-mono);
+  font-size: 0.9rem;
+}
+
+.cam-pad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem auto 0;
+  width: 110px;
+  height: 110px;
+  position: relative;
+}
+
+.cam-btn {
+  position: absolute;
+  background: transparent;
+  border: 1px solid var(--xr-line);
+  color: var(--xr-text);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cam-up { top: 0; left: 41px; }
+.cam-down { bottom: 0; left: 41px; }
+.cam-left { left: 0; top: 41px; }
+.cam-right { right: 0; top: 41px; }
+.cam-z-in { right: 0; top: 0; }
+.cam-z-out { left: 0; top: 0; }
+
+.cam-center {
+  position: absolute;
+  top: 38px;
+  left: 38px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--xr-line);
+  color: var(--xr-accent);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.act-btn {
+  background: transparent;
+  border: 1px solid var(--xr-line);
+  padding: 0.45rem;
+  color: var(--xr-text);
+  text-align: center;
+}
+
+.act-btn.active {
+  border-color: var(--xr-accent);
+  color: var(--xr-accent);
+}
+
+canvas {
+  display: block;
+}

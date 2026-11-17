@@ -6,7 +6,7 @@
     "three": "0.161.0"
   },
   "scripts": {
-    "vendor": "bash vendor.sh",
+    "vendor": "node scripts/vendor.mjs",
     "build": "npm run vendor",
     "wss:server": "node nodejs/wss.js"
   },
